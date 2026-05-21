@@ -1644,14 +1644,14 @@
 </div>
 
 <!-- -- CHARACTER ROSTER OVERLAY -- -->
-<div class="combat-result" id="roster-overlay" role="dialog" aria-modal="true" aria-labelledby="roster-title" style="background:rgba(0,0,0,0.95);padding:30px 20px;justify-content:flex-start;padding-top:60px">
-    <div style="width:100%;max-width:420px">
+<div class="combat-result" id="roster-overlay" role="dialog" aria-modal="true" aria-labelledby="roster-title" style="background:rgba(0,0,0,0.95);padding:30px 20px;justify-content:flex-start;padding-top:60px;touch-action:none;">
+    <div style="width:100%;max-width:420px" onclick="event.stopPropagation()">
         <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px;text-align:center" id="roster-title">Your Characters</div>
         <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:24px;text-align:center" id="roster-sub">Choose a character to play.</div>
 
         <div class="roster-list" id="roster-list"></div>
 
-        <button class="begin-btn" onclick="rosterNewGame()" aria-label="Create a new character" style="margin-bottom:12px">
+        <button class="begin-btn" onclick="rosterNewGame()" aria-label="Create a new character" style="margin-bottom:12px;width:100%">
             + Create New Character
         </button>
         <button class="leave-shop-btn" onclick="document.getElementById('roster-overlay').classList.remove('show')" aria-label="Back to title screen">
@@ -4587,18 +4587,24 @@ function selectCharacter(slot) {
 }
 
 function rosterNewGame() {
-    const roster = getRoster();
-    const filled = roster.filter(Boolean);
-    if (filled.length >= MAX_CHARS) {
-        announce('Maximum ' + MAX_CHARS + ' characters reached. Delete one to create a new character.');
-        return;
+    try {
+        const roster = getRoster();
+        const filled = roster.filter(Boolean);
+        if (filled.length >= MAX_CHARS) {
+            announce('Maximum ' + MAX_CHARS + ' characters reached. Delete one to create a new character.');
+            return;
+        }
+        document.getElementById('roster-overlay').classList.remove('show');
+        let newSlot = 0;
+        while (roster[newSlot]) newSlot++;
+        setCurrentSlot(newSlot);
+        startNewGame();
+    } catch(e) {
+        // If localStorage fails, still let them create a character
+        document.getElementById('roster-overlay').classList.remove('show');
+        setCurrentSlot(0);
+        startNewGame();
     }
-    document.getElementById('roster-overlay').classList.remove('show');
-    // Find first empty slot
-    let newSlot = 0;
-    while (roster[newSlot]) newSlot++;
-    setCurrentSlot(newSlot);
-    startNewGame();
 }
 
 let deleteTargetSlot = null;
@@ -4727,14 +4733,20 @@ function confirmNewGame() {
 }
 
 function startNewGame() {
-    character = null;
-    // Reset stat inputs
-    Object.assign(cStats, { str:5, int:5, dex:5, res:5, per:5, cha:5 });
-    document.getElementById('charName').value = '';
-    document.getElementById('formError').textContent = '';
-    refreshCreate();
-    goToScreen('create');
-    announce('Character creation. Enter your name and distribute your stats.');
+    try {
+        character = null;
+        Object.assign(cStats, { str:5, int:5, dex:5, res:5, per:5, cha:5 });
+        const nameEl = document.getElementById('charName');
+        if (nameEl) nameEl.value = '';
+        const errEl = document.getElementById('formError');
+        if (errEl) errEl.textContent = '';
+        refreshCreate();
+        goToScreen('create');
+        announce('Character creation. Enter your name and distribute your stats.');
+    } catch(e) {
+        // Fallback
+        goToScreen('create');
+    }
 }
 
 function closeConfirm() {
