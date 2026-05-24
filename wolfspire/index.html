@@ -1134,7 +1134,7 @@
         <div class="settings-row">
             <label class="settings-label" for="slider-music">Volume</label>
             <input type="range" id="slider-music" class="settings-slider" min="0" max="100" value="70"
-                aria-label="Music volume" oninput="setVolume('music', this.value)">
+                aria-label="Music volume" oninput="setVolume('music', this.value)" onchange="setVolume('music', this.value)">
             <span class="slider-val" id="val-music">70</span>
         </div>
     </div>
@@ -6577,11 +6577,12 @@ function toggleAudio(type) {
 }
 
 function setVolume(type, value) {
-    audioState[type].volume = value / 100;
+    const vol = parseFloat(value) / 100;
+    audioState[type].volume = vol;
     const val = document.getElementById('val-' + type);
-    if (val) val.textContent = value;
-    if (type === 'music') {
-        musicPlayer.volume = audioState.music.enabled ? audioState.music.volume : 0;
+    if (val) val.textContent = Math.round(vol * 100);
+    if (type === 'music' && audioState.music.enabled) {
+        musicPlayer.volume = vol;
     }
     saveAudioPrefs();
 }
