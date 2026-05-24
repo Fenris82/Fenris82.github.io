@@ -6592,7 +6592,11 @@ function playMusic(trackKey) {
     if (!src) return;
     currentTrackKey = trackKey;
     musicPlayer.src = src;
-    musicPlayer.volume = audioState.music.enabled ? audioState.music.volume : 0;
+    if (!audioState.music.enabled) {
+        musicPlayer.pause();
+        return;
+    }
+    musicPlayer.volume = audioState.music.volume;
     musicPlayer.play().catch(() => {});
 }
 
@@ -6642,9 +6646,9 @@ function closeSettings() {
 }
 
 // -- INIT ------------------------------------------------
+loadAudioPrefs();
 refreshCreate();
 initTitleScreen();
-loadAudioPrefs();
 
 // Sync floating settings button with bottom nav visibility
 const navObserver = new MutationObserver(() => {
