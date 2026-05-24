@@ -924,10 +924,10 @@
         </div>
 
         <div class="title-menu" role="group" aria-label="Main menu">
-            <button class="title-btn primary" onclick="openRoster()" aria-label="Play Wolfspire">
+            <button class="title-btn primary" onclick="playMusic('title');openRoster()" aria-label="Play Wolfspire">
                 <span class="title-btn-icon" aria-hidden="true">▶</span> Play Wolfspire
             </button>
-            <button class="title-btn" onclick="titleSettings()" aria-label="Settings">
+            <button class="title-btn" onclick="playMusic('title');titleSettings()" aria-label="Settings">
                 <span class="title-btn-icon" aria-hidden="true">⚙</span> Settings
             </button>
             <button class="title-btn" onclick="titleAbout()" aria-label="About Wolfspire">
@@ -5865,7 +5865,6 @@ function initTitleScreen() {
     const roster = getRoster();
     const hasChars = roster.filter(Boolean).length > 0;
     announce('Wolfspire. ' + (hasChars ? 'Tap Play to select your character.' : 'Tap Play to create your first character.'));
-    playMusic('title');
 }
 
 function titleNewGame() {
@@ -6501,10 +6500,10 @@ function enterShipwreck() {
 
 // -- AUDIO SYSTEM -----------------------------------------
 const AUDIO_TRACKS = {
-    title:    'audio/music/Wolfspire Title Screen.mp3',
-    town:     'audio/music/Wolfspire Greatwolf City Theme.mp3',
-    dungeon:  'audio/music/Wolfspire Dungeon Theme.mp3',
-    boss:     'audio/music/Wolfspire Boss Theme.mp3',
+    title:    'audio/music/Wolfspire%20Title%20Screen.mp3',
+    town:     'audio/music/Wolfspire%20Greatwolf%20City%20Theme.mp3',
+    dungeon:  'audio/music/Wolfspire%20Dungeon%20Theme.mp3',
+    boss:     'audio/music/Wolfspire%20Boss%20Theme.mp3',
 };
 
 const audioState = {
