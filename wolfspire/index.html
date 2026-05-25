@@ -3356,7 +3356,7 @@ function victory() {
     if (loot) {
         const existing = character.inventory.find(i => i.id === loot.id && i.stackable);
         if (existing) existing.quantity++;
-        else character.inventory.push({ ...loot, quantity: 1 });
+        else character.inventory.push({ ...loot, _uid: generateUid(), quantity: 1 });
     }
 
     // Save dungeon progress
@@ -3595,7 +3595,7 @@ function openTreasureChest() {
         if (!loot) return;
         const existing = character.inventory.find(i => i.id === loot.id && i.stackable);
         if (existing) existing.quantity++;
-        else character.inventory.push({ ...loot, quantity: 1 });
+        else character.inventory.push({ ...loot, _uid: generateUid(), quantity: 1 });
     });
 
     character.dungeonState = { ...dungeonState };
@@ -3962,7 +3962,7 @@ function buyIronholdItem(itemId) {
     const finalPrice = getDiscountedPrice(item.price);
     if (character.gold < finalPrice) { showToast('Not enough gold!'); return; }
     character.gold -= finalPrice;
-    character.inventory.push({ ...item, quantity: 1 });
+    character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 });
     document.getElementById('ironhold-shop-gold').textContent = character.gold;
     saveGame(); populateUI();
     renderIronholdShop();
@@ -4115,7 +4115,7 @@ function renderBag() {
     if (!character) return;
     const bag = document.getElementById('inv-bag');
 
-    // Build indexed list, filter out equipped items by their actual inventory index
+    // Build indexed list, filter out equipped items
     let indexed = character.inventory.map((item, idx) => ({ item, idx }));
     indexed = indexed.filter(({ item, idx }) => !isItemEquipped(item.id, idx));
 
@@ -4132,24 +4132,41 @@ function renderBag() {
         });
     }
 
-    // Apply sort
-    if (invSort === 'az') indexed = [...indexed].sort((a,b) => a.item.name.localeCompare(b.item.name));
+    // Group duplicate non-stackable items by id
+    const grouped = [];
+    const seen = {};
+    indexed.forEach(({ item, idx }) => {
+        if (item.stackable) {
+            grouped.push({ item, idx, count: item.quantity || 1, indices: [idx] });
+        } else {
+            if (seen[item.id] !== undefined) {
+                grouped[seen[item.id]].count++;
+                grouped[seen[item.id]].indices.push(idx);
+            } else {
+                seen[item.id] = grouped.length;
+                grouped.push({ item, idx, count: 1, indices: [idx] });
+            }
+        }
+    });
 
-    if (indexed.length === 0) {
+    // Apply sort
+    if (invSort === 'az') grouped.sort((a,b) => a.item.name.localeCompare(b.item.name));
+
+    if (grouped.length === 0) {
         bag.innerHTML = '<div class="inv-empty">' + (invFilter !== 'all' ? 'No items match this filter.' : 'Your bag is empty. Visit the shop to buy gear and items.') + '</div>';
         return;
     }
 
     bag.innerHTML = '';
-    indexed.forEach(({ item, idx }) => {
-        const qtyBadge = item.stackable && item.quantity > 1
-            ? `<span class="inv-item-badge qty-badge">x${item.quantity}</span>` : '';
+    grouped.forEach(({ item, idx, count, indices }) => {
+        const qty = item.stackable ? (item.quantity || 1) : count;
+        const qtyBadge = qty > 1 ? `<span class="inv-item-badge qty-badge">x${qty}</span>` : '';
 
         const div = document.createElement('div');
         div.className = 'inv-item';
         div.setAttribute('tabindex', '0');
         div.setAttribute('role', 'button');
-        div.setAttribute('aria-label', `${item.name}. ${item.desc}. Tap for options.`);
+        div.setAttribute('aria-label', `${item.name}${qty > 1 ? ', quantity ' + qty : ''}. ${item.desc}. Tap for options.`);
         div.innerHTML = `
             <span class="inv-item-icon" aria-hidden="true">${item.icon}</span>
             <div class="inv-item-info">
@@ -4164,13 +4181,32 @@ function renderBag() {
     });
 }
 
+// -- UID SYSTEM -------------------------------------------
+// Each inventory item gets a unique ID so equipped items can be
+// identified even after inventory order changes
+let _uidCounter = Date.now();
+function generateUid() { return 'uid_' + (_uidCounter++); }
+
+function addToInventory(item) {
+    if (item.stackable) {
+        const existing = character.inventory.find(i => i.id === item.id);
+        if (existing) { existing.quantity = (existing.quantity || 1) + 1; return existing; }
+    }
+    const newItem = { ...item, _uid: generateUid(), quantity: item.stackable ? 1 : undefined };
+    character.inventory.push(newItem);
+    return newItem;
+}
+
 function isItemEquipped(itemId, invIndex) {
     if (!character) return false;
+    const invItem = invIndex !== undefined ? character.inventory[invIndex] : null;
     return Object.values(character.equipment).some(e => {
         if (!e) return false;
-        // If we have a specific inventory index, match by that
+        // Best match: uid
+        if (invItem && invItem._uid && e._uid) return e._uid === invItem._uid;
+        // Legacy: invIndex
         if (invIndex !== undefined && e.invIndex !== undefined) return e.invIndex === invIndex;
-        // Otherwise fall back to id match (for legacy saves and stackables)
+        // Fallback: id
         return e.id === itemId;
     });
 }
@@ -4179,10 +4215,17 @@ function slotClick(slotId) {
     if (!character) return;
     const equipped = character.equipment[slotId];
     if (!equipped) return;
-    // Use the stored invIndex if available, otherwise fall back to findIndex
-    const invIndex = equipped.invIndex !== undefined
-        ? equipped.invIndex
-        : character.inventory.findIndex(i => i.id === equipped.id);
+    // Find by uid first, then invIndex, then id
+    let invIndex = -1;
+    if (equipped._uid) {
+        invIndex = character.inventory.findIndex(i => i._uid === equipped._uid);
+    }
+    if (invIndex === -1 && equipped.invIndex !== undefined) {
+        invIndex = equipped.invIndex;
+    }
+    if (invIndex === -1) {
+        invIndex = character.inventory.findIndex(i => i.id === equipped.id);
+    }
     if (invIndex !== -1) openDetail(invIndex);
 }
 
@@ -4257,19 +4300,19 @@ function equipFromDetail() {
     let targetSlot = possibleSlots.find(s => !character.equipment[s]);
     if (!targetSlot) targetSlot = possibleSlots[0];
 
-    // If replacing an item in the target slot, clear its invIndex reference
-    // (the old item stays in inventory, just no longer marked equipped)
-
-    // Equip into the resolved slot — store invIndex so identical items can be told apart
+    // Equip into the resolved slot — store _uid so identical items can be told apart regardless of inventory order
     character.equipment[targetSlot] = {
         id: item.id,
-        invIndex: invIndex,
+        _uid: item._uid || generateUid(),
         name: item.name,
         icon: item.icon,
         desc: item.desc,
         tags: item.tags,
         stat: item.stat,
-        slot: item.slot
+        slot: item.slot,
+        special: item.special,
+        dmg: item.dmg,
+        type: item.type
     };
 
     saveGame();
@@ -4277,21 +4320,19 @@ function equipFromDetail() {
     renderBag();
     closeDetail();
     showToast(`${item.name} equipped!`);
-    announce(`${item.name} equipped to ${slotType} slot.`);
+    announce(`${item.name} equipped to ${targetSlot === 'offHand' ? 'off hand' : targetSlot.replace(/[0-9]+$/, '')} slot.`);
 }
 
 function unequipFromDetail() {
     if (!detailItem) return;
     const item = detailItem;
-    const invIndex = detailInvIndex;
 
-    // Find which slot it's in — match by invIndex if available, otherwise by id
     for (const slotId of Object.keys(character.equipment)) {
         const e = character.equipment[slotId];
         if (!e) continue;
-        const matches = (e.invIndex !== undefined && invIndex !== undefined)
-            ? e.invIndex === invIndex
-            : e.id === item.id;
+        const matches = (e._uid && item._uid) ? e._uid === item._uid
+                      : (e.invIndex !== undefined && detailInvIndex !== undefined) ? e.invIndex === detailInvIndex
+                      : e.id === item.id;
         if (matches) {
             character.equipment[slotId] = null;
             break;
@@ -5059,19 +5100,35 @@ function getSellValue(item) {
 
 function renderSellTab() {
     const panel = document.getElementById('shop-sell');
-    const sellable = character.inventory.filter((i, idx) => !isItemEquipped(i.id, idx));
+    const sellable = character.inventory.map((i, idx) => ({ item: i, idx }))
+        .filter(({ item, idx }) => !isItemEquipped(item.id, idx));
 
     if (sellable.length === 0) {
         panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Defeat enemies and find loot to bring back.</div>';
         return;
     }
 
+    // Group duplicates
+    const grouped = [];
+    const seen = {};
+    sellable.forEach(({ item, idx }) => {
+        if (item.stackable) {
+            grouped.push({ item, idx, count: item.quantity || 1 });
+        } else {
+            if (seen[item.id] !== undefined) {
+                grouped[seen[item.id]].count++;
+            } else {
+                seen[item.id] = grouped.length;
+                grouped.push({ item, idx, count: 1 });
+            }
+        }
+    });
+
     panel.innerHTML = '';
-    sellable.forEach(item => {
+    grouped.forEach(({ item, idx, count }) => {
         const value = getSellValue(item);
-        const qty = item.stackable && item.quantity > 1 ? ` (x${item.quantity})` : '';
-        const totalVal = item.stackable ? value * item.quantity : value;
-        const realIndex = character.inventory.indexOf(item);
+        const totalVal = value * count;
+        const qty = count > 1 ? ` (x${count})` : '';
 
         const div = document.createElement('div');
         div.className = 'shop-item';
@@ -5085,12 +5142,43 @@ function renderSellTab() {
             <div class="shop-item-buy">
                 <div class="shop-item-price">${totalVal}g</div>
                 <button class="buy-btn" style="background:linear-gradient(135deg,#5a3a1a,#8a6030);color:#f0e0c0"
-                    onclick="promptSell(${realIndex})"
-                    aria-label="Sell ${item.name} for ${totalVal} gold">Sell</button>
+                    onclick="promptSellGroup('${item.id}', ${count}, ${value})"
+                    aria-label="Sell ${item.name}${qty} for ${totalVal} gold">Sell</button>
             </div>
         `;
         panel.appendChild(div);
     });
+}
+
+function promptSellGroup(itemId, count, valueEach) {
+    // Find first unequipped instance
+    const idx = character.inventory.findIndex((i, idx) => i.id === itemId && !isItemEquipped(i.id, idx));
+    if (idx === -1) return;
+    const item = character.inventory[idx];
+    sellPendingIndex = idx;
+
+    document.getElementById('sell-confirm-title').textContent = `Sell ${item.name}?`;
+    if (count > 1) {
+        document.getElementById('sell-confirm-body').textContent = `You have ${count}. How many would you like to sell? (${valueEach}g each)`;
+        document.getElementById('sell-qty-row').style.display = 'block';
+        const input = document.getElementById('sell-qty-input');
+        input.max = count;
+        input.value = count;
+        input.setAttribute('data-sell-id', itemId);
+        input.setAttribute('data-sell-each', valueEach);
+        updateSellPreview();
+    } else if (item.stackable && item.quantity > 1) {
+        document.getElementById('sell-confirm-body').textContent = `You have ${item.quantity}. How many would you like to sell?`;
+        document.getElementById('sell-qty-row').style.display = 'block';
+        const input = document.getElementById('sell-qty-input');
+        input.max = item.quantity;
+        input.value = item.quantity;
+        updateSellPreview();
+    } else {
+        document.getElementById('sell-confirm-body').textContent = `You will receive ${valueEach} gold.`;
+        document.getElementById('sell-qty-row').style.display = 'none';
+    }
+    document.getElementById('sell-confirm-overlay').classList.add('show');
 }
 
 function promptSell(invIndex) {
@@ -5149,23 +5237,39 @@ function confirmSell() {
 
     const value = getSellValue(item);
     let qty = 1;
+    const input = document.getElementById('sell-qty-input');
+    const sellId = input.getAttribute('data-sell-id');
+    const sellEach = parseInt(input.getAttribute('data-sell-each') || value);
 
     if (item.stackable && item.quantity > 1) {
-        const input = document.getElementById('sell-qty-input');
         qty = Math.max(1, Math.min(parseInt(input.value) || 1, item.quantity));
+    } else if (!item.stackable && input.style.display !== 'none' && sellId === item.id) {
+        // Selling multiple duplicates
+        const maxCount = parseInt(input.max) || 1;
+        qty = Math.max(1, Math.min(parseInt(input.value) || 1, maxCount));
     }
 
-    const totalVal = value * qty;
+    const totalVal = (item.stackable ? value : sellEach) * qty;
     const name = item.name;
-
     character.gold += totalVal;
 
     if (item.stackable) {
         item.quantity -= qty;
         if (item.quantity <= 0) character.inventory.splice(sellPendingIndex, 1);
     } else {
-        character.inventory.splice(sellPendingIndex, 1);
+        // Remove qty instances of this item id from inventory
+        let removed = 0;
+        for (let i = character.inventory.length - 1; i >= 0 && removed < qty; i--) {
+            if (character.inventory[i].id === item.id && !isItemEquipped(item.id, i)) {
+                character.inventory.splice(i, 1);
+                removed++;
+            }
+        }
     }
+
+    // Clear data attributes
+    input.removeAttribute('data-sell-id');
+    input.removeAttribute('data-sell-each');
 
     saveGame(); populateUI();
     document.getElementById('shop-gold').textContent = character.gold;
@@ -5887,6 +5991,12 @@ function loadCharacterFromSlot(slot) {
         if (character.ironholdVisited === undefined) character.ironholdVisited = false;
         if (character.sunportVisited === undefined) character.sunportVisited = false;
         if (!character.journal) character.journal = [];
+        // Migrate legacy inventory items to have uids
+        if (character.inventory) {
+            character.inventory.forEach(item => {
+                if (!item._uid) item._uid = generateUid();
+            });
+        }
         // Add new equipment slots to old saves
         if (!character.equipment) character.equipment = {};
         if (character.equipment.mantle === undefined) character.equipment.mantle = null;
@@ -6357,9 +6467,9 @@ function buyWolfhavenItem(itemId) {
     if (item.stackable) {
         const existing = character.inventory.find(i => i.id === item.id);
         if (existing) { existing.quantity++; }
-        else { character.inventory.push({ ...item, quantity: 1 }); }
+        else { character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 }); }
     } else {
-        character.inventory.push({ ...item });
+        character.inventory.push({ ...item, _uid: generateUid() });
     }
 
     saveGame(); populateUI();
@@ -6683,9 +6793,9 @@ function buySunportItem(itemId) {
     if (item.stackable) {
         const existing = character.inventory.find(i => i.id === item.id);
         if (existing) { existing.quantity++; }
-        else { character.inventory.push({ ...item, quantity: 1 }); }
+        else { character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 }); }
     } else {
-        character.inventory.push({ ...item });
+        character.inventory.push({ ...item, _uid: generateUid() });
     }
 
     saveGame(); populateUI();
