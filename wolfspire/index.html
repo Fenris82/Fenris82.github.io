@@ -1042,7 +1042,7 @@
         </div>
 
         <div class="points-bar">Points Remaining: <span id="pts">0</span></div>
-        <button class="begin-btn" onclick="createCharacter()">Begin Your Journey</button>
+        <button class="begin-btn" id="btn-begin" onclick="createCharacter()" disabled>Begin Your Journey</button>
         <div id="formError" class="form-error" role="alert" aria-live="assertive"></div>
     </div>
 </div>
@@ -1338,7 +1338,7 @@
             </div>
         </div>
 
-        <button class="leave-shop-btn" onclick="goToScreen('town')" aria-label="Leave the inn">
+        <button class="leave-shop-btn" onclick="returnToCurrentTown()" aria-label="Leave the inn">
             Leave Inn
         </button>
     </div>
@@ -1610,7 +1610,7 @@
     <div class="shop-panel active" id="training-skills" role="tabpanel"></div>
     <div class="shop-panel" id="training-spells" role="tabpanel"></div>
 
-    <button class="leave-shop-btn" onclick="goToScreen('town')" aria-label="Leave training grounds">
+    <button class="leave-shop-btn" onclick="returnToCurrentTown()" aria-label="Leave training grounds">
         Leave Grounds
     </button>
 </div>
@@ -1895,7 +1895,7 @@
     <!-- Sell -->
     <div class="shop-panel" id="shop-sell" role="tabpanel" aria-labelledby="tab-sell"></div>
 
-    <button class="leave-shop-btn" onclick="goToScreen('town')" aria-label="Leave the shop and return to town">
+    <button class="leave-shop-btn" onclick="returnToCurrentTown()" aria-label="Leave the shop and return to town">
         Leave Shop
     </button>
 </div>
@@ -2242,7 +2242,7 @@
 
 <!-- -- BOTTOM NAV -- -->
 <nav class="bottom-nav" id="bottomNav" role="navigation" aria-label="Main navigation">
-    <button class="nav-btn active" id="nav-town" onclick="goToScreen('town');setActiveNav('nav-town')" aria-label="Town" aria-current="page">
+    <button class="nav-btn active" id="nav-town" onclick="returnToCurrentTown()" aria-label="Town" aria-current="page">
         <span class="nav-icon" aria-hidden="true">🏘</span><span class="nav-label">Town</span>
     </button>
     <button class="nav-btn" id="nav-character" onclick="goToScreen('character');setActiveNav('nav-character')" aria-label="Character">
@@ -2332,6 +2332,7 @@ const cStats = { str:5, int:5, dex:5, res:5, per:5, cha:5 };
 const POOL = 20, BASE = 20;
 let character = null;
 let combat = null;
+let currentTown = 'town'; // tracks which town the player is currently in
 
 function pickEnemy() {
     const floor = dungeonState ? dungeonState.floor : 1;
@@ -2418,11 +2419,17 @@ function dec(s, label) {
 
 function refreshCreate() {
     const left = pointsLeft();
+    const total = 20; // starting points
+    const spent = total - left;
     document.getElementById('pts').textContent = left;
     ['str','int','dex','res','per','cha'].forEach(s => {
         document.getElementById('val-'+s).textContent = cStats[s];
     });
-    // Update button states safely
+    // Enable Begin button only if at least one point spent
+    const beginBtn = document.getElementById('btn-begin');
+    if (beginBtn) beginBtn.disabled = spent === 0;
+
+    // Update stat button states
     const statKeys = ['str','int','dex','res','per','cha'];
     statKeys.forEach(s => {
         const allBtns = document.querySelectorAll('.stat-btn');
@@ -2621,6 +2628,9 @@ function goToScreen(id) {
     if (id === 'title' || id === 'create') {
         document.getElementById('bottomNav').classList.remove('visible');
     }
+    // Track current town
+    if (['town','ironhold','sunport','wolfhaven'].includes(id)) currentTown = id;
+
     // Music routing
     if (['town','ironhold','sunport','wolfhaven','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
@@ -6567,6 +6577,11 @@ function addJournalEntry(entry) {
     saveGame();
     showToast('📖 Journal updated!');
     announce('New journal entry added: ' + entry.title);
+}
+
+function returnToCurrentTown() {
+    goToScreen(currentTown || 'town');
+    setActiveNav('nav-town');
 }
 
 function setActiveNav(navId) {
