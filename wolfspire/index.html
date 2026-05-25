@@ -4289,10 +4289,10 @@ function equipFromDetail() {
     // We use the item's actual slot for SLOT_MAP but allow offHand as override
     let possibleSlots = SLOT_MAP[slotType] || [rawSlot];
 
-    // If it's a mainHand weapon and player has dual wield, add offHand as an option
+    // If it's a weapon and player has dual wield, offHand is always an option
     const hasDualWield = (character.skills || []).includes('dual_wield');
-    const isOneHanded = item.tags && item.tags.includes('One-Handed');
-    if (slotType === 'mainHand' && hasDualWield && isOneHanded) {
+    const isWeapon = item.slot === 'mainHand';
+    if (isWeapon && hasDualWield) {
         possibleSlots = ['mainHand', 'offHand'];
     }
 
@@ -4676,7 +4676,7 @@ const SKILLS_DATA = [
     },
     {
         id:'dual_wield', icon:'⚔', name:'Dual Wield', type:'skill',
-        desc:'Unlocks the ability to equip a one-handed weapon in your off hand slot. When a second weapon is equipped, the Attack button splits — choose which weapon to strike with each turn.',
+        desc:'Unlocks the ability to equip any weapon in your off hand slot. When a second weapon is equipped, the Attack button splits — choose which weapon to strike with each turn. Axes, bows, staves, guns — no restrictions.',
         stat:'Passive — Off Hand Weapon', price:75, cooldown:0, mpCost:0,
         tags:['Skill','Passive'],
         passive: true,
