@@ -4509,18 +4509,15 @@ function slotClick(slotId) {
     if (!character) return;
     const equipped = character.equipment[slotId];
     if (!equipped) return;
-    // Find by uid first, then invIndex, then id
+    // Find by uid first, then id
     let invIndex = -1;
     if (equipped._uid) {
         invIndex = character.inventory.findIndex(i => i._uid === equipped._uid);
     }
-    if (invIndex === -1 && equipped.invIndex !== undefined) {
-        invIndex = equipped.invIndex;
-    }
     if (invIndex === -1) {
         invIndex = character.inventory.findIndex(i => i.id === equipped.id);
     }
-    if (invIndex !== -1) openDetail(invIndex);
+    if (invIndex !== -1) openDetail(invIndex, slotId);
 }
 
 function openDetail(invIndex, equippedSlot) {
@@ -4534,18 +4531,19 @@ function openDetail(invIndex, equippedSlot) {
     document.getElementById('detail-desc').textContent = item.desc;
     document.getElementById('detail-stat').textContent = item.stat;
 
-    // Tags
-    const tagHTML = item.tags.map(t => `<span class="shop-tag">${t}<\/span>`).join('');
+    const tagHTML = (item.tags || []).map(t => `<span class="shop-tag">${t}<\/span>`).join('');
     document.getElementById('detail-tags').innerHTML = tagHTML;
 
     const equipBtn = document.getElementById('detail-equip-btn');
     const unequipBtn = document.getElementById('detail-unequip-btn');
     const useBtn = document.getElementById('detail-use-btn');
 
-    const isEquipped = isItemEquipped(item.id, invIndex);
+    // If opened by tapping an equipped slot, always show Unequip
+    const isEquipped = equippedSlot
+        ? !!character.equipment[equippedSlot]
+        : isItemEquipped(item.id, invIndex);
 
     if (item.stackable) {
-        // Consumable -- show Use button
         equipBtn.style.display = 'none';
         unequipBtn.style.display = 'none';
         useBtn.style.display = 'flex';
