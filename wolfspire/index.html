@@ -4516,7 +4516,17 @@ function slotClick(slotId) {
     if (invIndex === -1) {
         invIndex = character.inventory.findIndex(i => i.id === equipped.id);
     }
-    if (invIndex !== -1) openDetail(invIndex, slotId);
+    // Ghost slot safety net — item no longer exists in inventory, just clear the slot
+    if (invIndex === -1) {
+        character.equipment[slotId] = null;
+        saveGame();
+        renderEquipSlots();
+        renderBag();
+        showToast('Slot cleared.');
+        announce('Equipment slot cleared.');
+        return;
+    }
+    openDetail(invIndex, slotId);
 }
 
 function openDetail(invIndex, equippedSlot) {
@@ -5562,6 +5572,14 @@ function confirmSell() {
     if (sellPendingIndex === null) return;
     const item = character.inventory[sellPendingIndex];
     if (!item) { closeSellConfirm(); return; }
+
+    // Safety net — never sell an equipped item regardless of display state
+    if (isItemEquipped(item.id, sellPendingIndex)) {
+        closeSellConfirm();
+        showToast(`${item.name} is equipped and cannot be sold.`);
+        announce(`${item.name} is currently equipped. Unequip it first.`);
+        return;
+    }
 
     const value = getSellValue(item);
     let qty = 1;
