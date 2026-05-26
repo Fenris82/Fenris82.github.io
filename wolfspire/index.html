@@ -908,11 +908,180 @@
         .nav-btn.active .nav-icon { transform: translateY(-2px); }
         .nav-btn:hover { color: var(--gold-light); }
         .nav-btn:focus { outline: 3px solid var(--gold); outline-offset: -3px; border-radius: 8px; }
+
+        /* game-content base — mobile just passes through, desktop gets layout */
+        #game-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Hide desktop panels on mobile */
+        #desktop-right-panel { display: none; }
+
+        /* -- DESKTOP / TABLET LAYOUT -- */
+        @media (min-width: 900px) {
+            :root {
+                --nav-height: 0px;
+                --sidebar-width: 240px;
+                --right-width: 300px;
+            }
+
+            body { flex-direction: row; overflow: hidden; position: relative; }
+
+            /* Sidebar nav replaces bottom nav */
+            .bottom-nav {
+                display: flex !important;
+                position: fixed !important;
+                top: 0; left: 0; bottom: 0;
+                width: var(--sidebar-width) !important;
+                height: 100vh !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+                border-top: none !important;
+                border-right: 1px solid #2a2a44 !important;
+                padding: 16px 10px !important;
+                gap: 4px;
+                overflow-y: auto;
+                z-index: 100;
+            }
+
+            .bottom-nav::before {
+                content: '🐺  Wolfspire';
+                font-family: 'Cinzel', serif;
+                font-size: 0.9em;
+                font-weight: 700;
+                color: var(--gold);
+                padding: 8px 14px 18px;
+                border-bottom: 1px solid #2a2a44;
+                margin-bottom: 10px;
+                display: block;
+                flex-shrink: 0;
+            }
+
+            .nav-btn {
+                flex: none !important;
+                flex-direction: row !important;
+                justify-content: flex-start !important;
+                gap: 12px !important;
+                padding: 11px 14px !important;
+                border-radius: 8px !important;
+                font-family: 'Cinzel', serif;
+                font-size: 0.82em;
+                letter-spacing: 0.05em;
+                width: 100%;
+            }
+
+            .nav-icon { font-size: 1.2em !important; }
+            .nav-label { display: block !important; }
+
+            /* Main scrollable content */
+            #game-content {
+                margin-left: var(--sidebar-width);
+                margin-right: var(--right-width);
+                flex: 1;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+            }
+
+            .screen { padding: 24px 32px 24px !important; }
+            #screen-combat { padding: 20px 24px !important; }
+
+            /* Right panel — inventory outside combat, log during combat */
+            #desktop-right-panel {
+                position: fixed;
+                top: 0; right: 0; bottom: 0;
+                width: var(--right-width);
+                background: var(--bg-panel);
+                border-left: 1px solid #2a2a44;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                z-index: 50;
+            }
+
+            .desktop-panel-title {
+                font-family: 'Cinzel', serif;
+                font-size: 0.78em;
+                letter-spacing: 0.15em;
+                color: var(--gold-dim);
+                text-transform: uppercase;
+                padding: 16px 18px 10px;
+                border-bottom: 1px solid #2a2a44;
+                flex-shrink: 0;
+            }
+
+            #desktop-equip-panel {
+                overflow-y: auto;
+                flex: 1;
+                padding: 12px;
+            }
+
+            #desktop-inv-panel {
+                overflow-y: auto;
+                flex: 1;
+                padding: 10px;
+            }
+
+            #desktop-log-panel {
+                overflow-y: auto;
+                flex: 1;
+                padding: 10px;
+                display: none;
+            }
+
+            /* Float settings repositioned */
+            #float-settings-btn {
+                bottom: 16px !important;
+                left: calc(var(--sidebar-width) + 16px) !important;
+                right: auto !important;
+            }
+
+            /* Overlays constrained to center */
+            .confirm-overlay {
+                left: var(--sidebar-width) !important;
+                right: var(--right-width) !important;
+            }
+
+            /* Wider content for bigger screens */
+            .games-grid, .about-grid { max-width: 100%; }
+        }
+
+        /* iPad/tablet — no right panel, just sidebar */
+        @media (min-width: 900px) and (max-width: 1199px) {
+            :root { --right-width: 0px; }
+            #desktop-right-panel { display: none !important; }
+            #game-content { margin-right: 0 !important; }
+            .confirm-overlay { right: 0 !important; }
+        }
     </style>
 </head>
 <body>
 
 <div id="sr-announce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Desktop right panel -->
+<div id="desktop-right-panel" aria-label="Equipment and inventory panel">
+    <div id="desktop-right-top">
+        <div class="desktop-panel-title" id="desktop-panel-title">⚔ Equipment</div>
+        <div id="desktop-equip-panel"></div>
+    </div>
+    <div style="border-top:1px solid #2a2a44;flex-shrink:0">
+        <div class="desktop-panel-title">🎒 Inventory</div>
+        <div id="desktop-inv-panel"></div>
+    </div>
+    <div id="desktop-log-panel">
+        <div class="desktop-panel-title">📜 Combat Log</div>
+        <div id="desktop-log-entries" style="padding:8px;display:flex;flex-direction:column;gap:4px"></div>
+    </div>
+</div>
+
+<div id="game-content">
 
 <!-- -- TITLE SCREEN -- -->
 <div id="screen-title" class="screen active" role="main" aria-label="Wolfspire Title Screen">
@@ -933,10 +1102,19 @@
             <button class="title-btn" onclick="titleAbout()" aria-label="About Wolfspire">
                 <span class="title-btn-icon" aria-hidden="true">📖</span> About
             </button>
+            <button class="title-btn" onclick="exportSave()" aria-label="Export save data to a file">
+                <span class="title-btn-icon" aria-hidden="true">📤</span> Export Save
+            </button>
+            <button class="title-btn" onclick="triggerImport()" aria-label="Import save data from a file">
+                <span class="title-btn-icon" aria-hidden="true">📥</span> Import Save
+            </button>
             <button class="title-btn" onclick="window.open('https://discord.gg/yPhTvK9Eq','_blank')" aria-label="Join the Greatwolf Games Discord">
                 <span class="title-btn-icon" aria-hidden="true">💬</span> Discord
             </button>
         </div>
+
+        <!-- Hidden file input for import -->
+        <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importSave(event)">
 
         <div class="title-footer">greatwolfgames.com</div>
     </div>
@@ -1098,10 +1276,10 @@
             <span class="btn-label">Training</span>
             <span class="btn-sub">Fennyx's Grounds</span>
         </button>
-        <button class="menu-btn" disabled aria-label="Forge, coming soon">
+        <button class="menu-btn" onclick="openForge()" aria-label="Visit the Forge to upgrade your equipment">
             <span class="btn-icon" aria-hidden="true">🔨</span>
             <span class="btn-label">Forge</span>
-            <span class="btn-sub">Coming soon</span>
+            <span class="btn-sub">Upgrade your gear</span>
         </button>
         <button class="menu-btn" onclick="openInn()" aria-label="Visit the inn">
             <span class="btn-icon" aria-hidden="true">🏠</span>
@@ -1186,10 +1364,31 @@
         </div>
     </div>
 
+    <!-- Save Transfer -->
+    <div class="settings-group" style="margin-top:16px" aria-labelledby="settings-transfer-heading">
+        <div class="settings-group-title" id="settings-transfer-heading">
+            <span aria-hidden="true">💾</span> Save Transfer
+        </div>
+        <p style="font-size:0.9em;color:var(--text-dim);line-height:1.6;margin-bottom:14px">
+            Export your save to a file and import it on another device. Move your progress between mobile and PC anytime.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="buy-btn" style="flex:1;padding:12px;font-size:0.85em" onclick="exportSave()" aria-label="Export save data to a file">
+                📤 Export Save
+            </button>
+            <button class="buy-btn" style="flex:1;padding:12px;font-size:0.85em;background:linear-gradient(135deg,#1a3a5a,#2a5a8a);color:#c0e0f0" onclick="triggerImport()" aria-label="Import save data from a file">
+                📥 Import Save
+            </button>
+        </div>
+    </div>
+
     <button class="leave-shop-btn" onclick="closeSettings()" aria-label="Close settings">
         Done
     </button>
-</div>
+
+</div><!-- end screen-settings -->
+
+</div><!-- end screen-settings -->
 
 <!-- -- JOURNAL -- -->
 <div id="screen-journal" class="screen" role="main" aria-label="Journal">
@@ -1377,6 +1576,11 @@
             <span class="btn-icon" aria-hidden="true">⚒</span>
             <span class="btn-label">Forge Shop</span>
             <span class="btn-sub">Brundar's Goods</span>
+        </button>
+        <button class="menu-btn" onclick="openTransmutation()" aria-label="Visit the Transmutation Chamber">
+            <span class="btn-icon" aria-hidden="true">✨</span>
+            <span class="btn-label">Transmutation</span>
+            <span class="btn-sub">Transform your gear</span>
         </button>
         <button class="menu-btn" onclick="enterIronDepths()" aria-label="Enter the Iron Depths dungeon">
             <span class="btn-icon" aria-hidden="true">⛏</span>
@@ -1582,6 +1786,69 @@
 
     <button class="leave-shop-btn" onclick="goToScreen('wolfhaven')" aria-label="Leave the Grove Sanctum">
         Leave Sanctum
+    </button>
+</div>
+
+<!-- -- FORGE -- -->
+<div id="screen-forge" class="screen" role="main" aria-label="The Forge">
+    <p class="screen-header">Welcome to</p>
+    <h2 class="screen-title">The Forge</h2>
+
+    <div class="shopkeeper-banner" aria-label="Forgemaster's greeting">
+        <span class="shopkeeper-icon" aria-hidden="true">🔨</span>
+        <div>
+            <div class="shopkeeper-name">Aldric the Forgemaster</div>
+            <div class="shopkeeper-quote" id="forge-quote">"Bring me iron and gold. I'll make your gear sing."</div>
+        </div>
+    </div>
+
+    <div class="shop-gold-bar" aria-live="polite">
+        <span aria-hidden="true">💰</span> Your Gold: <span id="forge-gold">0</span>
+    </div>
+
+    <div style="margin-top:8px;font-size:0.85em;color:var(--text-dim);font-style:italic;margin-bottom:16px">
+        Select a weapon or armor piece to upgrade. Sacrifices items from your inventory — the more items you have to offer, the higher you can forge. Relics cannot be forged.
+    </div>
+
+    <div id="forge-item-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="forge-empty" style="display:none;padding:32px 0;text-align:center;color:var(--text-dim);font-style:italic">
+        No forgeable items in your inventory. Acquire weapons or armor first.
+    </div>
+
+    <button class="leave-shop-btn" onclick="returnToCurrentTown()" aria-label="Leave the Forge">
+        Leave Forge
+    </button>
+</div>
+
+<!-- -- TRANSMUTATION -- -->
+<div id="screen-transmutation" class="screen" role="main" aria-label="Transmutation Chamber">
+    <p class="screen-header">Welcome to the</p>
+    <h2 class="screen-title">Transmutation</h2>
+
+    <div class="shopkeeper-banner" aria-label="Brundar's greeting">
+        <span class="shopkeeper-icon" aria-hidden="true">✨</span>
+        <div>
+            <div class="shopkeeper-name">Brundar Ironhand</div>
+            <div class="shopkeeper-quote" id="transmute-quote">"The form changes. The soul remains."</div>
+        </div>
+    </div>
+
+    <div class="shop-gold-bar" aria-live="polite">
+        <span aria-hidden="true">💰</span> Your Gold: <span id="transmute-gold">0</span>
+    </div>
+
+    <div style="margin-top:8px;font-size:0.85em;color:var(--text-dim);font-style:italic;margin-bottom:16px">
+        Choose a weapon to transmute. Its stats stay the same — only its form changes. Costs 150 gold.
+    </div>
+
+    <div id="transmute-step1" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div id="transmute-step2" style="display:none"></div>
+    <div id="transmute-empty" style="display:none;padding:32px 0;text-align:center;color:var(--text-dim);font-style:italic">
+        No weapons in your inventory to transmute.
+    </div>
+
+    <button class="leave-shop-btn" onclick="goToScreen('ironhold')" aria-label="Leave Transmutation">
+        Leave
     </button>
 </div>
 
@@ -2266,6 +2533,8 @@
     ⚙
 </button>
 
+</div><!-- end game-content -->
+
 <script>
 // -- ENEMIES ----------------------------------------------
 
@@ -2505,6 +2774,7 @@ function loadGame() {
         populateUI();
         goToScreen('town');
         document.getElementById('bottomNav').classList.add('visible');
+        updateDesktopPanels();
         return true;
     }
     return false;
@@ -2564,6 +2834,7 @@ function populateUI() {
     });
 
     renderCharAbilities();
+    updateDesktopPanels();
 }
 
 function renderCharAbilities() {
@@ -2593,15 +2864,15 @@ function renderCharAbilities() {
         div.style.cssText = 'display:flex;align-items:center;gap:12px;background:var(--bg-deep);border:1px solid #2a2a44;border-radius:8px;padding:10px 14px';
         div.setAttribute('aria-label', `${ability.name}. ${typeLabel}. ${ability.desc}`);
         div.innerHTML = `
-            <span style="font-size:1.4em" aria-hidden="true">${ability.icon}</span>
+            <span style="font-size:1.4em" aria-hidden="true">${ability.icon}<\/span>
             <div style="flex:1;min-width:0">
-                <div style="font-family:'Cinzel',serif;font-size:0.9em;font-weight:700;color:var(--gold)">${ability.name}</div>
-                <div style="font-size:0.85em;color:var(--text-dim);line-height:1.5">${ability.desc}</div>
-            </div>
+                <div style="font-family:'Cinzel',serif;font-size:0.9em;font-weight:700;color:var(--gold)">${ability.name}<\/div>
+                <div style="font-size:0.85em;color:var(--text-dim);line-height:1.5">${ability.desc}<\/div>
+            <\/div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
-                <span style="font-family:'Cinzel',serif;font-size:0.65em;color:${typeColor};border:1px solid ${typeColor}33;border-radius:4px;padding:2px 6px">${typeLabel}</span>
-                <span style="font-family:'Cinzel',serif;font-size:0.65em;color:var(--text-dim)">${mpLabel}</span>
-            </div>
+                <span style="font-family:'Cinzel',serif;font-size:0.65em;color:${typeColor};border:1px solid ${typeColor}33;border-radius:4px;padding:2px 6px">${typeLabel}<\/span>
+                <span style="font-family:'Cinzel',serif;font-size:0.65em;color:var(--text-dim)">${mpLabel}<\/span>
+            <\/div>
         `;
         list.appendChild(div);
     });
@@ -2802,6 +3073,10 @@ function startNextEncounter() {
     document.getElementById('btn-defend').classList.remove('defending');
     document.getElementById('bottomNav').classList.remove('visible');
     updateAttackButtons();
+    // Show desktop combat log
+    const logEntries = document.getElementById('desktop-log-entries');
+    if (logEntries) logEntries.innerHTML = '';
+    showDesktopCombatLog();
     // Play boss or dungeon music
     playMusic(isBoss ? 'boss' : 'dungeon');
     goToScreen('combat');
@@ -2849,6 +3124,8 @@ function addLog(msg, type) {
     entry.textContent = msg;
     log.appendChild(entry);
     log.scrollTop = log.scrollHeight;
+    // Mirror to desktop right panel
+    addDesktopLogEntry(msg, type);
 }
 
 function setActionsEnabled(enabled) {
@@ -2874,7 +3151,7 @@ function openCombatItems() {
     const consumables = character.inventory.filter(i => i.stackable && i.quantity > 0 && USABLE_IN_COMBAT.includes(i.id));
 
     if (consumables.length === 0) {
-        list.innerHTML = '<div class="combat-no-items">No items available.</div>';
+        list.innerHTML = '<div class="combat-no-items">No items available.<\/div>';
     } else {
         list.innerHTML = '';
         consumables.forEach(item => {
@@ -2882,12 +3159,12 @@ function openCombatItems() {
             btn.className = 'combat-use-item';
             btn.setAttribute('aria-label', `Use ${item.name}. Quantity: ${item.quantity}.`);
             btn.innerHTML = `
-                <span class="combat-use-icon" aria-hidden="true">${item.icon}</span>
+                <span class="combat-use-icon" aria-hidden="true">${item.icon}<\/span>
                 <div class="combat-use-info">
-                    <div class="combat-use-name">${item.name}</div>
-                    <div class="combat-use-desc">${item.desc}</div>
-                </div>
-                <span class="combat-use-qty">x${item.quantity}</span>
+                    <div class="combat-use-name">${item.name}<\/div>
+                    <div class="combat-use-desc">${item.desc}<\/div>
+                <\/div>
+                <span class="combat-use-qty">x${item.quantity}<\/span>
             `;
             btn.onclick = () => useCombatItem(item.id);
             list.appendChild(btn);
@@ -2931,7 +3208,7 @@ function useCombatItem(itemId) {
         logMsg = `You prime a Smoke Bomb. Your next retreat attempt is guaranteed!`;
         announceMsg = `Smoke Bomb ready. Your next retreat will succeed.`;
     } else if (itemId === 'iron_grenade') {
-        const dmg = roll(25, 40);
+        const dmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= dmg;
         logMsg = `You hurl an Iron Grenade at the ${combat.enemy.name} for ${dmg} damage!`;
         announceMsg = `Grenade deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
@@ -2951,7 +3228,7 @@ function useCombatItem(itemId) {
         announceMsg = `Surge Draught restores ${restore} MP. You now have ${combat.playerMp} MP.`;
         setCombatPlayerBars();
     } else if (itemId === 'smoke_flare') {
-        const dmg = roll(30, 50);
+        const dmg = roll(character.level * 9, character.level * 13);
         combat.enemy.hp -= dmg;
         logMsg = `You fire a Smoke Flare at the ${combat.enemy.name} for ${dmg} fire damage!`;
         announceMsg = `Smoke Flare deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
@@ -3130,12 +3407,12 @@ function playerAttack(hand) {
     const { damage, crit } = calcPlayerDamage(hand);
     combat.enemy.hp -= damage;
 
-    const weaponName = getWeaponName(hand);
+    const flavorText = getAttackFlavor(hand, combat.enemy.name, crit);
     if (crit) {
-        addLog(`Critical hit with ${weaponName}! You strike the ${combat.enemy.name} for ${damage} damage!`, 'player');
-        announce(`Critical hit! ${damage} damage dealt. Enemy has ${Math.max(0,combat.enemy.hp)} HP left.`);
+        addLog(`${flavorText} for ${damage} damage! (Critical!)`, 'player');
+        announce(`Critical hit! ${damage} damage. Enemy has ${Math.max(0,combat.enemy.hp)} HP left.`);
     } else {
-        addLog(`You attack with ${weaponName} for ${damage} damage.`, 'player');
+        addLog(`${flavorText} for ${damage} damage.`, 'player');
         announce(`You attack for ${damage} damage. Enemy has ${Math.max(0,combat.enemy.hp)} HP left.`);
     }
 
@@ -3380,11 +3657,11 @@ function victory() {
 
     // Build reward HTML
     let rewardsHTML = `
-        <div class="reward-line">+ ${xpEarned} XP <span style="color:var(--text-dim);font-size:0.85em">(${character.xp} / ${character.xpNext} to next level)</span></div>
-        <div class="reward-line">+ ${goldEarned} Gold</div>
-        ${enemy.isBoss ? `<div class="reward-line" style="color:#ff8080">⚠ Boss Defeated! Floor ${dungeonState.floor}</div>` : ''}
-        ${loot ? `<div class="reward-line">📦 ${loot.name} dropped!</div>` : ''}
-        ${levelsGained > 0 ? `<div class="reward-line">⬆ Level Up! Now Level ${character.level}${levelsGained > 1 ? ` (+${levelsGained} levels!)` : ''}</div>` : ''}
+        <div class="reward-line">+ ${xpEarned} XP <span style="color:var(--text-dim);font-size:0.85em">(${character.xp} / ${character.xpNext} to next level)<\/span><\/div>
+        <div class="reward-line">+ ${goldEarned} Gold<\/div>
+        ${enemy.isBoss ? `<div class="reward-line" style="color:#ff8080">⚠ Boss Defeated! Floor ${dungeonState.floor}<\/div>` : ''}
+        ${loot ? `<div class="reward-line">📦 ${loot.name} dropped!<\/div>` : ''}
+        ${levelsGained > 0 ? `<div class="reward-line">⬆ Level Up! Now Level ${character.level}${levelsGained > 1 ? ` (+${levelsGained} levels!)` : ''}<\/div>` : ''}
     `;
 
     const floorDone = dungeonState.encountersDone >= dungeonState.encountersTotal;
@@ -3433,8 +3710,8 @@ function defeat() {
     document.getElementById('result-title').className = 'result-title lose';
     document.getElementById('result-body').textContent = `The ${combat.enemy.name} overwhelmed you. You wake in Greatwolf City.`;
     document.getElementById('result-rewards').innerHTML = `
-        <div class="reward-line" style="color:#ff8080">- ${goldLost} Gold lost</div>
-        <div class="reward-line" style="color:#aaa">HP restored to 30%</div>
+        <div class="reward-line" style="color:#ff8080">- ${goldLost} Gold lost<\/div>
+        <div class="reward-line" style="color:#aaa">HP restored to 30%<\/div>
     `;
     document.getElementById('result-btn-main').textContent = 'Try Again';
     document.getElementById('combat-result').classList.add('show');
@@ -3464,12 +3741,9 @@ function returnToTown() {
     document.getElementById('combat-result').classList.remove('show');
     document.getElementById('floor-clear-overlay').classList.remove('show');
     combat = null;
-    // Save dungeon state for resuming
-    if (dungeonState) {
-        character.dungeonState = { ...dungeonState };
-        saveGame();
-    }
+    if (dungeonState) { character.dungeonState = { ...dungeonState }; saveGame(); }
     document.getElementById('bottomNav').classList.add('visible');
+    hideDesktopCombatLog();
 
     // Route back to the dungeon's home town, not always Greatwolf City
     if (currentDungeonId === 'iron_depths') {
@@ -3528,7 +3802,7 @@ function showFloorClearOverlay() {
     document.getElementById('floor-clear-floor').textContent = `Floor ${floor} Cleared!`;
     if (bonusMsg) {
         document.getElementById('floor-clear-sub').innerHTML =
-            `You defeated all ${dungeonState.encountersTotal} enemies on this floor.<br><span style="color:var(--gold);font-family:'Cinzel',serif;font-size:0.9em">${bonusMsg}</span>`;
+            `You defeated all ${dungeonState.encountersTotal} enemies on this floor.<br><span style="color:var(--gold);font-family:'Cinzel',serif;font-size:0.9em">${bonusMsg}<\/span>`;
     } else {
         document.getElementById('floor-clear-sub').textContent =
             `You defeated all ${dungeonState.encountersTotal} enemies on this floor.`;
@@ -3613,9 +3887,9 @@ function openTreasureChest() {
 
     // Build rewards display
     let rewardHTML = '';
-    if (loot1) rewardHTML += `<div class="reward-line">🎁 ${loot1.name}</div>`;
-    if (loot2) rewardHTML += `<div class="reward-line">🎁 ${loot2.name}</div>`;
-    if (!loot1) rewardHTML = `<div class="reward-line" style="color:#888">The chest was empty...</div>`;
+    if (loot1) rewardHTML += `<div class="reward-line">🎁 ${loot1.name}<\/div>`;
+    if (loot2) rewardHTML += `<div class="reward-line">🎁 ${loot2.name}<\/div>`;
+    if (!loot1) rewardHTML = `<div class="reward-line" style="color:#888">The chest was empty...<\/div>`;
 
     document.getElementById('result-icon').textContent = '📦';
     document.getElementById('result-title').textContent = 'Treasure!';
@@ -3705,25 +3979,29 @@ const LOOT_POOL = [
 
 // Enemy-specific loot chances
 const ENEMY_LOOT = {
-    'Goblin Scout':      [{ id:'rusty_dagger', chance:30 }, { id:'iron_scrap', chance:50 }, { id:'wolf_fang', chance:20 }],
-    'Cave Rat':          [{ id:'wolf_fang', chance:40 }, { id:'hide_scraps', chance:20 }],
-    'Skeleton':          [{ id:'bone_club', chance:35 }, { id:'bone_dagger', chance:20 }, { id:'iron_scrap', chance:40 }],
+    'Goblin Scout':      [{ id:'rusty_dagger', chance:30 }, { id:'wolf_fang', chance:20 }, { id:'health_potion', chance:15 }],
+    'Cave Rat':          [{ id:'wolf_fang', chance:40 }, { id:'health_potion', chance:15 }],
+    'Skeleton':          [{ id:'bone_club', chance:35 }, { id:'bone_dagger', chance:20 }, { id:'mana_potion', chance:20 }],
     'Dark Slime':        [{ id:'dark_crystal', chance:45 }, { id:'mana_potion', chance:20 }],
     'Varg Cultist':      [{ id:'dark_crystal', chance:40 }, { id:'cultist_robes', chance:15 }, { id:'health_potion', chance:25 }],
-    'Stone Golem':       [{ id:'iron_shard', chance:40 }, { id:'stone_plate', chance:10 }, { id:'iron_scrap', chance:55 }],
-    'Werewolf Scout':    [{ id:'wolf_fang', chance:60 }, { id:'throwing_axe', chance:12 }, { id:'hide_scraps', chance:30 }],
+    'Stone Golem':       [{ id:'iron_shard', chance:40 }, { id:'stone_plate', chance:10 }, { id:'health_potion', chance:20 }],
+    'Werewolf Scout':    [{ id:'wolf_fang', chance:60 }, { id:'throwing_axe', chance:12 }, { id:'health_potion', chance:20 }],
     'Shadow Wraith':     [{ id:'dark_crystal', chance:55 }, { id:'shadow_ring', chance:12 }, { id:'shadow_wraps', chance:10 }],
     'Corrupted Knight':  [{ id:'varg_ring', chance:10 }, { id:'iron_shard', chance:45 }, { id:'health_potion', chance:20 }],
     'Blood Priest':      [{ id:'dark_crystal', chance:50 }, { id:'wand_of_sparks', chance:10 }, { id:'mana_potion', chance:35 }],
-    'Ancient Golem':     [{ id:'stone_plate', chance:15 }, { id:'iron_shard', chance:55 }, { id:'iron_scrap', chance:50 }],
-    'Varg Berserker':    [{ id:'wolf_fang', chance:45 }, { id:'battle_axe', chance:12 }, { id:'iron_scrap', chance:40 }],
-    'Giant Cave Rat':    [{ id:'wolf_fang', chance:65 }, { id:'wolf_hide_vest', chance:20 }, { id:'hide_scraps', chance:40 }],
+    'Ancient Golem':     [{ id:'stone_plate', chance:15 }, { id:'iron_shard', chance:55 }, { id:'mana_potion', chance:20 }],
+    'Varg Berserker':    [{ id:'wolf_fang', chance:45 }, { id:'battle_axe', chance:12 }, { id:'health_potion', chance:25 }],
+    'Giant Cave Rat':    [{ id:'wolf_fang', chance:65 }, { id:'wolf_hide_vest', chance:20 }, { id:'health_potion', chance:20 }],
     'Bone Colossus':     [{ id:'bone_club', chance:45 }, { id:'bone_dagger', chance:30 }, { id:'iron_shard', chance:45 }],
     'Dragon Spawn':      [{ id:'dragon_scale', chance:60 }, { id:'tower_shield', chance:10 }, { id:'dark_crystal', chance:40 }],
     "Varg's Chosen":     [{ id:'dark_crystal', chance:70 }, { id:'void_essence', chance:35 }, { id:'varg_ring', chance:15 }],
     'Demon Soldier':     [{ id:'iron_shard', chance:60 }, { id:'void_essence', chance:25 }, { id:'dark_crystal', chance:45 }],
     'Void Slime':        [{ id:'void_essence', chance:55 }, { id:'dark_crystal', chance:60 }, { id:'mana_potion', chance:30 }],
     'Abyssal Wraith':    [{ id:'void_essence', chance:65 }, { id:'shadow_staff', chance:12 }, { id:'wraith_wraps', chance:15 }],
+    'Varg Inquisitor':   [{ id:'dark_crystal', chance:50 }, { id:'cultist_robes', chance:20 }, { id:'mana_potion', chance:30 }],
+    'Shadow Assassin':   [{ id:'shadow_ring', chance:20 }, { id:'dark_crystal', chance:45 }, { id:'health_potion', chance:25 }],
+    'Bone Colossus':     [{ id:'bone_club', chance:45 }, { id:'bone_dagger', chance:30 }, { id:'mana_potion', chance:25 }],
+    'Varg High Priest':  [{ id:'void_essence', chance:60 }, { id:'dark_crystal', chance:70 }, { id:'varg_ring', chance:20 }],
 };
 
 function rollEnemyLoot(enemy) {
@@ -3919,25 +4197,25 @@ function renderIronholdShop() {
         IRONHOLD_INVENTORY[category].forEach(item => {
             const finalPrice = getDiscountedPrice(item.price);
             const canAfford = character.gold >= finalPrice;
-            const originalPrice = finalPrice !== item.price ? `<span style="text-decoration:line-through;color:#555;font-size:0.8em">${item.price}g</span> ` : '';
+            const originalPrice = finalPrice !== item.price ? `<span style="text-decoration:line-through;color:#555;font-size:0.8em">${item.price}g<\/span> ` : '';
             const tagHTML = item.tags.map(t => {
                 const cls = t === 'Heavy' ? 'type-heavy' : t === 'Medium' ? 'type-medium' : t === 'Light' ? 'type-light' : '';
-                return `<span class="shop-tag ${cls}">${t}</span>`;
+                return `<span class="shop-tag ${cls}">${t}<\/span>`;
             }).join('');
-            const dmgTag = item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}</span>` : '';
+            const dmgTag = item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}<\/span>` : '';
             panel.innerHTML += `
                 <div class="shop-item" aria-label="${item.name}, ${item.desc}, costs ${finalPrice} gold">
-                    <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+                    <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
                     <div class="shop-item-info">
-                        <div class="shop-item-name">${item.name}</div>
-                        <div class="shop-item-desc">${item.desc}</div>
-                        <div class="shop-item-tags">${tagHTML}<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}</span>${dmgTag}</div>
-                    </div>
+                        <div class="shop-item-name">${item.name}<\/div>
+                        <div class="shop-item-desc">${item.desc}<\/div>
+                        <div class="shop-item-tags">${tagHTML}<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}<\/span>${dmgTag}<\/div>
+                    <\/div>
                     <div class="shop-item-buy">
-                        <div class="shop-item-price ${canAfford ? '' : 'cant-afford'}">${originalPrice}${finalPrice}g</div>
-                        <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyIronholdItem('${item.id}')" aria-label="Buy ${item.name} for ${finalPrice} gold">Buy</button>
-                    </div>
-                </div>`;
+                        <div class="shop-item-price ${canAfford ? '' : 'cant-afford'}">${originalPrice}${finalPrice}g<\/div>
+                        <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyIronholdItem('${item.id}')" aria-label="Buy ${item.name} for ${finalPrice} gold">Buy<\/button>
+                    <\/div>
+                <\/div>`;
         });
     });
 
@@ -3945,23 +4223,23 @@ function renderIronholdShop() {
     sellPanel.innerHTML = '';
     const sellable = character.inventory.filter((i, idx) => !isItemEquipped(i.id, idx));
     if (sellable.length === 0) {
-        sellPanel.innerHTML = '<div class="inv-empty">Nothing to sell.</div>';
+        sellPanel.innerHTML = '<div class="inv-empty">Nothing to sell.<\/div>';
         return;
     }
     sellable.forEach((item, idx) => {
         const sellPrice = Math.floor((item.price || 10) * 0.4);
         sellPanel.innerHTML += `
             <div class="shop-item" aria-label="${item.name}, sell for ${sellPrice} gold">
-                <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+                <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
                 <div class="shop-item-info">
-                    <div class="shop-item-name">${item.name}</div>
-                    <div class="shop-item-desc">${item.desc}</div>
-                </div>
+                    <div class="shop-item-name">${item.name}<\/div>
+                    <div class="shop-item-desc">${item.desc}<\/div>
+                <\/div>
                 <div class="shop-item-buy">
-                    <div class="shop-item-price">${sellPrice}g</div>
-                    <button class="buy-btn" onclick="sellItemFromIronhold(${idx})" aria-label="Sell ${item.name} for ${sellPrice} gold">Sell</button>
-                </div>
-            </div>`;
+                    <div class="shop-item-price">${sellPrice}g<\/div>
+                    <button class="buy-btn" onclick="sellItemFromIronhold(${idx})" aria-label="Sell ${item.name} for ${sellPrice} gold">Sell<\/button>
+                <\/div>
+            <\/div>`;
     });
 }
 
@@ -4107,15 +4385,15 @@ function renderEquipSlots() {
         if (item) {
             el.classList.add('filled');
             el.innerHTML = `
-                <span class="slot-icon" aria-hidden="true">${item.icon}</span>
-                <span class="slot-item-name">${item.name}</span>
+                <span class="slot-icon" aria-hidden="true">${item.icon}<\/span>
+                <span class="slot-item-name">${item.name}<\/span>
             `;
             el.setAttribute('aria-label', `${slotId.replace(/[0-9]/g,'')} slot: ${item.name}. Tap to unequip.`);
         } else {
             el.classList.remove('filled');
             const defaultIcons = { head:'🪖', neck1:'📿', neck2:'📿', chest:'👕', wrists1:'⌚', wrists2:'⌚', hands:'🧤', legs:'👖', feet:'👢', ring1:'💍', ring2:'💍', mainHand:'⚔', offHand:'🛡' };
             const labelNames = { head:'Head', neck1:'Neck', neck2:'Neck 2', chest:'Chest', wrists1:'Wrists', wrists2:'Wrists 2', hands:'Hands', legs:'Legs', feet:'Feet', ring1:'Ring', ring2:'Ring 2', mainHand:'Main Hand', offHand:'Off Hand' };
-            el.innerHTML = `<span class="slot-icon" aria-hidden="true">${defaultIcons[slotId]}</span><span class="slot-label">${labelNames[slotId]}</span>`;
+            el.innerHTML = `<span class="slot-icon" aria-hidden="true">${defaultIcons[slotId]}<\/span><span class="slot-label">${labelNames[slotId]}<\/span>`;
             el.setAttribute('aria-label', `${labelNames[slotId]} slot, empty`);
         }
     });
@@ -4163,14 +4441,14 @@ function renderBag() {
     if (invSort === 'az') grouped.sort((a,b) => a.item.name.localeCompare(b.item.name));
 
     if (grouped.length === 0) {
-        bag.innerHTML = '<div class="inv-empty">' + (invFilter !== 'all' ? 'No items match this filter.' : 'Your bag is empty. Visit the shop to buy gear and items.') + '</div>';
+        bag.innerHTML = '<div class="inv-empty">' + (invFilter !== 'all' ? 'No items match this filter.' : 'Your bag is empty. Visit the shop to buy gear and items.') + '<\/div>';
         return;
     }
 
     bag.innerHTML = '';
     grouped.forEach(({ item, idx, count, indices }) => {
         const qty = item.stackable ? (item.quantity || 1) : count;
-        const qtyBadge = qty > 1 ? `<span class="inv-item-badge qty-badge">x${qty}</span>` : '';
+        const qtyBadge = qty > 1 ? `<span class="inv-item-badge qty-badge">x${qty}<\/span>` : '';
 
         const div = document.createElement('div');
         div.className = 'inv-item';
@@ -4178,11 +4456,11 @@ function renderBag() {
         div.setAttribute('role', 'button');
         div.setAttribute('aria-label', `${item.name}${qty > 1 ? ', quantity ' + qty : ''}. ${item.desc}. Tap for options.`);
         div.innerHTML = `
-            <span class="inv-item-icon" aria-hidden="true">${item.icon}</span>
+            <span class="inv-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="inv-item-info">
-                <div class="inv-item-name">${item.name}</div>
-                <div class="inv-item-sub">${item.stat || ''}</div>
-            </div>
+                <div class="inv-item-name">${item.name}<\/div>
+                <div class="inv-item-sub">${item.stat || ''}<\/div>
+            <\/div>
             ${qtyBadge}
         `;
         div.onclick = () => openDetail(idx);
@@ -4212,11 +4490,12 @@ function isItemEquipped(itemId, invIndex) {
     const invItem = invIndex !== undefined ? character.inventory[invIndex] : null;
     return Object.values(character.equipment).some(e => {
         if (!e) return false;
-        // Best match: uid
+        // Best match: uid — only if BOTH have a uid
         if (invItem && invItem._uid && e._uid) return e._uid === invItem._uid;
-        // Legacy: invIndex
-        if (invIndex !== undefined && e.invIndex !== undefined) return e.invIndex === invIndex;
-        // Fallback: id
+        // If equipped item has no uid yet, match by id
+        // (handles items equipped before uid system was added)
+        if (!e._uid && invItem) return e.id === invItem.id;
+        // Fallback: id match
         return e.id === itemId;
     });
 }
@@ -4251,7 +4530,7 @@ function openDetail(invIndex, equippedSlot) {
     document.getElementById('detail-stat').textContent = item.stat;
 
     // Tags
-    const tagHTML = item.tags.map(t => `<span class="shop-tag">${t}</span>`).join('');
+    const tagHTML = item.tags.map(t => `<span class="shop-tag">${t}<\/span>`).join('');
     document.getElementById('detail-tags').innerHTML = tagHTML;
 
     const equipBtn = document.getElementById('detail-equip-btn');
@@ -4550,14 +4829,14 @@ function showDungeonSelectScreen() {
         card.setAttribute('aria-label', `${dungeon.name}. ${dungeon.desc}. Highest floor: ${highest}.`);
         card.innerHTML = `
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-                <span style="font-size:2em" aria-hidden="true">${dungeon.icon}</span>
+                <span style="font-size:2em" aria-hidden="true">${dungeon.icon}<\/span>
                 <div>
-                    <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:${dungeon.color}">${dungeon.name}</div>
-                    <div style="font-size:0.75em;color:var(--text-dim);font-style:italic">${dungeon.flavor}</div>
-                </div>
-                <div style="margin-left:auto;font-family:'Cinzel',serif;font-size:0.7em;color:var(--text-dim)">Floor ${highest}</div>
-            </div>
-            <div style="font-size:0.9em;color:var(--text-dim);line-height:1.6">${dungeon.desc}</div>
+                    <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:${dungeon.color}">${dungeon.name}<\/div>
+                    <div style="font-size:0.75em;color:var(--text-dim);font-style:italic">${dungeon.flavor}<\/div>
+                <\/div>
+                <div style="margin-left:auto;font-family:'Cinzel',serif;font-size:0.7em;color:var(--text-dim)">Floor ${highest}<\/div>
+            <\/div>
+            <div style="font-size:0.9em;color:var(--text-dim);line-height:1.6">${dungeon.desc}<\/div>
         `;
         card.onclick = () => selectDungeon(dungeon.id);
         card.onkeydown = (e) => { if (e.key === 'Enter') selectDungeon(dungeon.id); };
@@ -4889,32 +5168,32 @@ function renderTrainingTab(tab) {
     data.forEach(ability => {
         const owned = (character.skills||[]).includes(ability.id);
         const canAfford = character.gold >= ability.price;
-        const tagHTML = ability.tags.map(t=>`<span class="shop-tag">${t}</span>`).join('');
+        const tagHTML = ability.tags.map(t=>`<span class="shop-tag">${t}<\/span>`).join('');
         const mpTag = ability.passive
-            ? `<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">Passive</span>`
+            ? `<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">Passive<\/span>`
             : ability.mpCost > 0
-                ? `<span class="shop-tag" style="color:#80c0ff;border-color:#2a4a6a">${ability.mpCost} MP</span>`
-                : `<span class="shop-tag" style="color:#80c080;border-color:#2a4a2a">No MP</span>`;
+                ? `<span class="shop-tag" style="color:#80c0ff;border-color:#2a4a6a">${ability.mpCost} MP<\/span>`
+                : `<span class="shop-tag" style="color:#80c080;border-color:#2a4a2a">No MP<\/span>`;
         const FORGET_REFUND = 30;
         panel.innerHTML += `
             <div class="shop-item" aria-label="${ability.name}. ${ability.desc}. ${ability.price} gold.">
-                <span class="shop-item-icon" aria-hidden="true">${ability.icon}</span>
+                <span class="shop-item-icon" aria-hidden="true">${ability.icon}<\/span>
                 <div class="shop-item-info">
-                    <div class="shop-item-name">${ability.name}</div>
-                    <div class="shop-item-desc">${ability.desc}</div>
-                    <div class="shop-item-tags">${tagHTML}${mpTag}<span class="shop-tag">1 turn CD</span></div>
-                </div>
+                    <div class="shop-item-name">${ability.name}<\/div>
+                    <div class="shop-item-desc">${ability.desc}<\/div>
+                    <div class="shop-item-tags">${tagHTML}${mpTag}<span class="shop-tag">1 turn CD<\/span><\/div>
+                <\/div>
                 <div class="shop-item-buy">
                     ${owned
-                        ? `<div class="shop-item-price" style="color:var(--green);margin-bottom:4px">✓ Learned</div>
+                        ? `<div class="shop-item-price" style="color:var(--green);margin-bottom:4px">✓ Learned<\/div>
                            <button class="buy-btn" style="background:linear-gradient(135deg,#3a1a1a,#6a2a2a);color:#f0c0c0;font-size:0.75em"
                                onclick="promptForgetAbility('${ability.id}')"
-                               aria-label="Forget ${ability.name} for ${FORGET_REFUND} gold refund">Forget</button>`
-                        : `<div class="shop-item-price ${canAfford?'':'cant-afford'}">${ability.price}g</div>
-                           <button class="buy-btn" ${canAfford?'':'disabled'} onclick="learnAbility('${ability.id}')" aria-label="Learn ${ability.name}">Learn</button>`
+                               aria-label="Forget ${ability.name} for ${FORGET_REFUND} gold refund">Forget<\/button>`
+                        : `<div class="shop-item-price ${canAfford?'':'cant-afford'}">${ability.price}g<\/div>
+                           <button class="buy-btn" ${canAfford?'':'disabled'} onclick="learnAbility('${ability.id}')" aria-label="Learn ${ability.name}">Learn<\/button>`
                     }
-                </div>
-            </div>`;
+                <\/div>
+            <\/div>`;
     });
 }
 
@@ -4992,7 +5271,7 @@ function renderCombatAbilities(type) {
     const data = type==='skill' ? SKILLS_DATA : SPELLS_DATA;
     const available = data.filter(a => owned.includes(a.id) && !a.passive);
     if (available.length === 0) {
-        list.innerHTML = `<div class="combat-no-items">No ${type}s learned. Visit Fennyx's Training Grounds in town.</div>`;
+        list.innerHTML = `<div class="combat-no-items">No ${type}s learned. Visit Fennyx's Training Grounds in town.<\/div>`;
         return;
     }
     list.innerHTML = '';
@@ -5006,12 +5285,12 @@ function renderCombatAbilities(type) {
         btn.disabled = disabled;
         btn.setAttribute('aria-label', `${ability.name}${statusText}`);
         btn.innerHTML = `
-            <span class="combat-use-icon" aria-hidden="true">${ability.icon}</span>
+            <span class="combat-use-icon" aria-hidden="true">${ability.icon}<\/span>
             <div class="combat-use-info">
-                <div class="combat-use-name" style="${disabled?'color:var(--text-dim)':''}">${ability.name}${statusText}</div>
-                <div class="combat-use-desc">${ability.desc}</div>
-            </div>
-            <span class="combat-use-qty" style="color:${ability.mpCost>0?'#80c0ff':'#80c080'}">${ability.mpCost>0?ability.mpCost+'MP':'Free'}</span>
+                <div class="combat-use-name" style="${disabled?'color:var(--text-dim)':''}">${ability.name}${statusText}<\/div>
+                <div class="combat-use-desc">${ability.desc}<\/div>
+            <\/div>
+            <span class="combat-use-qty" style="color:${ability.mpCost>0?'#80c0ff':'#80c080'}">${ability.mpCost>0?ability.mpCost+'MP':'Free'}<\/span>
         `;
         btn.onclick = () => useAbility(ability.id);
         list.appendChild(btn);
@@ -5114,7 +5393,7 @@ function renderSellTab() {
         .filter(({ item, idx }) => !isItemEquipped(item.id, idx));
 
     if (sellable.length === 0) {
-        panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Defeat enemies and find loot to bring back.</div>';
+        panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Defeat enemies and find loot to bring back.<\/div>';
         return;
     }
 
@@ -5144,17 +5423,17 @@ function renderSellTab() {
         div.className = 'shop-item';
         div.setAttribute('aria-label', `${item.name}${qty}. Sell for ${totalVal} gold.`);
         div.innerHTML = `
-            <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
-                <div class="shop-item-name">${item.name}${qty}</div>
-                <div class="shop-item-desc">${item.desc}</div>
-            </div>
+                <div class="shop-item-name">${item.name}${qty}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+            <\/div>
             <div class="shop-item-buy">
-                <div class="shop-item-price">${totalVal}g</div>
+                <div class="shop-item-price">${totalVal}g<\/div>
                 <button class="buy-btn" style="background:linear-gradient(135deg,#5a3a1a,#8a6030);color:#f0e0c0"
                     onclick="promptSellGroup('${item.id}', ${count}, ${value})"
-                    aria-label="Sell ${item.name}${qty} for ${totalVal} gold">Sell</button>
-            </div>
+                    aria-label="Sell ${item.name}${qty} for ${totalVal} gold">Sell<\/button>
+            <\/div>
         `;
         panel.appendChild(div);
     });
@@ -5365,7 +5644,7 @@ const SHOP_INVENTORY = {
         { id:'health_potion', icon:'🧪',  name:'Health Potion',     desc:'Restores 40% of your maximum HP.',                    price:20,  tags:['Consumable'],           stat:'HP +40%', slot:'item',    stackable: true },
         { id:'mana_potion',   icon:'💧',  name:'Mana Potion',       desc:'Restores 40% of your maximum MP.',                   price:20,  tags:['Consumable'],           stat:'MP +40%', slot:'item',    stackable: true },
         { id:'smoke_bomb',    icon:'💨',  name:'Smoke Bomb',        desc:'Greatly improves your chance of retreating.',         price:15,  tags:['Consumable'],           stat:'Flee +40%',slot:'item',   stackable: true },
-        { id:'iron_grenade',  icon:'💣',  name:'Iron Grenade',      desc:'Hurls a grenade dealing heavy damage to the enemy.',  price:30,  tags:['Consumable'],           stat:'DMG 25-40',slot:'item',   stackable: true },
+        { id:'iron_grenade',  icon:'💣',  name:'Iron Grenade',      desc:'Hurls a grenade dealing level-scaled damage to the enemy.',  price:30,  tags:['Consumable'],           stat:'DMG lvl×8-12', slot:'item',   stackable: true },
     ]
 };
 
@@ -5426,7 +5705,7 @@ function renderShopTab(category) {
     else if (shopSort === 'az') items.sort((a,b) => a.name.localeCompare(b.name));
 
     if (items.length === 0) {
-        panel.innerHTML = '<div class="inv-empty">No items match this filter.</div>';
+        panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
         return;
     }
 
@@ -5435,23 +5714,23 @@ function renderShopTab(category) {
         const canAfford = character.gold >= finalPrice;
         const tagHTML = item.tags.map(t => {
             const cls = t === 'Light' ? 'type-light' : t === 'Medium' ? 'type-medium' : t === 'Heavy' ? 'type-heavy' : '';
-            return `<span class="shop-tag ${cls}">${t}</span>`;
+            return `<span class="shop-tag ${cls}">${t}<\/span>`;
         }).join('');
-        const originalPrice = item.price !== finalPrice ? `<span style="text-decoration:line-through;color:#555;font-size:0.8em">${item.price}g</span> ` : '';
+        const originalPrice = item.price !== finalPrice ? `<span style="text-decoration:line-through;color:#555;font-size:0.8em">${item.price}g<\/span> ` : '';
 
         panel.innerHTML += `
             <div class="shop-item" aria-label="${item.name}, ${item.desc}, costs ${finalPrice} gold">
-                <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+                <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
                 <div class="shop-item-info">
-                    <div class="shop-item-name">${item.name}</div>
-                    <div class="shop-item-desc">${item.desc}</div>
-                    <div class="shop-item-tags">${tagHTML}<span class="shop-tag">${item.stat}</span></div>
-                </div>
+                    <div class="shop-item-name">${item.name}<\/div>
+                    <div class="shop-item-desc">${item.desc}<\/div>
+                    <div class="shop-item-tags">${tagHTML}<span class="shop-tag">${item.stat}<\/span><\/div>
+                <\/div>
                 <div class="shop-item-buy">
-                    <div class="shop-item-price ${canAfford ? '' : 'cant-afford'}">${originalPrice}${finalPrice}g</div>
-                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyItem('${item.id}')" aria-label="Buy ${item.name} for ${finalPrice} gold">Buy</button>
-                </div>
-            </div>`;
+                    <div class="shop-item-price ${canAfford ? '' : 'cant-afford'}">${originalPrice}${finalPrice}g<\/div>
+                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyItem('${item.id}')" aria-label="Buy ${item.name} for ${finalPrice} gold">Buy<\/button>
+                <\/div>
+            <\/div>`;
     });
 }
 
@@ -6007,6 +6286,20 @@ function loadCharacterFromSlot(slot) {
                 if (!item._uid) item._uid = generateUid();
             });
         }
+        // Sync equipped item uids with inventory where possible
+        Object.keys(character.equipment).forEach(slotId => {
+            const e = character.equipment[slotId];
+            if (!e) return;
+            if (!e._uid) {
+                // Find matching inventory item and share its uid
+                const invItem = character.inventory.find(i => i.id === e.id);
+                if (invItem) {
+                    e._uid = invItem._uid;
+                } else {
+                    e._uid = generateUid();
+                }
+            }
+        });
         // Add new equipment slots to old saves
         if (!character.equipment) character.equipment = {};
         if (character.equipment.mantle === undefined) character.equipment.mantle = null;
@@ -6027,7 +6320,7 @@ function openRoster() {
     list.innerHTML = '';
     const filled = roster.filter(Boolean);
 
-    filled.length === 0 ? list.innerHTML = '<div class="roster-empty">No characters yet.<br>Create your first adventurer below.</div>' :
+    filled.length === 0 ? list.innerHTML = '<div class="roster-empty">No characters yet.<br>Create your first adventurer below.<\/div>' :
     roster.forEach((entry, idx) => {
         if (!entry) return;
         const card = document.createElement('div');
@@ -6036,11 +6329,11 @@ function openRoster() {
         card.setAttribute('role', 'button');
         card.setAttribute('aria-label', entry.name + ', Level ' + entry.level + '. Tap to play.');
         card.innerHTML = `
-            <span class="roster-icon" aria-hidden="true">🧙</span>
+            <span class="roster-icon" aria-hidden="true">🧙<\/span>
             <div class="roster-info">
-                <div class="roster-name">${entry.name}</div>
-                <div class="roster-sub">Level ${entry.level} -- ${entry.gold} Gold</div>
-            </div>
+                <div class="roster-name">${entry.name}<\/div>
+                <div class="roster-sub">Level ${entry.level} -- ${entry.gold} Gold<\/div>
+            <\/div>
         `;
         // Tap card = play
         card.onclick = () => selectCharacter(idx);
@@ -6374,26 +6667,26 @@ function renderWolfhavenTab(tab) {
         const canAfford = character.gold >= item.price;
         const tagHTML = (item.tags || []).map(t => {
             const cls = t === 'Heavy' ? 'type-heavy' : t === 'Medium' ? 'type-medium' : t === 'Light' ? 'type-light' : '';
-            return `<span class="shop-tag ${cls}">${t}</span>`;
+            return `<span class="shop-tag ${cls}">${t}<\/span>`;
         }).join('');
 
         const div = document.createElement('div');
         div.className = 'shop-item';
         div.setAttribute('aria-label', `${item.name}. ${item.desc}. ${item.price} gold.`);
         div.innerHTML = `
-            <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
-                <div class="shop-item-name">${item.name}</div>
-                <div class="shop-item-desc">${item.desc}</div>
-                <div class="shop-item-tags">${tagHTML}${item.stat ? `<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}</span>` : ''}${item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}</span>` : ''}</div>
-            </div>
+                <div class="shop-item-name">${item.name}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+                <div class="shop-item-tags">${tagHTML}${item.stat ? `<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}<\/span>` : ''}${item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}<\/span>` : ''}<\/div>
+            <\/div>
             <div class="shop-item-buy">
                 ${(inInv || isEquipped) && !item.stackable
-                    ? `<div class="shop-item-price" style="color:var(--green)">✓ Owned</div>`
-                    : `<div class="shop-item-price ${canAfford?'':'cant-afford'}">${item.price}g</div>
-                       <button class="buy-btn" ${canAfford?'':'disabled'} onclick="buyWolfhavenItem('${item.id}')" aria-label="Buy ${item.name} for ${item.price} gold">Buy</button>`
+                    ? `<div class="shop-item-price" style="color:var(--green)">✓ Owned<\/div>`
+                    : `<div class="shop-item-price ${canAfford?'':'cant-afford'}">${item.price}g<\/div>
+                       <button class="buy-btn" ${canAfford?'':'disabled'} onclick="buyWolfhavenItem('${item.id}')" aria-label="Buy ${item.name} for ${item.price} gold">Buy<\/button>`
                 }
-            </div>
+            <\/div>
         `;
         panel.appendChild(div);
     });
@@ -6404,7 +6697,7 @@ function renderWolfhavenSellTab() {
     const sellable = character.inventory.filter((i, idx) => !isItemEquipped(i.id, idx));
 
     if (sellable.length === 0) {
-        panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Brave the Ashwood and bring back what you find.</div>';
+        panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Brave the Ashwood and bring back what you find.<\/div>';
         return;
     }
 
@@ -6419,17 +6712,17 @@ function renderWolfhavenSellTab() {
         div.className = 'shop-item';
         div.setAttribute('aria-label', `${item.name}${qty}. Sell for ${totalVal} gold.`);
         div.innerHTML = `
-            <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
-                <div class="shop-item-name">${item.name}${qty}</div>
-                <div class="shop-item-desc">${item.desc}</div>
-            </div>
+                <div class="shop-item-name">${item.name}${qty}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+            <\/div>
             <div class="shop-item-buy">
-                <div class="shop-item-price">${totalVal}g</div>
+                <div class="shop-item-price">${totalVal}g<\/div>
                 <button class="buy-btn" style="background:linear-gradient(135deg,#1a3a1a,#2a5a2a);color:#c0f0c0"
                     onclick="promptWolfhavenSell(${realIndex})"
-                    aria-label="Sell ${item.name} for ${totalVal} gold">Sell</button>
-            </div>
+                    aria-label="Sell ${item.name} for ${totalVal} gold">Sell<\/button>
+            <\/div>
         `;
         panel.appendChild(div);
     });
@@ -6555,13 +6848,13 @@ function renderJournal() {
         div.setAttribute('aria-label', `Journal entry ${i+1}. ${entry.title}. ${entry.body}`);
         div.innerHTML = `
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-                <span style="font-size:1.4em" aria-hidden="true">${entry.icon || '📜'}</span>
+                <span style="font-size:1.4em" aria-hidden="true">${entry.icon || '📜'}<\/span>
                 <div>
-                    <div style="font-family:'Cinzel',serif;font-size:0.9em;font-weight:700;color:var(--gold)">${entry.title}</div>
-                    <div style="font-size:0.72em;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.08em">${entry.source || ''}</div>
-                </div>
-            </div>
-            <div style="font-size:0.95em;color:var(--text-dim);line-height:1.75;font-style:italic">"${entry.body}"</div>
+                    <div style="font-family:'Cinzel',serif;font-size:0.9em;font-weight:700;color:var(--gold)">${entry.title}<\/div>
+                    <div style="font-size:0.72em;color:var(--text-dim);font-family:'Cinzel',serif;letter-spacing:0.08em">${entry.source || ''}<\/div>
+                <\/div>
+            <\/div>
+            <div style="font-size:0.95em;color:var(--text-dim);line-height:1.75;font-style:italic">"${entry.body}"<\/div>
         `;
         list.appendChild(div);
     });
@@ -6593,7 +6886,552 @@ function setActiveNav(navId) {
     if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current', 'page'); }
 }
 
-// -- SUNPORT SHOP DATA ------------------------------------
+// -- FORGE SYSTEM -----------------------------------------
+const FORGE_QUOTES = [
+    '"Bring me iron and gold. I\'ll make your gear sing."',
+    '"Everything can be made stronger. Everything."',
+    '"The forge doesn\'t lie. Neither do I."',
+    '"Good steel deserves better steel."',
+    '"A weapon is only as strong as the hand that made it."',
+];
+
+const TRANSMUTE_QUOTES = [
+    '"The form changes. The soul remains."',
+    '"What you were matters not. What you become — that\'s everything."',
+    '"Brundar does not judge the weapon. Only its potential."',
+    '"Give me gold. I\'ll give you something that was never possible before."',
+];
+
+const FORGE_TIERS = [
+    { tier:1,  label:'+1',  goldCost:80,   itemCost:3,  statBonus:1, dmgBonus:[2,4]   },
+    { tier:2,  label:'+2',  goldCost:160,  itemCost:3,  statBonus:1, dmgBonus:[2,4]   },
+    { tier:3,  label:'+3',  goldCost:260,  itemCost:6,  statBonus:1, dmgBonus:[2,4]   },
+    { tier:4,  label:'+4',  goldCost:380,  itemCost:6,  statBonus:1, dmgBonus:[3,5]   },
+    { tier:5,  label:'+5',  goldCost:520,  itemCost:8,  statBonus:1, dmgBonus:[3,5]   },
+    { tier:6,  label:'+6',  goldCost:680,  itemCost:8,  statBonus:2, dmgBonus:[4,7]   },
+    { tier:7,  label:'+7',  goldCost:880,  itemCost:10, statBonus:2, dmgBonus:[4,7]   },
+    { tier:8,  label:'+8',  goldCost:1100, itemCost:10, statBonus:2, dmgBonus:[5,8]   },
+    { tier:9,  label:'+9',  goldCost:1400, itemCost:12, statBonus:2, dmgBonus:[5,8]   },
+    { tier:10, label:'+10', goldCost:2000, itemCost:16, statBonus:3, dmgBonus:[8,12]  },
+];
+
+const TRANSMUTE_COST = 150;
+
+// Weapon type options for transmutation
+const TRANSMUTE_FORMS = [
+    { tag:'Sword',  icon:'⚔',  label:'Sword',   slot:'mainHand' },
+    { tag:'Axe',    icon:'🪓', label:'Axe',     slot:'mainHand' },
+    { tag:'Hammer', icon:'🔨', label:'Hammer',  slot:'mainHand' },
+    { tag:'Mace',   icon:'🏏', label:'Mace',    slot:'mainHand' },
+    { tag:'Dagger', icon:'🗡',  label:'Dagger',  slot:'mainHand' },
+    { tag:'Staff',  icon:'🪄', label:'Staff',   slot:'mainHand' },
+    { tag:'Bow',    icon:'🏹', label:'Bow',     slot:'mainHand' },
+    { tag:'Spear',  icon:'🔱', label:'Spear',   slot:'mainHand' },
+    { tag:'Gun',    icon:'🔫', label:'Gun',     slot:'mainHand' },
+    { tag:'Flail',  icon:'⛓', label:'Flail',   slot:'mainHand' },
+];
+
+function getItemScraps() {
+    const scrap = character.inventory.find(i => i.id === 'iron_scrap' || i.id === 'iron_shard' || i.id === 'iron_ore');
+    return scrap ? (scrap.quantity || 1) : 0;
+}
+
+function getItemCrystals() {
+    let total = 0;
+    ['cave_crystal','void_shard','sea_glass','ashwood_bark','kraken_ink'].forEach(id => {
+        const item = character.inventory.find(i => i.id === id);
+        if (item) total += (item.quantity || 1);
+    });
+    return total;
+}
+
+function getRareMaterials() {
+    let total = 0;
+    ['void_shard','kraken_ink','void_essence','dragon_scale','dark_crystal'].forEach(id => {
+        const item = character.inventory.find(i => i.id === id);
+        if (item) total += (item.quantity || 1);
+    });
+    return total;
+}
+
+function consumeRareMaterials(qty) {
+    let remaining = qty;
+    ['void_shard','kraken_ink','void_essence','dragon_scale','dark_crystal'].forEach(id => {
+        if (remaining <= 0) return;
+        const idx = character.inventory.findIndex(i => i.id === id);
+        if (idx === -1) return;
+        const available = character.inventory[idx].quantity || 1;
+        const toUse = Math.min(available, remaining);
+        character.inventory[idx].quantity -= toUse;
+        if (character.inventory[idx].quantity <= 0) character.inventory.splice(idx, 1);
+        remaining -= toUse;
+    });
+    return remaining === 0;
+}
+
+function consumeMaterial(matId, qty) {
+    const idx = character.inventory.findIndex(i => i.id === matId);
+    if (idx === -1) return false;
+    character.inventory[idx].quantity -= qty;
+    if (character.inventory[idx].quantity <= 0) character.inventory.splice(idx, 1);
+    return true;
+}
+
+function consumeScraps(qty) {
+    let remaining = qty;
+    ['iron_scrap','iron_shard','iron_ore'].forEach(id => {
+        if (remaining <= 0) return;
+        const idx = character.inventory.findIndex(i => i.id === id);
+        if (idx === -1) return;
+        const available = character.inventory[idx].quantity || 1;
+        const toUse = Math.min(available, remaining);
+        character.inventory[idx].quantity -= toUse;
+        if (character.inventory[idx].quantity <= 0) character.inventory.splice(idx, 1);
+        remaining -= toUse;
+    });
+    return remaining === 0;
+}
+
+function consumeCrystals(qty) {
+    let remaining = qty;
+    ['cave_crystal','void_shard','sea_glass'].forEach(id => {
+        if (remaining <= 0) return;
+        const idx = character.inventory.findIndex(i => i.id === id);
+        if (idx === -1) return;
+        const available = character.inventory[idx].quantity || 1;
+        const toUse = Math.min(available, remaining);
+        character.inventory[idx].quantity -= toUse;
+        if (character.inventory[idx].quantity <= 0) character.inventory.splice(idx, 1);
+        remaining -= toUse;
+    });
+    return remaining === 0;
+}
+
+function isRelic(item) {
+    return item.type === 'legendary' || LEGENDARY_CHEST_ITEMS.some(r => r.id === item.id);
+}
+
+function getForgeableItems() {
+    return character.inventory
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) =>
+            !item.stackable &&
+            !isRelic(item) &&
+            (item.slot === 'mainHand' || item.slot === 'chest' || item.slot === 'head' ||
+             item.slot === 'offHand' || item.slot === 'feet' || item.slot === 'hands' ||
+             item.slot === 'arms' || item.slot === 'mantle' || item.slot === 'waist' ||
+             item.slot === 'wrists1' || item.slot === 'wrists2')
+        );
+}
+
+function openForge() {
+    if (!character) return;
+    document.getElementById('forge-gold').textContent = character.gold;
+    const q = FORGE_QUOTES[Math.floor(Math.random() * FORGE_QUOTES.length)];
+    document.getElementById('forge-quote').textContent = q;
+    renderForgeList();
+    goToScreen('forge');
+    announce('The Forge. Select an item to upgrade.');
+}
+
+function renderForgeList() {
+    const list = document.getElementById('forge-item-list');
+    const empty = document.getElementById('forge-empty');
+    const forgeable = getForgeableItems();
+
+    if (forgeable.length === 0) {
+        list.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+
+    list.style.display = 'flex';
+    empty.style.display = 'none';
+    list.innerHTML = '';
+
+    // Group duplicates
+    const seen = {};
+    const grouped = [];
+    forgeable.forEach(({ item, idx }) => {
+        if (seen[item.id] !== undefined) return; // show first unequipped only
+        seen[item.id] = true;
+        grouped.push({ item, idx });
+    });
+
+    grouped.forEach(({ item, idx }) => {
+        const currentTier = item.forgeTier || 0;
+        const nextTier = FORGE_TIERS[currentTier];
+        const maxed = currentTier >= 10;
+
+    const FORGE_EXCLUDE = ['health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom','fennyx_blessing','smoke_bomb','iron_grenade','smoke_flare','nettle_poison','thornpoison','bark_shield'];
+
+    // Count sacrificeable items (unequipped, non-relic, not the item itself, not potions/consumables)
+    const sacrificeable = character.inventory.filter((i, ix) =>
+        ix !== idx && !isRelic(i) && !isItemEquipped(i.id, ix) && !FORGE_EXCLUDE.includes(i.id)
+    ).length;
+    // Stackable materials only (not consumables)
+    const stackCount = character.inventory
+        .filter(i => i.stackable && !FORGE_EXCLUDE.includes(i.id))
+        .reduce((sum, i) => sum + (i.quantity || 1), 0);
+        const totalSacrificeable = sacrificeable + stackCount;
+
+        const canAfford = !maxed && nextTier &&
+            character.gold >= nextTier.goldCost &&
+            totalSacrificeable >= nextTier.itemCost;
+
+        const tierLabel = currentTier > 0 ? ` +${currentTier}` : '';
+        const nextLabel = maxed ? 'Max Level (+10)'
+            : `+${currentTier+1}: ${nextTier.goldCost}g + ${nextTier.itemCost} items sacrificed`;
+
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+        div.setAttribute('aria-label', `${item.name}${tierLabel}. ${maxed ? 'Fully upgraded.' : 'Upgrade cost: ' + nextLabel}`);
+        div.innerHTML = `
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
+            <div class="shop-item-info">
+                <div class="shop-item-name">${item.name}${tierLabel ? `<span style="color:var(--gold);font-size:0.8em;margin-left:6px">${tierLabel}<\/span>` : ''}<\/div>
+                <div class="shop-item-desc">${item.stat || ''}${item.dmg ? ` | DMG ${item.dmg[0]}-${item.dmg[1]}` : ''}<\/div>
+                <div class="shop-item-desc" style="color:${maxed ? '#4caf50' : canAfford ? 'var(--text-dim)' : '#e07070'};font-size:0.85em">
+                    ${maxed ? '✓ Fully Upgraded' : nextLabel}
+                <\/div>
+            <\/div>
+            <div class="shop-item-buy">
+                ${maxed ? '' : `<button class="buy-btn" ${canAfford ? '' : 'disabled'}
+                    onclick="forgeItem(${idx})"
+                    aria-label="Upgrade ${item.name}">Forge<\/button>`}
+            <\/div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function forgeItem(invIndex) {
+    const item = character.inventory[invIndex];
+    if (!item || isRelic(item)) return;
+
+    const currentTier = item.forgeTier || 0;
+    if (currentTier >= 10) { showToast('Already at max upgrade!'); return; }
+
+    const tier = FORGE_TIERS[currentTier];
+    if (character.gold < tier.goldCost) { showToast('Not enough gold!'); return; }
+
+    // Count available sacrifice items
+    const sacrificeable = character.inventory
+        .map((i, ix) => ({ i, ix }))
+        .filter(({ i, ix }) => ix !== invIndex && !isItemEquipped(i.id, ix) && !isRelic(i));
+    const totalAvailable = sacrificeable.reduce((sum, { i }) =>
+        sum + (i.stackable ? (i.quantity || 1) : 1), 0);
+
+    if (totalAvailable < tier.itemCost) {
+        showToast(`Need ${tier.itemCost} items to sacrifice. You have ${totalAvailable}.`);
+        return;
+    }
+
+    const FORGE_EXCLUDE = ['health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom','fennyx_blessing','smoke_bomb','iron_grenade','smoke_flare','nettle_poison','thornpoison','bark_shield'];
+
+    character.gold -= tier.goldCost;
+
+    // Consume items — stackable materials first (not potions), then non-stackables
+    let toConsume = tier.itemCost;
+    for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
+        if (i === invIndex) continue;
+        const inv = character.inventory[i];
+        if (!inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || FORGE_EXCLUDE.includes(inv.id)) continue;
+        const take = Math.min(inv.quantity || 1, toConsume);
+        inv.quantity -= take;
+        toConsume -= take;
+        if (inv.quantity <= 0) character.inventory.splice(i--, 1);
+        if (i < invIndex) invIndex--;
+    }
+    for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
+        if (i === invIndex) continue;
+        const inv = character.inventory[i];
+        if (inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || FORGE_EXCLUDE.includes(inv.id)) continue;
+        character.inventory.splice(i, 1);
+        toConsume--;
+        if (i < invIndex) invIndex--;
+    }
+
+    // Re-fetch item after index adjustment
+    const forgedItem = character.inventory[invIndex];
+    if (!forgedItem) { saveGame(); renderForgeList(); return; }
+
+    forgedItem.forgeTier = currentTier + 1;
+
+    if (forgedItem.stat) {
+        const match = forgedItem.stat.match(/([A-Z]+) \+(\d+)/);
+        if (match) {
+            const newVal = parseInt(match[2]) + tier.statBonus;
+            forgedItem.stat = forgedItem.stat.replace(match[0], `${match[1]} +${newVal}`);
+        }
+    }
+    if (forgedItem.dmg) {
+        forgedItem.dmg = [forgedItem.dmg[0] + tier.dmgBonus[0], forgedItem.dmg[1] + tier.dmgBonus[1]];
+    }
+
+    for (const slotId of Object.keys(character.equipment)) {
+        const e = character.equipment[slotId];
+        if (e && e._uid === forgedItem._uid) {
+            character.equipment[slotId] = { ...e, stat: forgedItem.stat, dmg: forgedItem.dmg, forgeTier: forgedItem.forgeTier };
+            break;
+        }
+    }
+
+    saveGame(); populateUI();
+    document.getElementById('forge-gold').textContent = character.gold;
+    renderForgeList();
+    showToast(`${forgedItem.name} upgraded to +${forgedItem.forgeTier}!`);
+    announce(`${forgedItem.name} forged to tier ${forgedItem.forgeTier}.`);
+}
+
+// -- TRANSMUTATION ----------------------------------------
+let transmutePendingIdx = null;
+
+function openTransmutation() {
+    if (!character) return;
+    document.getElementById('transmute-gold').textContent = character.gold;
+    const q = TRANSMUTE_QUOTES[Math.floor(Math.random() * TRANSMUTE_QUOTES.length)];
+    document.getElementById('transmute-quote').textContent = q;
+    transmutePendingIdx = null;
+    renderTransmuteStep1();
+    goToScreen('transmutation');
+    announce('Transmutation Chamber. Select a weapon to change its form.');
+}
+
+function renderTransmuteStep1() {
+    const step1 = document.getElementById('transmute-step1');
+    const step2 = document.getElementById('transmute-step2');
+    const empty = document.getElementById('transmute-empty');
+    step2.style.display = 'none';
+
+    const weapons = character.inventory
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => !item.stackable && item.slot === 'mainHand' && !isRelic(item));
+
+    if (weapons.length === 0) {
+        step1.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+
+    step1.style.display = 'flex';
+    empty.style.display = 'none';
+    step1.innerHTML = `<div style="font-family:'Cinzel',serif;font-size:0.8em;color:var(--gold);margin-bottom:8px">Choose a weapon to transmute (${TRANSMUTE_COST}g):<\/div>`;
+
+    weapons.forEach(({ item, idx }) => {
+        const tierLabel = item.forgeTier ? ` [+${item.forgeTier}]` : '';
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+        div.style.cursor = 'pointer';
+        div.setAttribute('aria-label', `${item.name}${tierLabel}. Tap to select for transmutation.`);
+        div.innerHTML = `
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
+            <div class="shop-item-info">
+                <div class="shop-item-name">${item.name}${tierLabel}<\/div>
+                <div class="shop-item-desc">${item.stat || ''}${item.dmg ? ` | DMG ${item.dmg[0]}-${item.dmg[1]}` : ''}<\/div>
+            <\/div>
+            <button class="buy-btn" onclick="selectTransmuteItem(${idx})" aria-label="Select ${item.name}">Select<\/button>
+        `;
+        step1.appendChild(div);
+    });
+}
+
+function selectTransmuteItem(invIndex) {
+    const item = character.inventory[invIndex];
+    if (!item) return;
+    transmutePendingIdx = invIndex;
+
+    const step1 = document.getElementById('transmute-step1');
+    const step2 = document.getElementById('transmute-step2');
+    step1.style.display = 'none';
+    step2.style.display = 'block';
+
+    const tierLabel = item.forgeTier ? ` [+${item.forgeTier}]` : '';
+    step2.innerHTML = `
+        <div style="background:var(--bg-card);border:1px solid #2a2a44;border-radius:10px;padding:14px;margin-bottom:16px">
+            <div style="font-family:'Cinzel',serif;font-size:0.8em;color:var(--text-dim);margin-bottom:4px">Transmuting:<\/div>
+            <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:1.5em">${item.icon}<\/span>
+                <div>
+                    <div style="font-family:'Cinzel',serif;font-size:0.9em;color:var(--gold)">${item.name}${tierLabel}<\/div>
+                    <div style="font-size:0.85em;color:var(--text-dim)">${item.stat || ''}${item.dmg ? ' | DMG ' + item.dmg[0] + '-' + item.dmg[1] : ''}<\/div>
+                <\/div>
+            <\/div>
+        <\/div>
+        <div style="font-family:'Cinzel',serif;font-size:0.8em;color:var(--gold);margin-bottom:10px">Choose new form:<\/div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+            ${TRANSMUTE_FORMS.map(f => `
+                <button class="menu-btn" style="padding:10px;text-align:center" onclick="confirmTransmute('${f.tag}')"
+                    aria-label="Transmute into ${f.label}">
+                    <span style="font-size:1.4em">${f.icon}<\/span>
+                    <div style="font-family:'Cinzel',serif;font-size:0.75em;margin-top:4px">${f.label}<\/div>
+                <\/button>
+            `).join('')}
+        <\/div>
+        <button class="leave-shop-btn" style="margin-top:0" onclick="renderTransmuteStep1();document.getElementById('transmute-step1').style.display='flex';document.getElementById('transmute-step2').style.display='none'">
+            ← Back
+        <\/button>
+    `;
+}
+
+function confirmTransmute(newTag) {
+    if (transmutePendingIdx === null) return;
+    const item = character.inventory[transmutePendingIdx];
+    if (!item) return;
+
+    if (character.gold < TRANSMUTE_COST) {
+        showToast('Not enough gold!');
+        announce('Not enough gold to transmute.');
+        return;
+    }
+
+    const form = TRANSMUTE_FORMS.find(f => f.tag === newTag);
+    if (!form) return;
+
+    character.gold -= TRANSMUTE_COST;
+
+    // Change the item's appearance and tags — keep all stats
+    const oldName = item.name;
+    item.icon = form.icon;
+    // Update tags — remove old weapon type, add new one
+    const weaponTypes = TRANSMUTE_FORMS.map(f => f.tag);
+    item.tags = (item.tags || []).filter(t => !weaponTypes.includes(t));
+    item.tags.push(newTag);
+    // Keep handed tag if it exists
+    const handed = (item.tags || []).find(t => t.includes('Handed'));
+
+    // Update equipped slot if needed
+    for (const slotId of Object.keys(character.equipment)) {
+        const e = character.equipment[slotId];
+        if (e && e._uid === item._uid) {
+            character.equipment[slotId] = { ...item };
+            break;
+        }
+    }
+
+    saveGame(); populateUI();
+    document.getElementById('transmute-gold').textContent = character.gold;
+    transmutePendingIdx = null;
+    renderTransmuteStep1();
+    document.getElementById('transmute-step1').style.display = 'flex';
+    document.getElementById('transmute-step2').style.display = 'none';
+    showToast(`${oldName} transmuted into a ${form.label}!`);
+    announce(`${oldName} transmuted into ${form.label} form for ${TRANSMUTE_COST} gold.`);
+}
+
+// -- WEAPON ATTACK FLAVOR ---------------------------------
+const WEAPON_FLAVOR = {
+    Sword:   [
+        'You slash at the {enemy} with your blade',
+        'You drive your sword into the {enemy}',
+        'Your blade finds a gap in the {enemy}\'s defenses',
+        'You cut across the {enemy} with a practiced stroke',
+    ],
+    Axe:     [
+        'You cleave into the {enemy} with your axe',
+        'You swing your axe in a wide arc at the {enemy}',
+        'The axe bites deep into the {enemy}',
+        'You bring your axe down on the {enemy}',
+    ],
+    Hammer:  [
+        'You bring the hammer down on the {enemy}',
+        'You slam your hammer into the {enemy}',
+        'The hammer connects with a thunderous blow on the {enemy}',
+        'You crush the {enemy} with your hammer',
+    ],
+    Mace:    [
+        'You smash your mace into the {enemy}',
+        'The flanged mace tears into the {enemy}',
+        'You bring the mace crashing down on the {enemy}',
+        'You batter the {enemy} with your mace',
+    ],
+    Flail:   [
+        'You whip the chain at the {enemy}',
+        'The spiked ball connects with the {enemy}',
+        'You swing the flail in a vicious arc at the {enemy}',
+        'The chain wraps and the ball smashes into the {enemy}',
+    ],
+    Dagger:  [
+        'You dart in and stab the {enemy}',
+        'You strike fast and precise at the {enemy}',
+        'Your dagger finds a vital spot on the {enemy}',
+        'You slash and retreat, cutting the {enemy}',
+    ],
+    Bow:     [
+        'You loose an arrow at the {enemy}',
+        'Your shot finds its mark on the {enemy}',
+        'You draw and release, the arrow striking the {enemy}',
+        'The arrow flies true and hits the {enemy}',
+    ],
+    Gun:     [
+        'You fire at the {enemy}',
+        'The shot rings out and hits the {enemy}',
+        'You pull the trigger and the round slams into the {enemy}',
+        'You take aim and fire at the {enemy}',
+    ],
+    Staff:   [
+        'You strike with your staff at the {enemy}',
+        'You channel energy through your staff into the {enemy}',
+        'Your staff connects with the {enemy}',
+        'You drive the end of your staff into the {enemy}',
+    ],
+    Wand:    [
+        'You direct a burst of energy at the {enemy}',
+        'Your wand crackles and strikes the {enemy}',
+        'You channel arcane force through your wand at the {enemy}',
+        'A focused beam from your wand hits the {enemy}',
+    ],
+    Spear:   [
+        'You thrust your spear into the {enemy}',
+        'You drive the point home at the {enemy}',
+        'Your spear pierces the {enemy}',
+        'You lunge forward, spearing the {enemy}',
+    ],
+    Pick:    [
+        'You drive the pick into the {enemy}',
+        'The pick tears through the {enemy}\'s defenses',
+        'You swing the pickaxe at the {enemy}',
+        'The iron pick connects solidly with the {enemy}',
+    ],
+    default: [
+        'You attack the {enemy}',
+        'You strike at the {enemy}',
+        'You hit the {enemy}',
+        'You land a blow on the {enemy}',
+    ],
+};
+
+const WEAPON_CRIT_FLAVOR = {
+    Sword:   ['You find a perfect opening and drive your blade deep into the {enemy}', 'A precise slash cuts the {enemy} critically'],
+    Axe:     ['You bring the axe down with full force on the {enemy}', 'A devastating cleave tears into the {enemy}'],
+    Hammer:  ['You put everything into the swing — the hammer obliterates the {enemy}', 'A crushing critical blow staggers the {enemy}'],
+    Mace:    ['The mace connects perfectly, a bone-crushing critical hit on the {enemy}', 'You smash through the {enemy}\'s guard completely'],
+    Flail:   ['The spiked ball catches the {enemy} at full momentum — a brutal critical', 'You land a vicious critical with the flail on the {enemy}'],
+    Dagger:  ['You find a vital point — a perfect critical strike on the {enemy}', 'Lightning fast, your dagger hits a critical spot on the {enemy}'],
+    Bow:     ['A perfect shot — the arrow strikes a critical point on the {enemy}', 'Your aim is flawless — critical hit on the {enemy}'],
+    Gun:     ['A perfect shot rings out — critical hit on the {enemy}', 'The round hits exactly where it needed to on the {enemy}'],
+    Staff:   ['A surge of energy erupts from your staff — critical hit on the {enemy}', 'You channel a burst of power into a critical strike on the {enemy}'],
+    Wand:    ['An overcharged burst from your wand — critical hit on the {enemy}', 'Pure arcane force — a critical strike on the {enemy}'],
+    Spear:   ['You thrust perfectly — a critical piercing strike on the {enemy}', 'The spear finds its mark exactly — critical hit on the {enemy}'],
+    default: ['Critical hit! You strike the {enemy} with devastating force', 'A perfect strike — critical hit on the {enemy}'],
+};
+
+function getAttackFlavor(hand, enemyName, isCrit) {
+    const weapon = character.equipment[hand];
+    let weaponType = 'default';
+    if (weapon && weapon.tags) {
+        const types = Object.keys(WEAPON_FLAVOR);
+        const match = weapon.tags.find(t => types.includes(t));
+        if (match) weaponType = match;
+    }
+    const pool = isCrit
+        ? (WEAPON_CRIT_FLAVOR[weaponType] || WEAPON_CRIT_FLAVOR.default)
+        : (WEAPON_FLAVOR[weaponType] || WEAPON_FLAVOR.default);
+    const template = pool[Math.floor(Math.random() * pool.length)];
+    return template.replace(/{enemy}/g, enemyName);
+}
+
+// -- GRENADE/THROWABLE SCALING ----------------------------
 const SUNPORT_INVENTORY = {
     weapons: [
         { id:'cutlass',          icon:'⚔',  name:'Cutlass',              desc:'A single-edged blade favored by sailors. Light and fast.',           price:60,  tags:['One-Handed','Sword'],  stat:'DEX +4',  slot:'mainHand', dmg:[10,16] },
@@ -6699,25 +7537,25 @@ function renderSunportTab(tab) {
         const owned = !item.stackable && isItemEquipped(item.id);
         const inInv = !item.stackable && character.inventory.some(i => i.id === item.id);
         const canAfford = character.gold >= item.price;
-        const tagHTML = (item.tags || []).map(t => `<span class="shop-tag">${t}</span>`).join('');
+        const tagHTML = (item.tags || []).map(t => `<span class="shop-tag">${t}<\/span>`).join('');
 
         const div = document.createElement('div');
         div.className = 'shop-item';
         div.setAttribute('aria-label', `${item.name}. ${item.desc}. ${item.price} gold.`);
         div.innerHTML = `
-            <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
-                <div class="shop-item-name">${item.name}</div>
-                <div class="shop-item-desc">${item.desc}</div>
-                <div class="shop-item-tags">${tagHTML}${item.stat ? `<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}</span>` : ''}${item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}</span>` : ''}</div>
-            </div>
+                <div class="shop-item-name">${item.name}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+                <div class="shop-item-tags">${tagHTML}${item.stat ? `<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}<\/span>` : ''}${item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}<\/span>` : ''}<\/div>
+            <\/div>
             <div class="shop-item-buy">
                 ${(owned || inInv) && !item.stackable
-                    ? `<div class="shop-item-price" style="color:var(--green)">✓ Owned</div>`
-                    : `<div class="shop-item-price ${canAfford?'':'cant-afford'}">${item.price}g</div>
-                       <button class="buy-btn" ${canAfford?'':'disabled'} onclick="buySunportItem('${item.id}')" aria-label="Buy ${item.name} for ${item.price} gold">Buy</button>`
+                    ? `<div class="shop-item-price" style="color:var(--green)">✓ Owned<\/div>`
+                    : `<div class="shop-item-price ${canAfford?'':'cant-afford'}">${item.price}g<\/div>
+                       <button class="buy-btn" ${canAfford?'':'disabled'} onclick="buySunportItem('${item.id}')" aria-label="Buy ${item.name} for ${item.price} gold">Buy<\/button>`
                 }
-            </div>
+            <\/div>
         `;
         panel.appendChild(div);
     });
@@ -6728,7 +7566,7 @@ function renderSunportSellTab() {
     const sellable = character.inventory.filter((i, idx) => !isItemEquipped(i.id, idx));
 
     if (sellable.length === 0) {
-        panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Loot the wreck and bring it back.</div>';
+        panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Loot the wreck and bring it back.<\/div>';
         return;
     }
 
@@ -6743,17 +7581,17 @@ function renderSunportSellTab() {
         div.className = 'shop-item';
         div.setAttribute('aria-label', `${item.name}${qty}. Sell for ${totalVal} gold.`);
         div.innerHTML = `
-            <span class="shop-item-icon" aria-hidden="true">${item.icon}</span>
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
-                <div class="shop-item-name">${item.name}${qty}</div>
-                <div class="shop-item-desc">${item.desc}</div>
-            </div>
+                <div class="shop-item-name">${item.name}${qty}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+            <\/div>
             <div class="shop-item-buy">
-                <div class="shop-item-price">${totalVal}g</div>
+                <div class="shop-item-price">${totalVal}g<\/div>
                 <button class="buy-btn" style="background:linear-gradient(135deg,#1a3a5a,#2a5a8a);color:#c0e0f0"
                     onclick="promptSunportSell(${realIndex})"
-                    aria-label="Sell ${item.name} for ${totalVal} gold">Sell</button>
-            </div>
+                    aria-label="Sell ${item.name} for ${totalVal} gold">Sell<\/button>
+            <\/div>
         `;
         panel.appendChild(div);
     });
@@ -6977,6 +7815,100 @@ function playSFX(name) {
     sfx.play().catch(() => {});
 }
 
+// -- SAVE TRANSFER ----------------------------------------
+function exportSave() {
+    try {
+        // Gather all wolfspire keys from localStorage
+        const saveData = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith('wolfspire') || key.startsWith('ws_'))) {
+                saveData[key] = localStorage.getItem(key);
+            }
+        }
+
+        if (Object.keys(saveData).length === 0) {
+            showToast('No save data found to export.');
+            announce('No save data to export.');
+            return;
+        }
+
+        const json = JSON.stringify(saveData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const date = new Date().toISOString().slice(0,10);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `wolfspire-save-${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('Save exported! Transfer the file to your other device.');
+        announce('Save data exported to file. Transfer the file and use Import Save on your other device.');
+    } catch(e) {
+        showToast('Export failed. Try again.');
+        console.error('Export error:', e);
+    }
+}
+
+function triggerImport() {
+    const input = document.getElementById('import-file-input');
+    if (input) input.click();
+    else {
+        // Create temporarily if not on title screen
+        const temp = document.createElement('input');
+        temp.type = 'file';
+        temp.accept = '.json';
+        temp.style.display = 'none';
+        temp.onchange = importSave;
+        document.body.appendChild(temp);
+        temp.click();
+        document.body.removeChild(temp);
+    }
+}
+
+function importSave(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const saveData = JSON.parse(e.target.result);
+
+            // Validate it looks like a Wolfspire save
+            const keys = Object.keys(saveData);
+            const isValid = keys.some(k => k.startsWith('wolfspire') || k.startsWith('ws_'));
+            if (!isValid) {
+                showToast('Invalid save file. Make sure you\'re using a Wolfspire export.');
+                announce('Invalid save file.');
+                return;
+            }
+
+            // Confirm before overwriting
+            if (confirm('Import this save? Your current save data on this device will be replaced.')) {
+                // Write all keys to localStorage
+                for (const [key, value] of Object.entries(saveData)) {
+                    localStorage.setItem(key, value);
+                }
+                showToast('Save imported! Reloading...');
+                announce('Save data imported. Reloading the game.');
+                setTimeout(() => location.reload(), 1200);
+            }
+        } catch(err) {
+            showToast('Failed to read save file. Make sure it\'s a valid Wolfspire export.');
+            announce('Import failed. Invalid file format.');
+            console.error('Import error:', err);
+        }
+    };
+    reader.readAsText(file);
+
+    // Reset input so same file can be selected again if needed
+    event.target.value = '';
+}
+
 // -- SETTINGS SCREEN --------------------------------------
 let settingsPreviousScreen = null;
 
@@ -6995,6 +7927,119 @@ function closeSettings() {
         goToScreen('town');
     }
     announce('Settings closed.');
+}
+
+// -- DESKTOP PANELS ---------------------------------------
+function isDesktop() { return window.innerWidth >= 1200; }
+function isTablet() { return window.innerWidth >= 900 && window.innerWidth < 1200; }
+
+function updateDesktopPanels() {
+    if (!isDesktop()) return;
+    updateDesktopEquip();
+    updateDesktopInv();
+}
+
+function updateDesktopEquip() {
+    const panel = document.getElementById('desktop-equip-panel');
+    if (!panel || !character) return;
+
+    const slots = [
+        { id:'head',    label:'Head',      icon:'🧢' },
+        { id:'neck1',   label:'Neck',      icon:'📿' },
+        { id:'mantle',  label:'Mantle',    icon:'🧣' },
+        { id:'chest',   label:'Chest',     icon:'🧥' },
+        { id:'waist',   label:'Waist',     icon:'🎀' },
+        { id:'arms',    label:'Arms',      icon:'🦾' },
+        { id:'wrists1', label:'Wrists',    icon:'🥋' },
+        { id:'hands',   label:'Hands',     icon:'🧤' },
+        { id:'legs',    label:'Legs',      icon:'👖' },
+        { id:'feet',    label:'Feet',      icon:'🥾' },
+        { id:'ring1',   label:'Ring 1',    icon:'💍' },
+        { id:'ring2',   label:'Ring 2',    icon:'💍' },
+        { id:'mainHand',label:'Main Hand', icon:'⚔'  },
+        { id:'offHand', label:'Off Hand',  icon:'🛡'  },
+    ];
+
+    panel.innerHTML = slots.map(s => {
+        const item = character.equipment[s.id];
+        const tierLabel = item && item.forgeTier ? ` +${item.forgeTier}` : '';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;background:${item ? 'rgba(201,168,76,0.05)' : 'transparent'};border:1px solid ${item ? '#2a2a3a' : 'transparent'};margin-bottom:3px">
+            <span style="font-size:1em;width:20px;text-align:center;flex-shrink:0" aria-hidden="true">${item ? item.icon : s.icon}<\/span>
+            <div style="min-width:0;flex:1">
+                <div style="font-family:'Cinzel',serif;font-size:0.65em;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em">${s.label}<\/div>
+                <div style="font-size:0.78em;color:${item ? 'var(--gold)' : '#3a3a4a'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item ? item.name + tierLabel : '—'}<\/div>
+            <\/div>
+        <\/div>`;
+    }).join('');
+}
+
+function updateDesktopInv() {
+    const panel = document.getElementById('desktop-inv-panel');
+    if (!panel || !character) return;
+
+    const unequipped = character.inventory
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item, idx }) => !isItemEquipped(item.id, idx));
+
+    if (unequipped.length === 0) {
+        panel.innerHTML = '<div style="font-size:0.8em;color:var(--text-dim);padding:8px;font-style:italic">Bag is empty<\/div>';
+        return;
+    }
+
+    // Group duplicates
+    const seen = {};
+    const grouped = [];
+    unequipped.forEach(({ item, idx }) => {
+        if (item.stackable) {
+            grouped.push({ item, idx, count: item.quantity || 1 });
+        } else {
+            if (seen[item.id]) { grouped[seen[item.id]].count++; return; }
+            seen[item.id] = grouped.length;
+            grouped.push({ item, idx, count: 1 });
+        }
+    });
+
+    panel.innerHTML = grouped.map(({ item, count }) => {
+        const qty = count > 1 ? ` x${count}` : '';
+        return `<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:5px;margin-bottom:2px;background:rgba(255,255,255,0.02)">
+            <span style="font-size:0.95em" aria-hidden="true">${item.icon}<\/span>
+            <div style="font-size:0.78em;color:var(--text-dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}<span style="color:var(--gold-dim)">${qty}<\/span><\/div>
+        <\/div>`;
+    }).join('');
+}
+
+function showDesktopCombatLog() {
+    if (!isDesktop()) return;
+    const inv = document.getElementById('desktop-inv-panel');
+    const log = document.getElementById('desktop-log-panel');
+    const top = document.getElementById('desktop-right-top');
+    if (inv) inv.parentElement.style.display = 'none';
+    if (top) top.style.display = 'none';
+    if (log) log.style.display = 'flex';
+    if (log) log.style.flexDirection = 'column';
+}
+
+function hideDesktopCombatLog() {
+    if (!isDesktop()) return;
+    const inv = document.getElementById('desktop-inv-panel');
+    const log = document.getElementById('desktop-log-panel');
+    const top = document.getElementById('desktop-right-top');
+    if (inv) inv.parentElement.style.display = 'flex';
+    if (top) top.style.display = 'block';
+    if (log) log.style.display = 'none';
+    updateDesktopPanels();
+}
+
+function addDesktopLogEntry(msg, type) {
+    if (!isDesktop()) return;
+    const entries = document.getElementById('desktop-log-entries');
+    if (!entries) return;
+    const colors = { player:'#7ec8a0', enemy:'#e07070', system:'var(--text-dim)', defend:'#80c0ff' };
+    const div = document.createElement('div');
+    div.style.cssText = `font-size:0.8em;color:${colors[type]||'var(--text-dim)'};line-height:1.4;padding:3px 0;border-bottom:1px solid #1a1a2a`;
+    div.textContent = msg;
+    entries.appendChild(div);
+    entries.scrollTop = entries.scrollHeight;
 }
 
 // -- INIT ------------------------------------------------
