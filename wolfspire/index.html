@@ -5106,6 +5106,31 @@ const SKILLS_DATA = [
             return { damage:0, log:`Vanish! You melt into the shadows. Your next retreat is guaranteed and you feel harder to hit!`, type:'defend', noEnemyDamage:true };
         }
     },
+    {
+        id:'backstab', icon:'🗡', name:'Backstab', type:'skill',
+        desc:'Strike from the shadows — a vicious surprise attack dealing 200% of your Dexterity damage.',
+        stat:'DEX x 2.0', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Stealth'],
+        use:(c,enemy) => {
+            const dex = c.stats.dex + getEquipBonuses().dex;
+            const dmg = Math.floor(roll(dex*2, dex*4) * 2.0);
+            return { damage:dmg, log:`Backstab! You slip behind the ${enemy.name} and drive your blade in for ${dmg} devastating damage!`, type:'player' };
+        }
+    },
+    {
+        id:'shadow_blades', icon:'🌑', name:'Shadow Blades', type:'skill',
+        desc:'Conjure blades from the darkness and hurl them at the enemy — three shadow strikes based on Dexterity.',
+        stat:'DEX x 1.5 x 3', price:50, cooldown:1, mpCost:12,
+        tags:['Skill','Shadow'],
+        use:(c,enemy) => {
+            const dex = c.stats.dex + getEquipBonuses().dex;
+            const b1 = Math.floor(roll(dex*2, dex*3) * 1.5);
+            const b2 = Math.floor(roll(dex*2, dex*3) * 1.5);
+            const b3 = Math.floor(roll(dex*2, dex*3) * 1.5);
+            const total = b1 + b2 + b3;
+            return { damage:total, log:`Shadow Blades! Three blades erupt from the darkness — ${b1}, ${b2}, and ${b3} damage shred the ${enemy.name}!`, type:'player' };
+        }
+    },
 ];
 
 const SPELLS_DATA = [
