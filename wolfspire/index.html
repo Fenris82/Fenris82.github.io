@@ -568,6 +568,43 @@
         /* -- RESULT OVERLAY -- */
         .combat-result { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; flex-direction: column; align-items: center; justify-content: center; padding: 30px; gap: 20px; text-align: center; }
         .combat-result.show { display: flex; }
+
+        /* Scrollable list overlays (dungeon select, travel) — fixes iPhone cutoff */
+        #dungeon-select-overlay,
+        #travel-overlay {
+            justify-content: flex-start;
+            align-items: center;
+            padding: 60px 20px calc(var(--nav-height) + 16px);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        #dungeon-select-overlay .overlay-panel,
+        #travel-overlay .overlay-panel {
+            width: 100%;
+            max-width: 420px;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .overlay-panel-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 4px;
+        }
+        #dungeon-select-overlay .leave-shop-btn,
+        #travel-overlay .leave-shop-btn {
+            flex-shrink: 0;
+        }
         .result-icon { font-size: 4em; }
         .result-title { font-family: 'Cinzel', serif; font-size: 1.8em; font-weight: 900; }
         .result-title.win { color: var(--gold); }
@@ -2257,12 +2294,12 @@
 </div>
 
 <!-- -- TRAVEL MENU -- -->
-<div class="combat-result" id="travel-overlay" role="dialog" aria-modal="true" aria-labelledby="travel-title" style="background:rgba(0,0,0,0.95);padding:30px 20px;justify-content:flex-start;padding-top:60px">
-    <div style="width:100%;max-width:420px">
-        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px;text-align:center" id="travel-title">Where to?</div>
-        <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:24px;text-align:center">The road awaits beyond Greatwolf City.</div>
+<div class="combat-result" id="travel-overlay" role="dialog" aria-modal="true" aria-labelledby="travel-title" style="background:rgba(0,0,0,0.95)">
+    <div class="overlay-panel">
+        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="travel-title">Where to?</div>
+        <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:16px">The road awaits beyond Greatwolf City.</div>
 
-        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+        <div class="overlay-panel-scroll">
 
             <div style="background:var(--bg-card);border:1px solid #2a2a44;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s"
                 role="button" tabindex="0"
@@ -2335,12 +2372,12 @@
 </div>
 
 <!-- -- DUNGEON SELECT OVERLAY -- -->
-<div class="combat-result" id="dungeon-select-overlay" role="dialog" aria-modal="true" aria-labelledby="dungeon-select-title" style="background:rgba(0,0,0,0.95);padding:30px 20px;justify-content:flex-start;padding-top:60px">
-    <div style="width:100%;max-width:420px">
-        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px;text-align:center" id="dungeon-select-title">Choose Your Dungeon</div>
-        <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:24px;text-align:center">The path appears when you choose it. Where it leads, few ask.</div>
+<div class="combat-result" id="dungeon-select-overlay" role="dialog" aria-modal="true" aria-labelledby="dungeon-select-title" style="background:rgba(0,0,0,0.95)">
+    <div class="overlay-panel">
+        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="dungeon-select-title">Choose Your Dungeon</div>
+        <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:16px">The path appears when you choose it. Where it leads, few ask.</div>
 
-        <div id="dungeon-card-list" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px"></div>
+        <div id="dungeon-card-list" class="overlay-panel-scroll" role="list" aria-label="Available dungeons"></div>
 
         <button class="leave-shop-btn" onclick="document.getElementById('dungeon-select-overlay').classList.remove('show')" aria-label="Back to town">
             Back to Town
