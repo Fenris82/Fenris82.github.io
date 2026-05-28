@@ -1846,7 +1846,7 @@
     </div>
 
     <div style="margin-top:8px;font-size:0.85em;color:var(--text-dim);font-style:italic;margin-bottom:16px">
-        Select a weapon or armor piece to upgrade. Sacrifices items from your inventory — the more items you have to offer, the higher you can forge. Relics cannot be forged.
+        Select a weapon or armor piece to upgrade — relics included. Sacrifice other items from your inventory to forge tiers +1 through +10. Other relics are never consumed as sacrifice material.
     </div>
 
     <div id="forge-item-list" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -3366,6 +3366,7 @@ function getEquipBonuses() {
         if (stat.includes('MP +'))  bonuses.mp  += parseInt(stat.match(/MP \+(\d+)/)[1]);
         // Knightly Longsword crit bonus
         if (item.special === 'knightly') bonuses.critBonus += 10;
+        if (item.special === 'precision') bonuses.critBonus += 15;
     });
     return bonuses;
 }
@@ -3490,6 +3491,21 @@ function playerAttack(hand) {
                 combat.poisonDmg = 18;
                 addLog(`Geminus's Torch roars! The ${combat.enemy.name} is set ablaze and will burn for 3 turns!`, 'player');
                 announce(`Enemy is burning. 18 fire damage per turn for 3 turns.`);
+            }
+            if (weaponData.special === 'holy' && Math.random() < 0.25) {
+                const heal = Math.floor(character.maxHp * 0.15);
+                combat.playerHp = Math.min(character.maxHp, combat.playerHp + heal);
+                character.hp = combat.playerHp;
+                setCombatPlayerBars();
+                addLog(`The Spear of Justice glows with holy light — you restore ${heal} HP!`, 'defend');
+                announce(`Spear of Justice restores ${heal} HP.`);
+            }
+            if (weaponData.special === 'deception' && Math.random() < 0.3) {
+                combat.enemyWeakened = true;
+                combat.enemyPoisoned = Math.max(combat.enemyPoisoned || 0, 2);
+                combat.poisonDmg = Math.max(combat.poisonDmg || 0, 15);
+                addLog(`Varg's scythe hisses! The serpent on its handle strikes — the ${combat.enemy.name} is deceived, weakened, and poisoned!`, 'player');
+                announce(`Unholy Scythe poisons and weakens the enemy.`);
             }
         }
     }
@@ -4071,6 +4087,12 @@ const LEGENDARY_CHEST_ITEMS = [
     { id:'staff_of_life',    icon:'✨', name:'Staff of Life',        desc:'An ancient staff humming with restorative energy. Each strike has a 20% chance to fully restore your MP.',               stat:'INT +10', slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[14,22], type:'legendary', special:'lifestaff' },
     { id:'knightly_longsword',icon:'⚔', name:'Knightly Longsword',  desc:'A perfectly balanced sword carried by knights of old. Grants a permanent +10% critical strike chance.',                  stat:'STR +8',  slot:'mainHand', tags:['Sword'],  stackable:false, dmg:[20,30], type:'legendary', special:'knightly' },
     { id:'geminus_torch',    icon:'🔥', name:"Geminus's Torch",     desc:"The flamethrower carried by Geminus of the Greatwolf Defenders. Burns enemies and leaves them scorched for 3 turns.",     stat:'STR +9',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[22,34], type:'legendary', special:'torch' },
+    { id:'deucalius_battle_axe', icon:'🪓', name:"Deucalius's Battle Axe of Strength", desc:"Wielded by Deucalius during the age of the Greatwolf Defenders. Its weight alone could shatter shields.", stat:'STR +11', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[26,40], type:'legendary' },
+    { id:'fenric_longbow',   icon:'🏹', name:"Fenric's Longbow of Precision", desc:"The longbow of Fenric, a Greatwolf Defender whose arrows never missed their mark. Grants +15% critical strike chance.", stat:'DEX +10', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,32], type:'legendary', special:'precision' },
+    { id:'wolfsteel_rocket_launcher', icon:'💥', name:'Wolfsteel Rocket Launcher', desc:"No one knows who built it or where it came from. Rumors swirl that Geminus wielded it alongside his torch — unconfirmed.", stat:'STR +10', slot:'mainHand', tags:['Gun'], stackable:false, dmg:[32,48], type:'legendary' },
+    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Valorian, his closest ally.", stat:'ARM +11', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
+    { id:'spear_of_justice', icon:'🔱', name:'Spear of Justice', desc:"Wielded by an angelic thief — some say Nightshade of the Ragnar Council, others that Fennyx blessed a relic of Varg's evil and made it holy. Each strike has a 25% chance to restore your spirit.", stat:'STR +9', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[18,28], type:'legendary', special:'holy' },
+    { id:'varg_unholy_scythe', icon:'☠', name:"Varg's Unholy Scythe of Deception", desc:"Wielded by Varg himself. It hums with corrupted energy, a serpent engraved on its handle.", stat:'STR +11', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[24,38], type:'legendary', special:'deception' },
 ];
 
 function rollChestLoot() {
@@ -7232,6 +7254,7 @@ function consumeCrystals(qty) {
 }
 
 function isRelic(item) {
+    // Legendary relics can be forged/upgraded; this flag only protects them from being sacrificed as forge fodder.
     return item.type === 'legendary' || LEGENDARY_CHEST_ITEMS.some(r => r.id === item.id);
 }
 
@@ -7429,7 +7452,7 @@ function renderTransmuteStep1() {
 
     const weapons = character.inventory
         .map((item, idx) => ({ item, idx }))
-        .filter(({ item }) => !item.stackable && item.slot === 'mainHand' && !isRelic(item));
+        .filter(({ item }) => !item.stackable && item.slot === 'mainHand');
 
     if (weapons.length === 0) {
         step1.style.display = 'none';
