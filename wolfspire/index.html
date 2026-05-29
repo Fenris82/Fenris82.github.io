@@ -2521,6 +2521,41 @@
     </div>
 </div>
 
+<!-- -- BUY CONFIRM OVERLAY -- -->
+<div class="confirm-overlay" id="buy-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="buy-confirm-title">
+    <div class="confirm-card">
+        <div class="confirm-title" id="buy-confirm-title">Buy Item?</div>
+        <div class="confirm-body" id="buy-confirm-body">How many would you like to buy?</div>
+
+        <div id="buy-qty-row" style="margin:14px 0">
+            <div style="font-family:'Cinzel',serif;font-size:0.75em;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Quantity</div>
+            <div style="display:flex;align-items:center;gap:8px">
+                <button class="confirm-btn cancel" style="flex:1;padding:10px" onclick="setBuyQty('min')" aria-label="Buy minimum, 1">Min</button>
+                <input
+                    type="number"
+                    id="buy-qty-input"
+                    min="1"
+                    value="1"
+                    style="flex:2;padding:10px;font-family:'Cinzel',serif;font-size:1.1em;font-weight:700;text-align:center;background:var(--bg-deep);border:2px solid var(--gold-dim);border-radius:8px;color:var(--gold)"
+                    aria-label="Quantity to buy"
+                    oninput="updateBuyPreview()"
+                    onchange="clampBuyQty()"
+                >
+                <button class="confirm-btn cancel" style="flex:1;padding:10px" onclick="setBuyQty('max')" aria-label="Buy maximum you can afford">Max</button>
+            </div>
+            <div style="text-align:center;margin-top:10px;font-family:'Cinzel',serif;font-size:0.9em;color:var(--text-dim);line-height:1.6">
+                Total cost: <span id="buy-gold-preview" style="color:var(--gold);font-weight:700">0g</span><br>
+                <span id="buy-gold-remaining" style="font-size:0.85em">You will have 0g left</span>
+            </div>
+        </div>
+
+        <div class="confirm-buttons">
+            <button class="confirm-btn primary" id="buy-confirm-yes" onclick="confirmBuy()" aria-label="Confirm purchase">Buy</button>
+            <button class="confirm-btn cancel" onclick="closeBuyConfirm()" aria-label="Cancel purchase">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <!-- -- FLOOR CLEAR OVERLAY -- -->
 <div class="combat-result" id="floor-clear-overlay" role="dialog" aria-modal="true" aria-labelledby="floor-clear-floor">
     <span class="result-icon" aria-hidden="true">🏰</span>
@@ -4328,18 +4363,7 @@ function renderIronholdShop() {
 }
 
 function buyIronholdItem(itemId) {
-    const allItems = [...IRONHOLD_INVENTORY.weapons, ...IRONHOLD_INVENTORY.armor];
-    const item = allItems.find(i => i.id === itemId);
-    if (!item) return;
-    const finalPrice = getDiscountedPrice(item.price);
-    if (character.gold < finalPrice) { showToast('Not enough gold!'); return; }
-    character.gold -= finalPrice;
-    character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 });
-    document.getElementById('ironhold-shop-gold').textContent = character.gold;
-    saveGame(); populateUI();
-    renderIronholdShop();
-    showToast(`Bought ${item.name}!`);
-    announce(`Purchased ${item.name} for ${finalPrice} gold.`);
+    promptBuy('ironhold', itemId);
 }
 
 function sellItemFromIronhold(idx) {
@@ -5769,6 +5793,184 @@ function closeSellConfirm() {
     sellPendingIndex = null;
 }
 
+// -- BUY CONFIRM ------------------------------------------
+let buyPendingShop = null;
+let buyPendingItemId = null;
+
+function findShopItem(shopId, itemId) {
+    if (shopId === 'greymantle') {
+        for (const cat of ['weapons', 'armor', 'items']) {
+            const item = SHOP_INVENTORY[cat].find(i => i.id === itemId);
+            if (item) return item;
+        }
+    } else if (shopId === 'ironhold') {
+        return [...IRONHOLD_INVENTORY.weapons, ...IRONHOLD_INVENTORY.armor].find(i => i.id === itemId);
+    } else if (shopId === 'wolfhaven') {
+        return [...WOLFHAVEN_INVENTORY.weapons, ...WOLFHAVEN_INVENTORY.armor, ...WOLFHAVEN_INVENTORY.consumables].find(i => i.id === itemId);
+    } else if (shopId === 'sunport') {
+        return [...SUNPORT_INVENTORY.weapons, ...SUNPORT_INVENTORY.accessories, ...SUNPORT_INVENTORY.consumables].find(i => i.id === itemId);
+    }
+    return null;
+}
+
+function getBuyMaxQty(unitPrice) {
+    if (!unitPrice || unitPrice < 1) return 1;
+    return Math.max(0, Math.floor(character.gold / unitPrice));
+}
+
+function isBulkBuyItem(item) {
+    // Potions, throwables, and other stackable consumables — never weapons or armor
+    if (!item || !item.stackable) return false;
+    if (!item.tags || !item.tags.includes('Consumable')) return false;
+    const gearSlots = new Set(['mainHand', 'offHand', 'head', 'chest', 'legs', 'feet', 'hands', 'mantle', 'arms', 'waist', 'neck1', 'neck2', 'wrists1', 'wrists2', 'ring1', 'ring2']);
+    if (item.slot && gearSlots.has(item.slot)) return false;
+    return true;
+}
+
+function promptBuy(shopId, itemId) {
+    if (!character) return;
+    const item = findShopItem(shopId, itemId);
+    if (!item) return;
+
+    const unitPrice = getDiscountedPrice(item.price);
+    if (character.gold < unitPrice) {
+        showToast('Not enough gold!');
+        announce('Not enough gold to buy ' + item.name + '.');
+        return;
+    }
+
+    if (!isBulkBuyItem(item)) {
+        executeBuy(shopId, item, 1);
+        return;
+    }
+
+    buyPendingShop = shopId;
+    buyPendingItemId = itemId;
+
+    const maxQty = getBuyMaxQty(unitPrice);
+    document.getElementById('buy-confirm-title').textContent = `Buy ${item.name}?`;
+    document.getElementById('buy-confirm-body').textContent =
+        `${unitPrice}g each · You carry ${character.gold}g. How many would you like?`;
+
+    const input = document.getElementById('buy-qty-input');
+    input.max = maxQty;
+    input.value = 1;
+    input.setAttribute('data-unit-price', unitPrice);
+    updateBuyPreview();
+
+    document.getElementById('buy-confirm-overlay').classList.add('show');
+    announce(`Buy ${item.name}. ${unitPrice} gold each. Enter quantity or use Min and Max.`);
+}
+
+function setBuyQty(type) {
+    const input = document.getElementById('buy-qty-input');
+    const max = parseInt(input.max) || 1;
+    input.value = type === 'min' ? 1 : max;
+    updateBuyPreview();
+    announce(`Quantity set to ${input.value}.`);
+}
+
+function clampBuyQty() {
+    const input = document.getElementById('buy-qty-input');
+    const max = parseInt(input.max) || 1;
+    let qty = parseInt(input.value) || 1;
+    qty = Math.max(1, Math.min(qty, max));
+    input.value = qty;
+    updateBuyPreview();
+}
+
+function updateBuyPreview() {
+    const input = document.getElementById('buy-qty-input');
+    const max = parseInt(input.max) || 1;
+    const unitPrice = parseInt(input.getAttribute('data-unit-price')) || 0;
+    let qty = parseInt(input.value) || 1;
+    if (qty > max) { qty = max; input.value = qty; }
+    if (qty < 1) qty = 1;
+
+    const total = unitPrice * qty;
+    const remaining = character.gold - total;
+    document.getElementById('buy-gold-preview').textContent = `${total}g`;
+    document.getElementById('buy-gold-remaining').textContent =
+        remaining >= 0 ? `You will have ${remaining}g left` : 'Not enough gold';
+}
+
+function confirmBuy() {
+    if (!buyPendingShop || !buyPendingItemId) return;
+    const item = findShopItem(buyPendingShop, buyPendingItemId);
+    if (!item) { closeBuyConfirm(); return; }
+
+    const input = document.getElementById('buy-qty-input');
+    const unitPrice = getDiscountedPrice(item.price);
+    const maxQty = getBuyMaxQty(unitPrice);
+    const qty = Math.max(1, Math.min(parseInt(input.value) || 1, maxQty));
+    const total = unitPrice * qty;
+
+    if (qty < 1 || character.gold < total) {
+        showToast('Not enough gold!');
+        announce('Not enough gold for that quantity.');
+        return;
+    }
+
+    executeBuy(buyPendingShop, item, qty);
+    closeBuyConfirm();
+}
+
+function executeBuy(shopId, item, qty) {
+    const unitPrice = getDiscountedPrice(item.price);
+    const total = unitPrice * qty;
+    character.gold -= total;
+
+    if (isBulkBuyItem(item)) {
+        const existing = character.inventory.find(i => i.id === item.id && i.stackable);
+        if (existing) existing.quantity += qty;
+        else character.inventory.push({ ...item, slot: item.slot || 'item', _uid: generateUid(), quantity: qty });
+    } else {
+        character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 });
+    }
+
+    saveGame();
+    populateUI();
+    refreshShopGoldDisplay(shopId);
+    refreshShopAfterBuy(shopId, item.id);
+
+    const qtyLabel = qty > 1 ? qty + 'x ' : '';
+    showToast(`Purchased ${qtyLabel}${item.name}!`);
+    announce(`Purchased ${qty} ${item.name} for ${total} gold. You have ${character.gold} gold remaining.`);
+}
+
+function refreshShopGoldDisplay(shopId) {
+    const goldMap = {
+        greymantle: 'shop-gold',
+        ironhold: 'ironhold-shop-gold',
+        wolfhaven: 'wolfhaven-shop-gold',
+        sunport: 'sunport-shop-gold',
+    };
+    const el = document.getElementById(goldMap[shopId]);
+    if (el) el.textContent = character.gold;
+}
+
+function refreshShopAfterBuy(shopId, itemId) {
+    if (shopId === 'greymantle') {
+        renderShop();
+    } else if (shopId === 'ironhold') {
+        renderIronholdShop();
+    } else if (shopId === 'wolfhaven') {
+        const tab = WOLFHAVEN_INVENTORY.consumables.find(i => i.id === itemId) ? 'consumables'
+            : WOLFHAVEN_INVENTORY.armor.find(i => i.id === itemId) ? 'armor' : 'weapons';
+        renderWolfhavenTab(tab);
+    } else if (shopId === 'sunport') {
+        const tab = SUNPORT_INVENTORY.consumables.find(i => i.id === itemId) ? 'consumables'
+            : SUNPORT_INVENTORY.accessories.find(i => i.id === itemId) ? 'accessories' : 'weapons';
+        renderSunportTab(tab);
+    }
+}
+
+function closeBuyConfirm() {
+    document.getElementById('buy-confirm-overlay').classList.remove('show');
+    buyPendingShop = null;
+    buyPendingItemId = null;
+}
+
 // -- SHOP DATA --------------------------------------------
 const SHOP_INVENTORY = {
     weapons: [
@@ -5966,41 +6168,7 @@ function switchTab(tab) {
 }
 
 function buyItem(itemId) {
-    // Find item across all categories
-    let item = null;
-    for (const cat of ['weapons','armor','items']) {
-        item = SHOP_INVENTORY[cat].find(i => i.id === itemId);
-        if (item) break;
-    }
-    if (!item) return;
-
-    const finalPrice = getDiscountedPrice(item.price);
-    if (character.gold < finalPrice) return;
-
-    character.gold -= finalPrice;
-
-    // Stack consumables; gear gets a unique id so duplicates can fill multiple slots
-    const existing = character.inventory.find(i => i.id === item.id && i.stackable);
-    if (existing) {
-        existing.quantity++;
-    } else if (item.stackable) {
-        character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 });
-    } else {
-        character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 });
-    }
-
-    saveGame();
-    populateUI();
-
-    // Update gold display in shop
-    document.getElementById('shop-gold').textContent = character.gold;
-
-    // Re-render to update affordability
-    renderShop();
-
-    // Toast notification
-    showToast(`Purchased ${item.name}!`);
-    announce(`Purchased ${item.name} for ${finalPrice} gold. You have ${character.gold} gold remaining.`);
+    promptBuy('greymantle', itemId);
 }
 
 function showToast(msg) {
@@ -7069,39 +7237,7 @@ function promptWolfhavenSell(invIndex) {
 }
 
 function buyWolfhavenItem(itemId) {
-    if (!character) return;
-    const allItems = [
-        ...WOLFHAVEN_INVENTORY.weapons,
-        ...WOLFHAVEN_INVENTORY.armor,
-        ...WOLFHAVEN_INVENTORY.consumables,
-    ];
-    const item = allItems.find(i => i.id === itemId);
-    if (!item) return;
-
-    const finalPrice = getDiscountedPrice(item.price);
-    if (character.gold < finalPrice) {
-        showToast('Not enough gold!');
-        announce('Not enough gold to buy ' + item.name + '.');
-        return;
-    }
-
-    character.gold -= finalPrice;
-
-    if (item.stackable) {
-        const existing = character.inventory.find(i => i.id === item.id);
-        if (existing) { existing.quantity++; }
-        else { character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 }); }
-    } else {
-        character.inventory.push({ ...item, _uid: generateUid() });
-    }
-
-    saveGame(); populateUI();
-    document.getElementById('wolfhaven-shop-gold').textContent = character.gold;
-    const tabToRefresh = WOLFHAVEN_INVENTORY.consumables.find(i=>i.id===itemId) ? 'consumables'
-                       : WOLFHAVEN_INVENTORY.armor.find(i=>i.id===itemId) ? 'armor' : 'weapons';
-    renderWolfhavenTab(tabToRefresh);
-    showToast(`Purchased ${item.name}!`);
-    announce(`Purchased ${item.name} for ${finalPrice} gold. You have ${character.gold} gold remaining.`);
+    promptBuy('wolfhaven', itemId);
 }
 
 // -- ASHWOOD DUNGEON --------------------------------------
@@ -7912,37 +8048,7 @@ function promptSunportSell(invIndex) {
 }
 
 function buySunportItem(itemId) {
-    if (!character) return;
-    const allItems = [
-        ...SUNPORT_INVENTORY.weapons,
-        ...SUNPORT_INVENTORY.accessories,
-        ...SUNPORT_INVENTORY.consumables,
-    ];
-    const item = allItems.find(i => i.id === itemId);
-    if (!item) return;
-
-    const finalPrice = getDiscountedPrice(item.price);
-    if (character.gold < finalPrice) {
-        showToast('Not enough gold!');
-        announce('Not enough gold to buy ' + item.name + '.');
-        return;
-    }
-
-    character.gold -= finalPrice;
-
-    if (item.stackable) {
-        const existing = character.inventory.find(i => i.id === item.id);
-        if (existing) { existing.quantity++; }
-        else { character.inventory.push({ ...item, _uid: generateUid(), quantity: 1 }); }
-    } else {
-        character.inventory.push({ ...item, _uid: generateUid() });
-    }
-
-    saveGame(); populateUI();
-    document.getElementById('sunport-shop-gold').textContent = character.gold;
-    renderSunportTab(item.stackable ? 'consumables' : (SUNPORT_INVENTORY.accessories.find(i=>i.id===itemId) ? 'accessories' : 'weapons'));
-    showToast(`Purchased ${item.name}!`);
-    announce(`Purchased ${item.name} for ${finalPrice} gold. You have ${character.gold} gold remaining.`);
+    promptBuy('sunport', itemId);
 }
 
 // -- SHIPWRECK DUNGEON ------------------------------------
