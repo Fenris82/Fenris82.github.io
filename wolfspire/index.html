@@ -3395,6 +3395,8 @@ function calcPlayerDamage(hand) {
             const tags = weaponData.tags || [];
             if (tags.includes('Staff') || tags.includes('Wand')) scalingStat = int;
             else if (tags.includes('Dagger') || tags.includes('Bow')) scalingStat = dex;
+            else if (tags.includes('Spear') && weaponData.stat && weaponData.stat.includes('DEX')) scalingStat = dex;
+            else if (tags.includes('Bow') && weaponData.stat && weaponData.stat.includes('STR')) scalingStat = str;
             else scalingStat = str;
         }
     }
@@ -6132,8 +6134,11 @@ const DUNGEONS = {
         },
         loot: [
             { id:'elf_bow',        icon:'🏹', name:'Elven Bow',        desc:'A bow carved by rogue elves. Incredibly accurate.',    stat:'DEX +5', slot:'mainHand', tags:['Bow'],   stackable:false },
+            { id:'summerwood_bow', icon:'🏹', name:'Summerwood Bow',   desc:'A ranger\'s bow strung with summerwood fiber. Light, swift, and deadly in open grassland.', stat:'DEX +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[11,17] },
+            { id:'summerwood_staff', icon:'🪄', name:'Summerwood Staff', desc:'Carved from living summerwood in the Verdant Wilds. The wood still hums with warmth and wild magic.', stat:'INT +4, MP +8', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[8,13] },
             { id:'orc_axe',        icon:'🪓', name:'Orc Waraxe',       desc:'A brutal axe taken from an orc warrior.',              stat:'STR +5', slot:'mainHand', tags:['Axe'],   stackable:false },
             { id:'wolf_pelt',      icon:'🐺', name:'Dire Wolf Pelt',   desc:'Thick fur from a dire wolf. Warm and protective.',      stat:'ARM +5', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
+            { id:'druidic_satin_pants', icon:'👖', name:'Druidic Satin Pants', desc:'Soft satin woven by Verdant Wilds druids. Light, cool, and enchanted to sustain magical energy.', stat:'MP +10', slot:'legs', tags:['Light','Legs'], stackable:false, type:'light' },
             { id:'troll_hide',     icon:'🧌', name:'Troll Hide Vest',  desc:'Incredibly tough hide from a forest troll.',           stat:'ARM +6', slot:'chest',    tags:['Heavy','Chest'],      stackable:false, type:'heavy'  },
             { id:'sprite_dust',    icon:'🧚', name:'Sprite Dust',      desc:'Shimmering dust from a woodland sprite.',              stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
             { id:'dire_fang',      icon:'🐺', name:'Dire Wolf Fang',   desc:'A massive fang from a dire wolf.',                     stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
@@ -6169,7 +6174,10 @@ const DUNGEONS = {
         },
         loot: [
             { id:'frost_axe',      icon:'🪓', name:'Frost Axe',        desc:'A Viking axe edged with enchanted ice.',               stat:'STR +5', slot:'mainHand', tags:['Axe'],   stackable:false },
+            { id:'spear_of_pure_ice', icon:'🔱', name:'Spear of Pure Ice', desc:'A spear carved from a shard of eternal ice. Cold as the Frostpeak — light, precise, and deadly in skilled hands.', stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[10,16] },
+            { id:'staff_of_pure_ice', icon:'🪄', name:'Staff of Pure Ice', desc:'A staff forged from the same eternal ice as its spear counterpart. Channels frost magic with chilling clarity.', stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
             { id:'ice_staff',      icon:'🪄', name:'Ice Staff',         desc:'A staff carved from glacial ice. Amplifies frost magic.',stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false },
+            { id:'robe_of_snow',   icon:'👘', name:'Robe of Snow',      desc:'Woven from enchanted snow-thread on the Frostpeak. Warmth and arcane focus in equal measure.', stat:'INT +3, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
             { id:'yeti_fur',       icon:'🦣', name:'Yeti Fur Cloak',   desc:'Incredibly warm fur from a yeti.',                     stat:'ARM +5', slot:'mantle',   tags:['Heavy','Mantle'],     stackable:false, type:'heavy'  },
             { id:'viking_shield',  icon:'🛡', name:'Viking Shield',    desc:'A round shield bearing Norse markings.',               stat:'ARM +6', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
             { id:'frost_ring',     icon:'💍', name:'Frost Ring',       desc:'A ring that crackles with cold energy.',               stat:'INT +4', slot:'ring1',    tags:['Ring'],               stackable:false },
@@ -6315,10 +6323,13 @@ const DUNGEONS = {
         },
         loot: [
             { id:'dwarven_axe',    icon:'⚒', name:'Dwarven War Axe',   desc:'Masterwork dwarven craftsmanship. Heavy and perfectly balanced.',   stat:'STR +6', slot:'mainHand', tags:['Axe'],   stackable:false },
+            { id:'dwarven_crossbow', icon:'🏹', name:'Dwarven Crossbow', desc:'A heavy crank-loaded crossbow of dwarven make. Slow to wind, brutal on impact — strength, not finesse, drives the bolt.', stat:'STR +5', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[14,21] },
             { id:'stone_hammer',   icon:'🔨', name:'Stone Hammer',      desc:'A hammer carved from a single piece of granite.',                    stat:'STR +5', slot:'mainHand', tags:['Hammer'], stackable:false },
             { id:'iron_plate',     icon:'🛡', name:'Iron Plate Armor',  desc:'Heavy dwarven plate. Virtually impenetrable.',                       stat:'ARM +8', slot:'chest',    tags:['Heavy','Chest'],      stackable:false, type:'heavy'  },
+            { id:'dwarven_leg_plates', icon:'🦾', name:'Dwarven Leg Plates', desc:'Heavy iron leg plates forged in Ironhold. Built for miners who haul stone — and warriors who stand their ground.', stat:'STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
             { id:'stone_shield',   icon:'🛡', name:'Stone Shield',      desc:'A shield hewn from deep stone. Incredibly tough.',                   stat:'ARM +7', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
             { id:'miners_helm',    icon:'⛑',  name:"Miner's Helm",      desc:'A dwarven mining helmet reinforced with iron.',                      stat:'ARM +5', slot:'head',     tags:['Heavy','Head'],       stackable:false, type:'heavy'  },
+            { id:'dwarven_depth_watch', icon:'⌚', name:'Dwarven Depth Watch', desc:'A pocket watch tuned to the deep mines. Keeps perfect time — and sharpens your eye for what others miss.', stat:'PER +4', slot:'wrists1', tags:['Medium','Wrists'], stackable:false, type:'medium' },
             { id:'iron_ore',       icon:'🪨', name:'Iron Ore',          desc:'Raw iron ore from deep in the mine.',                                stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
             { id:'cave_crystal',   icon:'💎', name:'Cave Crystal',      desc:'A glowing crystal found deep in the Iron Depths.',                   stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
         ],
