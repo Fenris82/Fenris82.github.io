@@ -8038,21 +8038,13 @@ function renderForgeList() {
     empty.style.display = 'none';
     list.innerHTML = '';
 
-    // Group duplicates
-    const seen = {};
-    const grouped = [];
-    forgeable.forEach(({ item, idx }) => {
-        if (seen[item.id] !== undefined) return; // show first unequipped only
-        seen[item.id] = true;
-        grouped.push({ item, idx });
-    });
+    const FORGE_EXCLUDE = ['health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom','fennyx_blessing','smoke_bomb','iron_grenade','thrown_axe','throwing_star','centaur_javelin','smoke_flare','nettle_poison','thornpoison','bark_shield'];
 
-    grouped.forEach(({ item, idx }) => {
+    forgeable.forEach(({ item, idx }) => {
         const currentTier = item.forgeTier || 0;
         const nextTier = FORGE_TIERS[currentTier];
         const maxed = currentTier >= 10;
-
-    const FORGE_EXCLUDE = ['health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom','fennyx_blessing','smoke_bomb','iron_grenade','thrown_axe','throwing_star','centaur_javelin','smoke_flare','nettle_poison','thornpoison','bark_shield'];
+        const equipped = isItemEquipped(item.id, idx);
 
     // Count sacrificeable items (unequipped, non-relic, not the item itself, not potions/consumables)
     const sacrificeable = character.inventory.filter((i, ix) =>
@@ -8071,6 +8063,7 @@ function renderForgeList() {
         const tierLabel = currentTier > 0 ? ` +${currentTier}` : '';
         const nextLabel = maxed ? 'Max Level (+10)'
             : `+${currentTier+1}: ${nextTier.goldCost}g + ${nextTier.itemCost} items sacrificed`;
+        const equippedLabel = equipped ? ' <span style="color:var(--gold);font-size:0.75em">(Equipped)</span>' : '';
 
         const div = document.createElement('div');
         div.className = 'shop-item';
@@ -8078,7 +8071,7 @@ function renderForgeList() {
         div.innerHTML = `
             <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
-                <div class="shop-item-name">${item.name}${tierLabel ? `<span style="color:var(--gold);font-size:0.8em;margin-left:6px">${tierLabel}<\/span>` : ''}<\/div>
+                <div class="shop-item-name">${item.name}${tierLabel ? `<span style="color:var(--gold);font-size:0.8em;margin-left:6px">${tierLabel}<\/span>` : ''}${equippedLabel}<\/div>
                 <div class="shop-item-desc">${item.stat || ''}${item.dmg ? ` | DMG ${item.dmg[0]}-${item.dmg[1]}` : ''}<\/div>
                 <div class="shop-item-desc" style="color:${maxed ? '#4caf50' : canAfford ? 'var(--text-dim)' : '#e07070'};font-size:0.85em">
                     ${maxed ? '✓ Fully Upgraded' : nextLabel}
@@ -8104,6 +8097,10 @@ function forgeItem(invIndex) {
     const tier = FORGE_TIERS[currentTier];
     if (character.gold < tier.goldCost) { showToast('Not enough gold!'); return; }
 
+    // Track target by uid so index shifts during sacrifice cannot upgrade the wrong item
+    if (!item._uid) item._uid = generateUid();
+    const targetUid = item._uid;
+
     // Count available sacrifice items
     const sacrificeable = character.inventory
         .map((i, ix) => ({ i, ix }))
@@ -8123,26 +8120,23 @@ function forgeItem(invIndex) {
     // Consume items — stackable materials first (not potions), then non-stackables
     let toConsume = tier.itemCost;
     for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
-        if (i === invIndex) continue;
+        if (character.inventory[i] && character.inventory[i]._uid === targetUid) continue;
         const inv = character.inventory[i];
         if (!inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || FORGE_EXCLUDE.includes(inv.id)) continue;
         const take = Math.min(inv.quantity || 1, toConsume);
         inv.quantity -= take;
         toConsume -= take;
-        if (inv.quantity <= 0) character.inventory.splice(i--, 1);
-        if (i < invIndex) invIndex--;
+        if (inv.quantity <= 0) character.inventory.splice(i, 1);
     }
     for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
-        if (i === invIndex) continue;
+        if (character.inventory[i] && character.inventory[i]._uid === targetUid) continue;
         const inv = character.inventory[i];
         if (inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || FORGE_EXCLUDE.includes(inv.id)) continue;
         character.inventory.splice(i, 1);
         toConsume--;
-        if (i < invIndex) invIndex--;
     }
 
-    // Re-fetch item after index adjustment
-    const forgedItem = character.inventory[invIndex];
+    const forgedItem = character.inventory.find(i => i._uid === targetUid);
     if (!forgedItem) { saveGame(); renderForgeList(); return; }
 
     forgedItem.forgeTier = currentTier + 1;
