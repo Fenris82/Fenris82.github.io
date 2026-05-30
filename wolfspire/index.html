@@ -654,6 +654,7 @@
         .slot-icon { font-size: 1.4em; line-height: 1; }
         .slot-label { font-family: 'Cinzel', serif; font-size: 0.58em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
         .slot-item-name { font-family: 'Cinzel', serif; font-size: 0.6em; color: var(--gold); text-align: center; line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; padding: 0 2px; }
+        .slot-item-sub { font-size: 0.55em; color: var(--text-dim); text-align: center; line-height: 1.2; width: 100%; }
 
         /* Inventory bag */
         .inv-empty { text-align: center; color: var(--text-dim); font-style: italic; padding: 30px 20px; font-size: 0.95em; }
@@ -4675,6 +4676,14 @@ function openInventory() {
     announce('Inventory opened. Equipment slots and bag displayed.');
 }
 
+function formatInvStatLine(item) {
+    const parts = [];
+    if (item.stat) parts.push(item.stat);
+    if (item.dmg) parts.push(`DMG ${item.dmg[0]}-${item.dmg[1]}`);
+    if (item.forgeTier) parts.push(`+${item.forgeTier}`);
+    return parts.join(' · ');
+}
+
 function renderEquipSlots() {
     if (!character) return;
     const eq = character.equipment;
@@ -4686,11 +4695,13 @@ function renderEquipSlots() {
         const item = eq[slotId];
         if (item) {
             el.classList.add('filled');
+            const statLine = formatInvStatLine(item);
             el.innerHTML = `
                 <span class="slot-icon" aria-hidden="true">${item.icon}<\/span>
                 <span class="slot-item-name">${item.name}<\/span>
+                ${statLine ? `<span class="slot-item-sub">${statLine}<\/span>` : ''}
             `;
-            el.setAttribute('aria-label', `${slotId.replace(/[0-9]/g,'')} slot: ${item.name}. Tap to unequip.`);
+            el.setAttribute('aria-label', `${slotId.replace(/[0-9]/g,'')} slot: ${item.name}${statLine ? '. ' + statLine : ''}. Tap to unequip.`);
         } else {
             el.classList.remove('filled');
             const defaultIcons = { head:'🪖', neck1:'📿', neck2:'📿', chest:'👕', wrists1:'⌚', wrists2:'⌚', hands:'🧤', legs:'👖', feet:'👢', ring1:'💍', ring2:'💍', mainHand:'⚔', offHand:'🛡' };
@@ -4756,12 +4767,13 @@ function renderBag() {
         div.className = 'inv-item';
         div.setAttribute('tabindex', '0');
         div.setAttribute('role', 'button');
-        div.setAttribute('aria-label', `${item.name}${qty > 1 ? ', quantity ' + qty : ''}. ${item.desc}. Tap for options.`);
+        const statLine = formatInvStatLine(item);
+        div.setAttribute('aria-label', `${item.name}${qty > 1 ? ', quantity ' + qty : ''}. ${statLine || item.desc}. Tap for options.`);
         div.innerHTML = `
             <span class="inv-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="inv-item-info">
                 <div class="inv-item-name">${item.name}<\/div>
-                <div class="inv-item-sub">${item.stat || ''}<\/div>
+                <div class="inv-item-sub">${statLine || item.desc}<\/div>
             <\/div>
             ${qtyBadge}
         `;
@@ -4837,7 +4849,7 @@ function openDetail(invIndex, equippedSlot) {
     document.getElementById('detail-icon').textContent = item.icon;
     document.getElementById('detail-name').textContent = item.name;
     document.getElementById('detail-desc').textContent = item.desc;
-    document.getElementById('detail-stat').textContent = item.stat;
+    document.getElementById('detail-stat').textContent = formatInvStatLine(item) || item.stat || '';
 
     const tagHTML = (item.tags || []).map(t => `<span class="shop-tag">${t}<\/span>`).join('');
     document.getElementById('detail-tags').innerHTML = tagHTML;
@@ -4867,7 +4879,8 @@ function openDetail(invIndex, equippedSlot) {
     }
 
     document.getElementById('item-detail-overlay').classList.add('show');
-    announce(`${item.name}. ${item.desc}. ${item.stat}.`);
+    const detailStat = formatInvStatLine(item);
+    announce(`${item.name}. ${item.desc}.${detailStat ? ' ' + detailStat + '.' : ''}`);
 }
 
 function closeDetail() {
@@ -7088,6 +7101,18 @@ function saveCharacterToSlot(slot) {
     saveRoster(roster);
 }
 
+function migrateItemMeta(item) {
+    if (!item) return;
+    if (item.id === 'warped_greatbow') {
+        item.id = 'golden_greatbow';
+        item.name = 'Golden Greatbow';
+        item.desc = 'A massive greatbow bathed in golden light — blessed by the Greatwolf himself. Its draw is legendary.';
+    }
+    if (item.id === 'ironwood_greatbow' && item.dmg && item.dmg[0] === 13 && item.dmg[1] === 19) {
+        item.dmg = [16, 24];
+    }
+}
+
 function loadCharacterFromSlot(slot) {
     const data = localStorage.getItem('wolfspire_char_' + slot);
     if (!data) return false;
@@ -7112,12 +7137,14 @@ function loadCharacterFromSlot(slot) {
         if (character.inventory) {
             character.inventory.forEach(item => {
                 if (!item._uid) item._uid = generateUid();
+                migrateItemMeta(item);
             });
         }
         // Sync equipped item uids with inventory where possible
         Object.keys(character.equipment).forEach(slotId => {
             const e = character.equipment[slotId];
             if (!e) return;
+            migrateItemMeta(e);
             if (!e._uid) {
                 // Find matching inventory item and share its uid
                 const invItem = character.inventory.find(i => i.id === e.id);
@@ -7392,7 +7419,7 @@ const WOLFHAVEN_INVENTORY = {
         { id:'spirit_staff',     icon:'🪄', name:'Spirit Staff',          desc:"A staff channeling Fennyx's holy light. Favored by priests.",          price:95,  tags:['Staff'],  stat:'INT +5', slot:'mainHand', dmg:[10,16] },
         { id:'shadow_bow',       icon:'🏹', name:'Shadow Bow',            desc:'A bow of darkwood carved in shadow. Silent and deadly accurate.',      price:100, tags:['Bow'],    stat:'DEX +5', slot:'mainHand', dmg:[14,20] },
         { id:'twin_daggers',     icon:'🗡',  name:'Twin Daggers',          desc:'A matched pair of nature-blessed daggers. Strike twice as fast.',      price:90,  tags:['Dagger'], stat:'DEX +4', slot:'mainHand', dmg:[9,14]  },
-        { id:'warped_greatbow',  icon:'🏹', name:'Warped Greatbow',       desc:'A massive bow twisted from corrupted ashwood. Punishing range.',       price:130, tags:['Bow'],    stat:'DEX +6', slot:'mainHand', dmg:[18,26] },
+        { id:'golden_greatbow',  icon:'🏹', name:'Golden Greatbow',       desc:'A massive greatbow bathed in golden light — blessed by the Greatwolf himself. Its draw is legendary.', price:130, tags:['Bow'],    stat:'DEX +6', slot:'mainHand', dmg:[18,26] },
     ],
     armor: [
         // Light — INT/MP focus
@@ -7437,7 +7464,7 @@ const AELINDRA_SHOP_QUOTES = [
 const IRONWOOD_INVENTORY = {
     weapons: [
         { id:'ironwood_blade',    icon:'⚔',  name:'Ironwood Blade',     desc:'A straight elven war sword. Favored by Ironwood captains.',          price:85,  tags:['Sword'],  stat:'STR +4', slot:'mainHand', dmg:[12,18] },
-        { id:'ironwood_greatbow', icon:'🏹', name:'Ironwood Greatbow',  desc:'A powerful bow of ironwood and silver string.',                        price:90,  tags:['Bow'],    stat:'DEX +4', slot:'mainHand', dmg:[13,19] },
+        { id:'ironwood_greatbow', icon:'🏹', name:'Ironwood Greatbow',  desc:'A powerful bow of ironwood and silver string.',                        price:90,  tags:['Bow'],    stat:'DEX +4', slot:'mainHand', dmg:[16,24] },
         { id:'battlewood_staff',  icon:'🪄', name:'Battlewood Staff',   desc:'A staff hardened for melee and spell alike.',                        price:80,  tags:['Staff'],  stat:'INT +4', slot:'mainHand', dmg:[8,13] },
         { id:'warden_spear',      icon:'🔱', name:'Warden Spear',       desc:'An ironwood-hafted spear for elven wardens.',                        price:75,  tags:['Spear'],  stat:'STR +4', slot:'mainHand', dmg:[11,16] },
     ],
