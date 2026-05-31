@@ -3605,7 +3605,7 @@ function getEquipBonuses() {
         if (stat.includes('PER +')) bonuses.per += parseInt(stat.match(/PER \+(\d+)/)[1]);
         if (stat.includes('ARM +')) bonuses.arm += parseInt(stat.match(/ARM \+(\d+)/)[1]);
         if (stat.includes('MP +'))  bonuses.mp  += parseInt(stat.match(/MP \+(\d+)/)[1]);
-        // Knightly Longsword crit bonus
+        // Valorian's Knightly Longsword crit bonus
         if (item.special === 'knightly') bonuses.critBonus += 10;
         if (item.special === 'precision') bonuses.critBonus += 15;
     });
@@ -4241,7 +4241,8 @@ const LOOT_POOL = [
     // Basic drops
     { id:'rusty_dagger',      icon:'🗡', name:'Rusty Dagger',         desc:'A worn dagger, still sharp enough.',                    stat:'DEX +1',  slot:'mainHand', tags:['Dagger'],      stackable:false },
     { id:'bone_club',         icon:'🦴', name:'Bone Club',             desc:'Fashioned from monster bone.',                          stat:'STR +2',  slot:'mainHand', tags:['Club'],         stackable:false },
-    { id:'cracked_bow',       icon:'🏹', name:'Cracked Bow',           desc:'Damaged but still functional.',                         stat:'DEX +1',  slot:'mainHand', tags:['Bow'],          stackable:false },
+    { id:'cracked_bow',       icon:'🏹', name:'Cracked Bow',           desc:'Damaged but still functional.',                         stat:'DEX +1',  slot:'mainHand', tags:['Bow'],          stackable:false, dmg:[4,8]   },
+    { id:'hunter_crossbow',   icon:'🏹', name:"Hunter's Crossbow",     desc:'A sturdy crossbow from an abandoned hunting camp. Crank-wound and hard-hitting.', stat:'DEX +3', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[10,16] },
     // Dungeon-only weapons
     { id:'battle_axe',        icon:'🪓', name:'Battle Axe',            desc:'A massive two-handed axe. Devastating in the right hands.',  stat:'STR +5',  slot:'mainHand', tags:['Axe'],          stackable:false },
     { id:'throwing_axe',      icon:'🪓', name:'Throwing Axe',          desc:'Perfectly weighted for throwing. Deadly at any range.',      stat:'DEX +4',  slot:'mainHand', tags:['Axe'],          stackable:false },
@@ -4335,10 +4336,11 @@ const LEGENDARY_CHEST_ITEMS = [
     { id:'wolfsteel_blade',  icon:'⚔',  name:'Wolfsteel Blade',     desc:'A blade forged from Wolfsteel. Lightweight, golden, and impossibly sharp.',           stat:'STR +9',  slot:'mainHand', tags:['Sword'],  stackable:false, dmg:[18,28], type:'legendary' },
     { id:'maul_of_justice',  icon:'⚖',  name:'Maul of Justice',     desc:"Fenris's legendary weapon. Said to strike with the weight of judgment itself. On hit: chance to stun and strike again.",  stat:'STR +12', slot:'mainHand', tags:['Hammer'], stackable:false, dmg:[28,45], type:'legendary', special:'justice' },
     { id:'staff_of_life',    icon:'✨', name:'Staff of Life',        desc:'An ancient staff humming with restorative energy. Each strike has a 20% chance to fully restore your MP.',               stat:'INT +10', slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[14,22], type:'legendary', special:'lifestaff' },
-    { id:'knightly_longsword',icon:'⚔', name:'Knightly Longsword',  desc:'A perfectly balanced sword carried by knights of old. Grants a permanent +10% critical strike chance.',                  stat:'STR +8',  slot:'mainHand', tags:['Sword'],  stackable:false, dmg:[20,30], type:'legendary', special:'knightly' },
+    { id:'knightly_longsword',icon:'⚔', name:"Valorian's Knightly Longsword of Honor", desc:"The sword of Valorian, closest ally to Fenris and a Greatwolf Defender. Perfectly balanced, sworn to protect, and never swung without cause. Grants +10% critical strike chance.", stat:'STR +8', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[20,30], type:'legendary', special:'knightly' },
     { id:'geminus_torch',    icon:'🔥', name:"Geminus's Torch",     desc:"The flamethrower carried by Geminus of the Greatwolf Defenders. Burns enemies and leaves them scorched for 3 turns.",     stat:'STR +9',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[22,34], type:'legendary', special:'torch' },
     { id:'deucalius_battle_axe', icon:'🪓', name:"Deucalius's Battle Axe of Strength", desc:"Wielded by Deucalius during the age of the Greatwolf Defenders. Its weight alone could shatter shields.", stat:'STR +11', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[26,40], type:'legendary' },
     { id:'fenric_longbow',   icon:'🏹', name:"Fenric's Longbow of Precision", desc:"The longbow of Fenric, a Greatwolf Defender whose arrows never missed their mark. Grants +15% critical strike chance.", stat:'DEX +10', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,32], type:'legendary', special:'precision' },
+    { id:'valorian_arbalest', icon:'🏹', name:"Valorian's Arbalest", desc:"The crossbow of Valorian, closest ally to Fenris and a Greatwolf Defender. Its bolts punch true through the thickest hide. Grants +15% critical strike chance.", stat:'DEX +9', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,30], type:'legendary', special:'precision' },
     { id:'wolfsteel_rocket_launcher', icon:'💥', name:'Wolfsteel Rocket Launcher', desc:"No one knows who built it or where it came from. Rumors swirl that Geminus wielded it alongside his torch — unconfirmed.", stat:'STR +10', slot:'mainHand', tags:['Gun'], stackable:false, dmg:[32,48], type:'legendary' },
     { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Valorian, his closest ally.", stat:'ARM +11', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
     { id:'spear_of_justice', icon:'🔱', name:'Spear of Justice', desc:"Wielded by an angelic thief — some say Nightshade of the Ragnar Council, others that Fennyx blessed a relic of Varg's evil and made it holy. Each strike has a 25% chance to restore your spirit.", stat:'STR +9', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[18,28], type:'legendary', special:'holy' },
@@ -4365,7 +4367,7 @@ function rollChestLoot() {
     }
 
     // Otherwise consumables and materials from the main loot pool
-    const chestPool = LOOT_POOL.filter(l => l.stackable || ['rusty_dagger','bone_club','cracked_bow','torn_cloth','hide_scraps','iron_shard'].includes(l.id));
+    const chestPool = LOOT_POOL.filter(l => l.stackable || ['rusty_dagger','bone_club','cracked_bow','hunter_crossbow','torn_cloth','hide_scraps','iron_shard'].includes(l.id));
     const idx = Math.max(0, Math.floor(Math.random() * chestPool.length) - Math.floor(perBonus / 5));
     return chestPool[idx] || chestPool[0];
 }
@@ -4424,6 +4426,7 @@ const IRONHOLD_INVENTORY = {
         { id:'dwarven_greataxe',  icon:'⚒', name:'Dwarven Greataxe',     desc:'A two-handed axe of exceptional dwarven craft.',                      price:130, tags:['Axe'],    stat:'STR +7', slot:'mainHand', dmg:[20,30] },
         { id:'iron_pick',         icon:'⛏', name:'Iron Pickaxe',         desc:'A sturdy mining pick repurposed as a weapon.',                        price:65,  tags:['Pick'],   stat:'STR +3', slot:'mainHand', dmg:[10,15] },
         { id:'dwarven_mace',      icon:'🏏', name:'Dwarven Mace',         desc:'A flanged iron mace forged in the deepest Ironhold furnaces.',        price:85,  tags:['Mace'],   stat:'STR +4', slot:'mainHand', dmg:[13,19] },
+        { id:'dwarven_crossbow',  icon:'🏹', name:'Dwarven Crossbow',     desc:'A heavy crank-loaded crossbow of dwarven make. Slow to wind, brutal on impact — strength, not finesse, drives the bolt.', price:120, tags:['Bow'], stat:'STR +5', slot:'mainHand', dmg:[14,21] },
         { id:'dwarven_flail',     icon:'⛓', name:'Dwarven Flail',        desc:'A heavy spiked flail on a chain of dwarven iron.',                    price:100, tags:['Flail'],  stat:'STR +5', slot:'mainHand', dmg:[15,22] },
         { id:'dwarven_rifle',     icon:'🔫', name:'Dwarven Rifle',        desc:'A prototype firearm of dwarven engineering. Heavy, loud, devastating.', price:140, tags:['Gun'],  stat:'STR +6', slot:'mainHand', dmg:[18,28] },
         { id:'dwarven_pistol',    icon:'🔫', name:'Dwarven Pistol',       desc:'A compact dwarven sidearm. Short range but brutal impact.',           price:110, tags:['Gun'],    stat:'STR +5', slot:'mainHand', dmg:[14,22] },
@@ -7177,6 +7180,10 @@ function migrateItemMeta(item) {
     if (item.id === 'ironwood_greatbow' && item.dmg && item.dmg[0] === 13 && item.dmg[1] === 19) {
         item.dmg = [16, 24];
     }
+    if (item.id === 'knightly_longsword') {
+        item.name = "Valorian's Knightly Longsword of Honor";
+        item.desc = "The sword of Valorian, closest ally to Fenris and a Greatwolf Defender. Perfectly balanced, sworn to protect, and never swung without cause. Grants +10% critical strike chance.";
+    }
 }
 
 function loadCharacterFromSlot(slot) {
@@ -7531,6 +7538,7 @@ const IRONWOOD_INVENTORY = {
     weapons: [
         { id:'ironwood_blade',    icon:'⚔',  name:'Ironwood Blade',     desc:'A straight elven war sword. Favored by Ironwood captains.',          price:85,  tags:['Sword'],  stat:'STR +4', slot:'mainHand', dmg:[12,18] },
         { id:'ironwood_greatbow', icon:'🏹', name:'Ironwood Greatbow',  desc:'A powerful bow of ironwood and silver string.',                        price:90,  tags:['Bow'],    stat:'DEX +4', slot:'mainHand', dmg:[16,24] },
+        { id:'ironwood_crossbow', icon:'🏹', name:'Ironwood Crossbow',  desc:'An elven arbalest of living ironwood and silver cams. Quiet, precise, and ruthlessly efficient.', price:95, tags:['Bow'], stat:'DEX +4', slot:'mainHand', dmg:[14,21] },
         { id:'battlewood_staff',  icon:'🪄', name:'Battlewood Staff',   desc:'A staff hardened for melee and spell alike.',                        price:80,  tags:['Staff'],  stat:'INT +4', slot:'mainHand', dmg:[8,13] },
         { id:'warden_spear',      icon:'🔱', name:'Warden Spear',       desc:'An ironwood-hafted spear for elven wardens.',                        price:75,  tags:['Spear'],  stat:'STR +4', slot:'mainHand', dmg:[11,16] },
     ],
