@@ -687,6 +687,7 @@
         }
         .inv-item-badge.equipped-badge { background: rgba(212,175,55,0.15); border: 1px solid var(--gold-dim); color: var(--gold); }
         .inv-item-badge.qty-badge { background: #1e1e38; border: 1px solid #2a2a44; color: var(--text-dim); }
+        .inv-item-badge.lock-badge { background: rgba(212,175,55,0.12); border: 1px solid var(--gold-dim); color: var(--gold); }
 
         /* Item detail overlay */
         .item-detail-overlay {
@@ -734,6 +735,8 @@
         .detail-btn.equip { background: linear-gradient(135deg, var(--gold-dim), var(--gold)); color: var(--bg-deep); }
         .detail-btn.unequip { background: #2a1a1a; border: 1px solid #5a2a2a; color: #ff8080; }
         .detail-btn.use { background: #1a2a1a; border: 1px solid #2a5a2a; color: #80c080; }
+        .detail-btn.lock { background: #1a1a2e; border: 1px solid var(--gold-dim); color: var(--gold); }
+        .detail-btn.unlock { background: #1a2a3a; border: 1px solid #3a5a7a; color: #90c0e0; }
         .detail-btn.cancel { background: transparent; border: 1px solid #2a2a44; color: var(--text-dim); }
         .detail-btn:hover { transform: translateY(-1px); opacity: 0.9; }
         .detail-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
@@ -1403,6 +1406,23 @@
             <input type="range" id="slider-amb" class="settings-slider" min="0" max="100" value="50"
                 aria-label="Ambience volume" oninput="setVolume('amb', this.value)" onchange="setVolume('amb', this.value)" step="5">
             <span class="slider-val" id="val-amb">50</span>
+        </div>
+    </div>
+
+    <!-- Inventory -->
+    <div class="settings-group" aria-labelledby="settings-inventory-heading">
+        <div class="settings-group-title" id="settings-inventory-heading">
+            <span aria-hidden="true">🎒</span> Inventory
+        </div>
+        <div class="settings-row">
+            <label class="settings-label" for="toggle-confirm-lock">Confirm when locking items</label>
+            <div class="toggle-wrap">
+                <span class="toggle-state" id="confirm-lock-state">On</span>
+                <button class="toggle-btn on" id="toggle-confirm-lock" role="switch" aria-checked="true"
+                    onclick="toggleGamePref('confirmLockItems')" aria-label="Toggle lock confirmation on or off">
+                    <span class="toggle-thumb"></span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2274,7 +2294,20 @@
             <button class="detail-btn equip" id="detail-equip-btn" onclick="equipFromDetail()" aria-label="Equip this item">Equip</button>
             <button class="detail-btn unequip" id="detail-unequip-btn" onclick="unequipFromDetail()" aria-label="Unequip this item" style="display:none">Unequip</button>
             <button class="detail-btn use" id="detail-use-btn" onclick="useFromDetail()" aria-label="Use this item" style="display:none">Use</button>
+            <button class="detail-btn lock" id="detail-lock-btn" onclick="promptToggleItemLock()" aria-label="Lock this item" style="display:none">Lock Item</button>
             <button class="detail-btn cancel" onclick="closeDetail()" aria-label="Close item details">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- -- LOCK ITEM OVERLAY -- -->
+<div class="confirm-overlay" id="lock-item-overlay" role="dialog" aria-modal="true" aria-labelledby="lock-item-title">
+    <div class="confirm-card">
+        <div class="confirm-title" id="lock-item-title">Lock Item?</div>
+        <div class="confirm-body" id="lock-item-body">Locked items cannot be sold or sacrificed at the Forge.</div>
+        <div class="confirm-buttons">
+            <button class="confirm-btn primary" onclick="confirmLockItem()" aria-label="Confirm lock item">Yes, Lock It</button>
+            <button class="confirm-btn cancel" onclick="closeLockItemConfirm()" aria-label="Cancel">Back</button>
         </div>
     </div>
 </div>
@@ -4414,6 +4447,7 @@ const SLOT_MAP = {
 let detailItem = null;
 let detailInvIndex = null;
 let equipSlotPending = null;
+let lockPendingIndex = null;
 let detailEquippedSlot = null;
 
 // -- IRONHOLD ---------------------------------------------
@@ -4704,7 +4738,7 @@ function formatInvStatLine(item) {
 function renderEquipSlots() {
     if (!character) return;
     const eq = character.equipment;
-    const slotIds = ['head','neck1','neck2','chest','wrists1','wrists2','hands','legs','feet','ring1','ring2','mainHand','offHand'];
+    const slotIds = ['head','neck1','neck2','mantle','wrists1','wrists2','arms','hands','ring1','ring2','chest','waist','legs','feet','mainHand','offHand'];
 
     slotIds.forEach(slotId => {
         const el = document.getElementById('slot-' + slotId);
@@ -4713,16 +4747,29 @@ function renderEquipSlots() {
         if (item) {
             el.classList.add('filled');
             const statLine = formatInvStatLine(item);
+            let locked = false;
+            if (item._uid) {
+                const invItem = character.inventory.find(i => i._uid === item._uid);
+                locked = invItem ? isItemLocked(invItem) : false;
+            }
             el.innerHTML = `
                 <span class="slot-icon" aria-hidden="true">${item.icon}<\/span>
-                <span class="slot-item-name">${item.name}<\/span>
+                <span class="slot-item-name">${locked ? '🔒 ' : ''}${item.name}<\/span>
                 ${statLine ? `<span class="slot-item-sub">${statLine}<\/span>` : ''}
             `;
-            el.setAttribute('aria-label', `${slotId.replace(/[0-9]/g,'')} slot: ${item.name}${statLine ? '. ' + statLine : ''}. Tap to unequip.`);
+            el.setAttribute('aria-label', `${slotId.replace(/[0-9]/g,'')} slot: ${item.name}${locked ? ', locked' : ''}${statLine ? '. ' + statLine : ''}. Tap to view.`);
         } else {
             el.classList.remove('filled');
-            const defaultIcons = { head:'🪖', neck1:'📿', neck2:'📿', chest:'👕', wrists1:'⌚', wrists2:'⌚', hands:'🧤', legs:'👖', feet:'👢', ring1:'💍', ring2:'💍', mainHand:'⚔', offHand:'🛡' };
-            const labelNames = { head:'Head', neck1:'Neck', neck2:'Neck 2', chest:'Chest', wrists1:'Wrists', wrists2:'Wrists 2', hands:'Hands', legs:'Legs', feet:'Feet', ring1:'Ring', ring2:'Ring 2', mainHand:'Main Hand', offHand:'Off Hand' };
+            const defaultIcons = {
+                head:'🪖', neck1:'📿', neck2:'📿', mantle:'🧣', wrists1:'⌚', wrists2:'⌚', arms:'💪',
+                hands:'🧤', ring1:'💍', ring2:'💍', chest:'👕', waist:'👔', legs:'👖', feet:'👢',
+                mainHand:'⚔', offHand:'🛡'
+            };
+            const labelNames = {
+                head:'Head', neck1:'Neck', neck2:'Neck 2', mantle:'Mantle', wrists1:'Wrists', wrists2:'Wrists 2',
+                arms:'Arms', hands:'Hands', ring1:'Ring', ring2:'Ring 2', chest:'Chest', waist:'Waist', legs:'Legs',
+                feet:'Feet', mainHand:'Main Hand', offHand:'Off Hand'
+            };
             el.innerHTML = `<span class="slot-icon" aria-hidden="true">${defaultIcons[slotId]}<\/span><span class="slot-label">${labelNames[slotId]}<\/span>`;
             el.setAttribute('aria-label', `${labelNames[slotId]} slot, empty`);
         }
@@ -4779,20 +4826,21 @@ function renderBag() {
     grouped.forEach(({ item, idx, count, indices }) => {
         const qty = item.stackable ? (item.quantity || 1) : count;
         const qtyBadge = qty > 1 ? `<span class="inv-item-badge qty-badge">x${qty}<\/span>` : '';
+        const lockBadge = isItemLocked(item) ? `<span class="inv-item-badge lock-badge" aria-label="Locked">🔒<\/span>` : '';
 
         const div = document.createElement('div');
         div.className = 'inv-item';
         div.setAttribute('tabindex', '0');
         div.setAttribute('role', 'button');
         const statLine = formatInvStatLine(item);
-        div.setAttribute('aria-label', `${item.name}${qty > 1 ? ', quantity ' + qty : ''}. ${statLine || item.desc}. Tap for options.`);
+        div.setAttribute('aria-label', `${item.name}${qty > 1 ? ', quantity ' + qty : ''}${isItemLocked(item) ? ', locked' : ''}. ${statLine || item.desc}. Tap for options.`);
         div.innerHTML = `
             <span class="inv-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="inv-item-info">
                 <div class="inv-item-name">${item.name}<\/div>
                 <div class="inv-item-sub">${statLine || item.desc}<\/div>
             <\/div>
-            ${qtyBadge}
+            ${lockBadge}${qtyBadge}
         `;
         div.onclick = () => openDetail(idx);
         div.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') openDetail(idx); };
@@ -4805,6 +4853,10 @@ function renderBag() {
 // identified even after inventory order changes
 let _uidCounter = Date.now();
 function generateUid() { return 'uid_' + (_uidCounter++); }
+
+function isItemLocked(item) {
+    return !!(item && item.locked);
+}
 
 function addToInventory(item) {
     if (item.stackable) {
@@ -4864,16 +4916,17 @@ function openDetail(invIndex, equippedSlot) {
     detailEquippedSlot = equippedSlot || null;
 
     document.getElementById('detail-icon').textContent = item.icon;
-    document.getElementById('detail-name').textContent = item.name;
+    document.getElementById('detail-name').textContent = (isItemLocked(item) ? '🔒 ' : '') + item.name;
     document.getElementById('detail-desc').textContent = item.desc;
     document.getElementById('detail-stat').textContent = formatInvStatLine(item) || item.stat || '';
 
     const tagHTML = (item.tags || []).map(t => `<span class="shop-tag">${t}<\/span>`).join('');
-    document.getElementById('detail-tags').innerHTML = tagHTML;
+    document.getElementById('detail-tags').innerHTML = tagHTML + (isItemLocked(item) ? `<span class="shop-tag" style="color:var(--gold);border-color:var(--gold-dim)">Locked<\/span>` : '');
 
     const equipBtn = document.getElementById('detail-equip-btn');
     const unequipBtn = document.getElementById('detail-unequip-btn');
     const useBtn = document.getElementById('detail-use-btn');
+    const lockBtn = document.getElementById('detail-lock-btn');
 
     // If opened by tapping an equipped slot, always show Unequip
     const isEquipped = equippedSlot
@@ -4884,28 +4937,91 @@ function openDetail(invIndex, equippedSlot) {
         equipBtn.style.display = 'none';
         unequipBtn.style.display = 'none';
         useBtn.style.display = 'flex';
+        lockBtn.style.display = 'none';
         useBtn.textContent = item.quantity > 1 ? `Use (x${item.quantity})` : 'Use';
     } else if (isEquipped) {
         equipBtn.style.display = 'none';
         unequipBtn.style.display = 'flex';
         useBtn.style.display = 'none';
+        lockBtn.style.display = 'flex';
+        lockBtn.textContent = isItemLocked(item) ? 'Unlock Item' : 'Lock Item';
+        lockBtn.className = 'detail-btn ' + (isItemLocked(item) ? 'unlock' : 'lock');
+        lockBtn.setAttribute('aria-label', isItemLocked(item) ? 'Unlock this item' : 'Lock this item');
     } else {
         equipBtn.style.display = 'flex';
         unequipBtn.style.display = 'none';
         useBtn.style.display = 'none';
+        lockBtn.style.display = 'flex';
+        lockBtn.textContent = isItemLocked(item) ? 'Unlock Item' : 'Lock Item';
+        lockBtn.className = 'detail-btn ' + (isItemLocked(item) ? 'unlock' : 'lock');
+        lockBtn.setAttribute('aria-label', isItemLocked(item) ? 'Unlock this item' : 'Lock this item');
     }
 
     document.getElementById('item-detail-overlay').classList.add('show');
     const detailStat = formatInvStatLine(item);
-    announce(`${item.name}. ${item.desc}.${detailStat ? ' ' + detailStat + '.' : ''}`);
+    announce(`${item.name}${isItemLocked(item) ? ', locked' : ''}. ${item.desc}.${detailStat ? ' ' + detailStat + '.' : ''}`);
 }
 
 function closeDetail() {
     closeEquipSlotChoice();
+    closeLockItemConfirm();
     document.getElementById('item-detail-overlay').classList.remove('show');
     detailItem = null;
     detailInvIndex = null;
     detailEquippedSlot = null;
+}
+
+function setItemLocked(invIndex, locked) {
+    const item = character.inventory[invIndex];
+    if (!item) return;
+    if (locked) item.locked = true;
+    else delete item.locked;
+    saveGame();
+    renderBag();
+    renderEquipSlots();
+    updateDesktopPanels();
+    showToast(locked ? `${item.name} locked.` : `${item.name} unlocked.`);
+    announce(locked
+        ? `${item.name} locked. It cannot be sold or sacrificed at the Forge.`
+        : `${item.name} unlocked.`);
+}
+
+function promptToggleItemLock() {
+    if (detailInvIndex === null) return;
+    const item = character.inventory[detailInvIndex];
+    if (!item || item.stackable) return;
+
+    if (isItemLocked(item)) {
+        setItemLocked(detailInvIndex, false);
+        openDetail(detailInvIndex, detailEquippedSlot);
+        return;
+    }
+
+    if (gamePrefs.confirmLockItems) {
+        lockPendingIndex = detailInvIndex;
+        document.getElementById('lock-item-title').textContent = `Lock ${item.name}?`;
+        document.getElementById('lock-item-body').textContent =
+            'Locked items cannot be sold or sacrificed as forge materials. You can unlock them anytime from item details.';
+        document.getElementById('lock-item-overlay').classList.add('show');
+        announce(`Lock ${item.name}? Confirm or go back.`);
+        return;
+    }
+
+    setItemLocked(detailInvIndex, true);
+    openDetail(detailInvIndex, detailEquippedSlot);
+}
+
+function confirmLockItem() {
+    if (lockPendingIndex === null) return;
+    const idx = lockPendingIndex;
+    setItemLocked(idx, true);
+    closeLockItemConfirm();
+    openDetail(idx, detailEquippedSlot);
+}
+
+function closeLockItemConfirm() {
+    document.getElementById('lock-item-overlay').classList.remove('show');
+    lockPendingIndex = null;
 }
 
 function equipItemToSlot(item, targetSlot) {
@@ -5869,7 +5985,7 @@ function getSellValue(item) {
 function renderSellTab() {
     const panel = document.getElementById('shop-sell');
     const sellable = character.inventory.map((i, idx) => ({ item: i, idx }))
-        .filter(({ item, idx }) => !isItemEquipped(item.id, idx));
+        .filter(({ item, idx }) => !isItemEquipped(item.id, idx) && !isItemLocked(item));
 
     if (sellable.length === 0) {
         panel.innerHTML = '<div class="inv-empty" style="padding:30px 0">Nothing to sell. Defeat enemies and find loot to bring back.<\/div>';
@@ -5919,8 +6035,8 @@ function renderSellTab() {
 }
 
 function promptSellGroup(itemId, count, valueEach) {
-    // Find first unequipped instance
-    const idx = character.inventory.findIndex((i, idx) => i.id === itemId && !isItemEquipped(i.id, idx));
+    // Find first unequipped, unlocked instance
+    const idx = character.inventory.findIndex((i, idx) => i.id === itemId && !isItemEquipped(i.id, idx) && !isItemLocked(i));
     if (idx === -1) return;
     const item = character.inventory[idx];
     sellPendingIndex = idx;
@@ -5952,6 +6068,11 @@ function promptSellGroup(itemId, count, valueEach) {
 function promptSell(invIndex) {
     const item = character.inventory[invIndex];
     if (!item) return;
+    if (isItemLocked(item)) {
+        showToast(`${item.name} is locked and cannot be sold.`);
+        announce(`${item.name} is locked. Unlock it from item details first.`);
+        return;
+    }
     sellPendingIndex = invIndex;
     const value = getSellValue(item);
 
@@ -6017,11 +6138,17 @@ function confirmSell() {
     const item = character.inventory[sellPendingIndex];
     if (!item) { closeSellConfirm(); return; }
 
-    // Safety net — never sell an equipped item regardless of display state
+    // Safety net — never sell an equipped or locked item regardless of display state
     if (isItemEquipped(item.id, sellPendingIndex)) {
         closeSellConfirm();
         showToast(`${item.name} is equipped and cannot be sold.`);
         announce(`${item.name} is currently equipped. Unequip it first.`);
+        return;
+    }
+    if (isItemLocked(item)) {
+        closeSellConfirm();
+        showToast(`${item.name} is locked and cannot be sold.`);
+        announce(`${item.name} is locked. Unlock it from item details first.`);
         return;
     }
 
@@ -6050,7 +6177,7 @@ function confirmSell() {
         // Remove qty instances of this item id from inventory
         let removed = 0;
         for (let i = character.inventory.length - 1; i >= 0 && removed < qty; i--) {
-            if (character.inventory[i].id === item.id && !isItemEquipped(item.id, i)) {
+            if (character.inventory[i].id === item.id && !isItemEquipped(item.id, i) && !isItemLocked(character.inventory[i])) {
                 character.inventory.splice(i, 1);
                 removed++;
             }
@@ -7870,7 +7997,7 @@ function renderTownShopItems(panel, items, buyFnName) {
 
 function renderTownSellTab(panelId, townName, refreshFn) {
     const panel = document.getElementById(panelId);
-    const sellable = character.inventory.filter((i, idx) => !isItemEquipped(i.id, idx));
+    const sellable = character.inventory.filter((i, idx) => !isItemEquipped(i.id, idx) && !isItemLocked(i));
     if (sellable.length === 0) {
         panel.innerHTML = `<div class="inv-empty" style="padding:30px 0">Nothing to sell. Explore near ${townName} and bring back what you find.<\/div>`;
         return;
@@ -8163,7 +8290,7 @@ function renderForgeList() {
 
     // Count sacrificeable items (unequipped, non-relic, not the item itself, not potions/consumables)
     const sacrificeable = character.inventory.filter((i, ix) =>
-        ix !== idx && !isRelic(i) && !isItemEquipped(i.id, ix) && !FORGE_EXCLUDE.includes(i.id)
+        ix !== idx && !isRelic(i) && !isItemEquipped(i.id, ix) && !isItemLocked(i) && !FORGE_EXCLUDE.includes(i.id)
     ).length;
     // Stackable materials only (not consumables)
     const stackCount = character.inventory
@@ -8219,7 +8346,7 @@ function forgeItem(invIndex) {
     // Count available sacrifice items
     const sacrificeable = character.inventory
         .map((i, ix) => ({ i, ix }))
-        .filter(({ i, ix }) => ix !== invIndex && !isItemEquipped(i.id, ix) && !isRelic(i));
+        .filter(({ i, ix }) => ix !== invIndex && !isItemEquipped(i.id, ix) && !isRelic(i) && !isItemLocked(i));
     const totalAvailable = sacrificeable.reduce((sum, { i }) =>
         sum + (i.stackable ? (i.quantity || 1) : 1), 0);
 
@@ -8237,7 +8364,7 @@ function forgeItem(invIndex) {
     for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
         if (character.inventory[i] && character.inventory[i]._uid === targetUid) continue;
         const inv = character.inventory[i];
-        if (!inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || FORGE_EXCLUDE.includes(inv.id)) continue;
+        if (!inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || isItemLocked(inv) || FORGE_EXCLUDE.includes(inv.id)) continue;
         const take = Math.min(inv.quantity || 1, toConsume);
         inv.quantity -= take;
         toConsume -= take;
@@ -8246,7 +8373,7 @@ function forgeItem(invIndex) {
     for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
         if (character.inventory[i] && character.inventory[i]._uid === targetUid) continue;
         const inv = character.inventory[i];
-        if (inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || FORGE_EXCLUDE.includes(inv.id)) continue;
+        if (inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || isItemLocked(inv) || FORGE_EXCLUDE.includes(inv.id)) continue;
         character.inventory.splice(i, 1);
         toConsume--;
     }
@@ -8950,8 +9077,9 @@ let settingsPreviousScreen = null;
 function openSettings() {
     settingsPreviousScreen = document.querySelector('.screen.active')?.id || 'screen-town';
     applyAudioPrefsToUI();
+    applyGamePrefsToUI();
     goToScreen('settings');
-    announce('Settings. Music, sound effects, and ambience controls.');
+    announce('Settings. Music, sound effects, ambience, and inventory controls.');
 }
 
 function closeSettings() {
@@ -9077,8 +9205,45 @@ function addDesktopLogEntry(msg, type) {
     entries.scrollTop = entries.scrollHeight;
 }
 
+// -- GAME PREFS -------------------------------------------
+let gamePrefs = { confirmLockItems: true };
+
+function loadGamePrefs() {
+    try {
+        const saved = localStorage.getItem('wolfspire_game');
+        if (saved) Object.assign(gamePrefs, JSON.parse(saved));
+    } catch(e) {}
+    applyGamePrefsToUI();
+}
+
+function saveGamePrefs() {
+    try {
+        localStorage.setItem('wolfspire_game', JSON.stringify(gamePrefs));
+    } catch(e) {}
+}
+
+function applyGamePrefsToUI() {
+    const toggle = document.getElementById('toggle-confirm-lock');
+    const state = document.getElementById('confirm-lock-state');
+    if (!toggle) return;
+    const enabled = !!gamePrefs.confirmLockItems;
+    toggle.classList.toggle('on', enabled);
+    toggle.setAttribute('aria-checked', enabled.toString());
+    if (state) state.textContent = enabled ? 'On' : 'Off';
+}
+
+function toggleGamePref(key) {
+    gamePrefs[key] = !gamePrefs[key];
+    saveGamePrefs();
+    applyGamePrefsToUI();
+    if (key === 'confirmLockItems') {
+        announce('Confirm when locking items turned ' + (gamePrefs.confirmLockItems ? 'on' : 'off') + '.');
+    }
+}
+
 // -- INIT ------------------------------------------------
 loadAudioPrefs();
+loadGamePrefs();
 refreshCreate();
 initTitleScreen();
 
