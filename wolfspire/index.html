@@ -3431,7 +3431,7 @@ function setActionsEnabled(enabled) {
     if (offhandBtn) offhandBtn.disabled = !enabled;
     document.getElementById('btn-defend').disabled = !enabled;
     document.getElementById('btn-retreat').disabled = !enabled;
-    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
+    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'moon_bomb', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
     const hasItems = character && character.inventory.some(i => i.stackable && i.quantity > 0 && USABLE_IN_COMBAT.includes(i.id));
     document.getElementById('btn-items').disabled = !enabled || !hasItems;
     const hasSkills = character && (character.skills||[]).some(id => SKILLS_DATA.find(s=>s.id===id && !s.passive));
@@ -3444,7 +3444,7 @@ function openCombatItems() {
     if (!combat || combat.over) return;
     const list = document.getElementById('combat-items-list');
     // Only show items that have a combat use -- potions, grenades, smoke bombs
-    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
+    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'moon_bomb', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
     const consumables = character.inventory.filter(i => i.stackable && i.quantity > 0 && USABLE_IN_COMBAT.includes(i.id));
 
     if (consumables.length === 0) {
@@ -3509,6 +3509,12 @@ function useCombatItem(itemId) {
         combat.enemy.hp -= dmg;
         logMsg = `You hurl an Iron Grenade at the ${combat.enemy.name} for ${dmg} damage!`;
         announceMsg = `Grenade deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
+        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+    } else if (itemId === 'moon_bomb') {
+        const dmg = roll(character.level * 8, character.level * 12);
+        combat.enemy.hp -= dmg;
+        logMsg = `You lob a Moon Bomb — pale light erupts around the ${combat.enemy.name} for ${dmg} damage!`;
+        announceMsg = `Moon Bomb deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'thrown_axe') {
         const dmg = roll(character.level * 8, character.level * 12);
@@ -3601,7 +3607,7 @@ function useCombatItem(itemId) {
     announce(announceMsg);
 
     // Check if damaging item killed enemy
-    if (['iron_grenade','thrown_axe','throwing_star','centaur_javelin','smoke_flare'].includes(itemId) && combat.enemy.hp <= 0) {
+    if (['iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','smoke_flare'].includes(itemId) && combat.enemy.hp <= 0) {
         setTimeout(victory, 600);
         return;
     }
@@ -4312,6 +4318,7 @@ const LOOT_POOL = [
     // -- CONSUMABLES --
     { id:'health_potion',     icon:'🧪', name:'Health Potion',         desc:'Restores 40% of your maximum HP.',                      stat:'HP +40%', slot:'item',     tags:['Consumable'],                stackable:true  },
     { id:'mana_potion',       icon:'💧', name:'Mana Potion',           desc:'Restores 40% of your maximum MP.',                      stat:'MP +40%', slot:'item',     tags:['Consumable'],                stackable:true  },
+    { id:'moon_bomb',         icon:'🌙', name:'Moon Bomb',             desc:'An alchemical charge that detonates in a burst of pale moonlight. Level-scaled damage, like a grenade.', stat:'DMG lvl×8-12', slot:'item', tags:['Consumable'], stackable:true },
     // -- MATERIALS --
     { id:'wolf_fang',         icon:'🐺', name:'Wolf Fang',             desc:'A sharp fang. Could be useful.',                        stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
     { id:'dark_crystal',      icon:'💎', name:'Dark Crystal',          desc:'Hums with corrupted energy.',                           stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
@@ -5155,7 +5162,7 @@ function useFromDetail() {
         resultMsg = 'Ready for your next retreat attempt!';
         // Flag for combat use -- will boost flee chance
         character.smokeBombReady = (character.smokeBombReady || 0) + 1;
-    } else if (item.id === 'iron_grenade' || item.id === 'thrown_axe' || item.id === 'throwing_star' || item.id === 'centaur_javelin') {
+    } else if (item.id === 'iron_grenade' || item.id === 'moon_bomb' || item.id === 'thrown_axe' || item.id === 'throwing_star' || item.id === 'centaur_javelin') {
         resultMsg = 'Save this for combat! (Use from Items in battle)';
         closeDetail();
         return;
@@ -8229,6 +8236,26 @@ function isRelic(item) {
     return item.type === 'legendary' || LEGENDARY_CHEST_ITEMS.some(r => r.id === item.id);
 }
 
+// Consumables (potions, throwables, etc.) and these ids are never forge sacrifice fodder
+const FORGE_SACRIFICE_EXCLUDE_IDS = [
+    'health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom',
+    'fennyx_blessing','smoke_bomb','iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','smoke_flare',
+    'nettle_poison','thornpoison','bark_shield',
+];
+
+function isForgeSacrificeExcluded(item) {
+    if (!item) return true;
+    if (item.tags && item.tags.includes('Consumable')) return true;
+    return FORGE_SACRIFICE_EXCLUDE_IDS.includes(item.id);
+}
+
+function canUseAsForgeSacrifice(item, invIndex) {
+    return !isForgeSacrificeExcluded(item)
+        && !isRelic(item)
+        && !isItemEquipped(item.id, invIndex)
+        && !isItemLocked(item);
+}
+
 function getForgeableItems() {
     const forgeSlots = new Set([
         'mainHand', 'offHand', 'head', 'chest', 'legs', 'feet', 'hands', 'arms',
@@ -8280,21 +8307,19 @@ function renderForgeList() {
     empty.style.display = 'none';
     list.innerHTML = '';
 
-    const FORGE_EXCLUDE = ['health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom','fennyx_blessing','smoke_bomb','iron_grenade','thrown_axe','throwing_star','centaur_javelin','smoke_flare','nettle_poison','thornpoison','bark_shield'];
-
     forgeable.forEach(({ item, idx }) => {
         const currentTier = item.forgeTier || 0;
         const nextTier = FORGE_TIERS[currentTier];
         const maxed = currentTier >= 10;
         const slotLabel = getForgeSlotLabel(item);
 
-    // Count sacrificeable items (unequipped, non-relic, not the item itself, not potions/consumables)
+    // Count sacrificeable items (unequipped, non-relic, not locked, not consumables/throwables)
     const sacrificeable = character.inventory.filter((i, ix) =>
-        ix !== idx && !isRelic(i) && !isItemEquipped(i.id, ix) && !isItemLocked(i) && !FORGE_EXCLUDE.includes(i.id)
+        ix !== idx && canUseAsForgeSacrifice(i, ix) && !i.stackable
     ).length;
-    // Stackable materials only (not consumables)
+    // Stackable materials only (not consumables or throwables)
     const stackCount = character.inventory
-        .filter(i => i.stackable && !FORGE_EXCLUDE.includes(i.id))
+        .filter(i => i.stackable && !isForgeSacrificeExcluded(i))
         .reduce((sum, i) => sum + (i.quantity || 1), 0);
         const totalSacrificeable = sacrificeable + stackCount;
 
@@ -8346,7 +8371,7 @@ function forgeItem(invIndex) {
     // Count available sacrifice items
     const sacrificeable = character.inventory
         .map((i, ix) => ({ i, ix }))
-        .filter(({ i, ix }) => ix !== invIndex && !isItemEquipped(i.id, ix) && !isRelic(i) && !isItemLocked(i));
+        .filter(({ i, ix }) => ix !== invIndex && canUseAsForgeSacrifice(i, ix));
     const totalAvailable = sacrificeable.reduce((sum, { i }) =>
         sum + (i.stackable ? (i.quantity || 1) : 1), 0);
 
@@ -8355,16 +8380,14 @@ function forgeItem(invIndex) {
         return;
     }
 
-    const FORGE_EXCLUDE = ['health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom','fennyx_blessing','smoke_bomb','iron_grenade','thrown_axe','throwing_star','centaur_javelin','smoke_flare','nettle_poison','thornpoison','bark_shield'];
-
     character.gold -= tier.goldCost;
 
-    // Consume items — stackable materials first (not potions), then non-stackables
+    // Consume items — stackable materials first (not potions/throwables), then non-stackables
     let toConsume = tier.itemCost;
     for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
         if (character.inventory[i] && character.inventory[i]._uid === targetUid) continue;
         const inv = character.inventory[i];
-        if (!inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || isItemLocked(inv) || FORGE_EXCLUDE.includes(inv.id)) continue;
+        if (!inv.stackable || !canUseAsForgeSacrifice(inv, i)) continue;
         const take = Math.min(inv.quantity || 1, toConsume);
         inv.quantity -= take;
         toConsume -= take;
@@ -8373,7 +8396,7 @@ function forgeItem(invIndex) {
     for (let i = character.inventory.length - 1; i >= 0 && toConsume > 0; i--) {
         if (character.inventory[i] && character.inventory[i]._uid === targetUid) continue;
         const inv = character.inventory[i];
-        if (inv.stackable || isRelic(inv) || isItemEquipped(inv.id, i) || isItemLocked(inv) || FORGE_EXCLUDE.includes(inv.id)) continue;
+        if (inv.stackable || !canUseAsForgeSacrifice(inv, i)) continue;
         character.inventory.splice(i, 1);
         toConsume--;
     }
