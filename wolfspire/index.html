@@ -2279,6 +2279,19 @@
     </div>
 </div>
 
+<!-- -- EQUIP SLOT OVERLAY -- -->
+<div class="confirm-overlay" id="equip-slot-overlay" role="dialog" aria-modal="true" aria-labelledby="equip-slot-title">
+    <div class="confirm-card">
+        <div class="confirm-title" id="equip-slot-title">Which hand?</div>
+        <div class="confirm-body" id="equip-slot-body">Both hands are full. Choose which slot to replace.</div>
+        <div class="confirm-buttons">
+            <button class="confirm-btn primary" id="equip-slot-main-btn" onclick="confirmEquipToSlot('mainHand')" aria-label="Equip to main hand">Equip to Main Hand</button>
+            <button class="confirm-btn primary" id="equip-slot-off-btn" onclick="confirmEquipToSlot('offHand')" aria-label="Equip to off hand">Equip to Off Hand</button>
+            <button class="confirm-btn cancel" onclick="closeEquipSlotChoice()" aria-label="Go back without equipping">Back</button>
+        </div>
+    </div>
+</div>
+
 <!-- -- COMBAT ABILITIES OVERLAY -- -->
 <div class="combat-items-overlay" id="combat-abilities-overlay" role="dialog" aria-modal="true" aria-label="Use ability">
     <div class="combat-items-card">
@@ -4398,6 +4411,7 @@ const SLOT_MAP = {
 
 let detailItem = null;
 let detailInvIndex = null;
+let equipSlotPending = null;
 let detailEquippedSlot = null;
 
 // -- IRONHOLD ---------------------------------------------
@@ -4884,16 +4898,66 @@ function openDetail(invIndex, equippedSlot) {
 }
 
 function closeDetail() {
+    closeEquipSlotChoice();
     document.getElementById('item-detail-overlay').classList.remove('show');
     detailItem = null;
     detailInvIndex = null;
     detailEquippedSlot = null;
 }
 
+function equipItemToSlot(item, targetSlot) {
+    character.equipment[targetSlot] = {
+        id: item.id,
+        _uid: item._uid || generateUid(),
+        name: item.name,
+        icon: item.icon,
+        desc: item.desc,
+        tags: item.tags,
+        stat: item.stat,
+        slot: item.slot,
+        special: item.special,
+        dmg: item.dmg,
+        type: item.type,
+        forgeTier: item.forgeTier,
+    };
+
+    saveGame();
+    renderEquipSlots();
+    renderBag();
+    showToast(`${item.name} equipped!`);
+    announce(`${item.name} equipped to ${targetSlot === 'offHand' ? 'off hand' : targetSlot.replace(/[0-9]+$/, '')} slot.`);
+}
+
+function promptEquipSlotChoice(item) {
+    const main = character.equipment.mainHand;
+    const off = character.equipment.offHand;
+    equipSlotPending = item;
+    document.getElementById('equip-slot-title').textContent = `Equip ${item.name}?`;
+    document.getElementById('equip-slot-body').innerHTML =
+        `Both hands are full. Choose a slot to replace.<br><br>` +
+        `Main Hand: <strong>${main.name}</strong><br>` +
+        `Off Hand: <strong>${off.name}</strong>`;
+    document.getElementById('equip-slot-main-btn').textContent = 'Equip to Main Hand';
+    document.getElementById('equip-slot-off-btn').textContent = 'Equip to Off Hand';
+    document.getElementById('equip-slot-overlay').classList.add('show');
+    announce(`Both hands full. Equip ${item.name} to main hand or off hand, or go back.`);
+}
+
+function confirmEquipToSlot(slotId) {
+    if (!equipSlotPending) return;
+    equipItemToSlot(equipSlotPending, slotId);
+    closeEquipSlotChoice();
+    closeDetail();
+}
+
+function closeEquipSlotChoice() {
+    document.getElementById('equip-slot-overlay').classList.remove('show');
+    equipSlotPending = null;
+}
+
 function equipFromDetail() {
     if (!detailItem) return;
     const item = detailItem;
-    const invIndex = detailInvIndex;
 
     // Normalize slot type — strip trailing digits so 'ring1'/'ring2' both map to 'ring'
     const rawSlot = item.slot;
@@ -4912,15 +4976,8 @@ function equipFromDetail() {
         } else if (!character.equipment.offHand) {
             possibleSlots = ['offHand'];
         } else {
-            // Both slots full — ask player which to replace
-            const main = character.equipment.mainHand;
-            const off = character.equipment.offHand;
-            closeDetail();
-            if (confirm(`Which slot?\n\nMain Hand: ${main.name}\nOff Hand: ${off.name}\n\nOK = Main Hand\nCancel = Off Hand`)) {
-                possibleSlots = ['mainHand'];
-            } else {
-                possibleSlots = ['offHand'];
-            }
+            promptEquipSlotChoice(item);
+            return;
         }
     }
 
@@ -4928,27 +4985,8 @@ function equipFromDetail() {
     let targetSlot = possibleSlots.find(s => !character.equipment[s]);
     if (!targetSlot) targetSlot = possibleSlots[0];
 
-    // Equip into the resolved slot — store _uid so identical items can be told apart regardless of inventory order
-    character.equipment[targetSlot] = {
-        id: item.id,
-        _uid: item._uid || generateUid(),
-        name: item.name,
-        icon: item.icon,
-        desc: item.desc,
-        tags: item.tags,
-        stat: item.stat,
-        slot: item.slot,
-        special: item.special,
-        dmg: item.dmg,
-        type: item.type
-    };
-
-    saveGame();
-    renderEquipSlots();
-    renderBag();
+    equipItemToSlot(item, targetSlot);
     closeDetail();
-    showToast(`${item.name} equipped!`);
-    announce(`${item.name} equipped to ${targetSlot === 'offHand' ? 'off hand' : targetSlot.replace(/[0-9]+$/, '')} slot.`);
 }
 
 function unequipFromDetail() {
