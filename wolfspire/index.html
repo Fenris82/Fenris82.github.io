@@ -1682,6 +1682,10 @@
         <button class="shop-tab" id="itab-sell" role="tab" aria-selected="false" onclick="switchIronholdTab('sell')">💰 Sell</button>
     </div>
 
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button class="rename-btn" onclick="openShopFilter()" aria-label="Filter and sort shop items">Filter / Sort</button>
+    </div>
+
     <div class="shop-panel active" id="ironhold-weapons" role="tabpanel"></div>
     <div class="shop-panel" id="ironhold-armor" role="tabpanel"></div>
     <div class="shop-panel" id="ironhold-sell" role="tabpanel"></div>
@@ -1760,6 +1764,10 @@
         <button class="shop-tab" id="stab-accessories" role="tab" aria-selected="false" onclick="switchSunportTab('accessories')">💍 Accessories</button>
         <button class="shop-tab" id="stab-consumables" role="tab" aria-selected="false" onclick="switchSunportTab('consumables')">🧪 Supplies</button>
         <button class="shop-tab" id="stab-sell" role="tab" aria-selected="false" onclick="switchSunportTab('sell')">💰 Sell</button>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button class="rename-btn" onclick="openShopFilter()" aria-label="Filter and sort shop items">Filter / Sort</button>
     </div>
 
     <div class="shop-panel active" id="sunport-weapons" role="tabpanel"></div>
@@ -1843,6 +1851,10 @@
         <button class="shop-tab" id="wtab-sell" role="tab" aria-selected="false" onclick="switchWolfhavenTab('sell')">💰 Sell</button>
     </div>
 
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button class="rename-btn" onclick="openShopFilter()" aria-label="Filter and sort shop items">Filter / Sort</button>
+    </div>
+
     <div class="shop-panel active" id="wolfhaven-weapons" role="tabpanel"></div>
     <div class="shop-panel" id="wolfhaven-armor" role="tabpanel"></div>
     <div class="shop-panel" id="wolfhaven-consumables" role="tabpanel"></div>
@@ -1914,6 +1926,10 @@
         <button class="shop-tab" id="iwoodtab-sell" role="tab" aria-selected="false" onclick="switchIronwoodTab('sell')">💰 Sell</button>
     </div>
 
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button class="rename-btn" onclick="openShopFilter()" aria-label="Filter and sort shop items">Filter / Sort</button>
+    </div>
+
     <div class="shop-panel active" id="ironwood-weapons" role="tabpanel"></div>
     <div class="shop-panel" id="ironwood-armor" role="tabpanel"></div>
     <div class="shop-panel" id="ironwood-sell" role="tabpanel"></div>
@@ -1980,6 +1996,10 @@
         <button class="shop-tab active" id="wmtab-weapons" role="tab" aria-selected="true" onclick="switchWindmaneTab('weapons')">⚔ Weapons</button>
         <button class="shop-tab" id="wmtab-armor" role="tab" aria-selected="false" onclick="switchWindmaneTab('armor')">🧥 Gear</button>
         <button class="shop-tab" id="wmtab-sell" role="tab" aria-selected="false" onclick="switchWindmaneTab('sell')">💰 Sell</button>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button class="rename-btn" onclick="openShopFilter()" aria-label="Filter and sort shop items">Filter / Sort</button>
     </div>
 
     <div class="shop-panel active" id="windmane-weapons" role="tabpanel"></div>
@@ -3630,6 +3650,8 @@ function getEquipBonuses() {
             ...(typeof IRONHOLD_INVENTORY !== 'undefined' ? [...(IRONHOLD_INVENTORY.weapons||[]), ...(IRONHOLD_INVENTORY.armor||[])] : []),
             ...(typeof SUNPORT_INVENTORY !== 'undefined' ? [...(SUNPORT_INVENTORY.weapons||[]), ...(SUNPORT_INVENTORY.accessories||[])] : []),
             ...(typeof WOLFHAVEN_INVENTORY !== 'undefined' ? [...(WOLFHAVEN_INVENTORY.weapons||[]), ...(WOLFHAVEN_INVENTORY.armor||[])] : []),
+            ...(typeof IRONWOOD_INVENTORY !== 'undefined' ? [...(IRONWOOD_INVENTORY.weapons||[]), ...(IRONWOOD_INVENTORY.armor||[])] : []),
+            ...(typeof WINDMANE_INVENTORY !== 'undefined' ? [...(WINDMANE_INVENTORY.weapons||[]), ...(WINDMANE_INVENTORY.armor||[])] : []),
             ...(typeof LEGENDARY_CHEST_ITEMS !== 'undefined' ? LEGENDARY_CHEST_ITEMS : []),
             ...(LOOT_POOL || []),
             ...Object.values(DUNGEONS).flatMap(d => d.loot || [])
@@ -3643,7 +3665,8 @@ function getEquipBonuses() {
         if (stat.includes('CHA +')) bonuses.cha += parseInt(stat.match(/CHA \+(\d+)/)[1]);
         if (stat.includes('PER +')) bonuses.per += parseInt(stat.match(/PER \+(\d+)/)[1]);
         if (stat.includes('ARM +')) bonuses.arm += parseInt(stat.match(/ARM \+(\d+)/)[1]);
-        if (stat.includes('MP +'))  bonuses.mp  += parseInt(stat.match(/MP \+(\d+)/)[1]);
+        if (stat.includes('MP +') && !stat.includes('MP +40%')) bonuses.mp += parseInt(stat.match(/MP \+(\d+)/)[1]);
+        if (stat.includes('RES +')) bonuses.res += parseInt(stat.match(/RES \+(\d+)/)[1]);
         // Valorian's Knightly Longsword crit bonus
         if (item.special === 'knightly') bonuses.critBonus += 10;
         if (item.special === 'precision') bonuses.critBonus += 15;
@@ -4293,28 +4316,28 @@ const LOOT_POOL = [
     { id:'varg_blade',        icon:'🗡', name:"Varg's Blade",          desc:'A corrupted short sword soaked in dark energy.',         stat:'STR +4',  slot:'mainHand', tags:['Sword'],        stackable:false },
     // -- ARMOR --
     // Basic drops
-    { id:'torn_cloth',        icon:'🧣', name:'Torn Cloth Wrap',       desc:'Scraps of fabric bound together.',                       stat:'MP +5',   slot:'chest',    tags:['Light','Chest'],             stackable:false, type:'light'  },
-    { id:'hide_scraps',       icon:'🥋', name:'Hide Scraps',           desc:'Rough animal hide, better than nothing.',                stat:'ARM +2',  slot:'chest',    tags:['Medium','Chest'],            stackable:false, type:'medium' },
-    { id:'iron_shard',        icon:'⛓', name:'Iron Shard Plate',      desc:'A bent piece of iron armor.',                            stat:'ARM +3',  slot:'chest',    tags:['Heavy','Chest'],             stackable:false, type:'heavy'  },
+    { id:'torn_cloth',        icon:'🧣', name:'Torn Cloth Wrap',       desc:'Scraps of fabric bound together.',                       stat:'ARM +2, MP +4',   slot:'chest',    tags:['Light','Chest'],             stackable:false, type:'light'  },
+    { id:'hide_scraps',       icon:'🥋', name:'Hide Scraps',           desc:'Rough animal hide, better than nothing.',                stat:'ARM +2, DEX +2',  slot:'chest',    tags:['Medium','Chest'],            stackable:false, type:'medium' },
+    { id:'iron_shard',        icon:'⛓', name:'Iron Shard Plate',      desc:'A bent piece of iron armor.',                            stat:'ARM +3, STR +2',  slot:'chest',    tags:['Heavy','Chest'],             stackable:false, type:'heavy'  },
     // Dungeon-only armor
-    { id:'wolf_hide_vest',    icon:'🐺', name:'Wolf Hide Vest',        desc:'Tanned from a dungeon wolf. Tough and flexible.',        stat:'ARM +4',  slot:'chest',    tags:['Medium','Chest'],            stackable:false, type:'medium' },
-    { id:'cultist_robes',     icon:'🧟', name:'Varg Cultist Robes',    desc:'Dark robes torn from a cultist. Stinks of corruption.',  stat:'INT +3',  slot:'chest',    tags:['Light','Chest'],             stackable:false, type:'light'  },
-    { id:'stone_plate',       icon:'🗿', name:'Stone Plate',           desc:'Armor forged from golem stone. Heavy as the earth.',     stat:'ARM +7',  slot:'chest',    tags:['Heavy','Chest'],             stackable:false, type:'heavy'  },
-    { id:'tower_shield',      icon:'🛡', name:'Tower Shield',          desc:'A massive shield covering most of your body.',           stat:'ARM +8',  slot:'offHand',  tags:['Shield','Off-Hand'],        stackable:false, type:'heavy'  },
-    { id:'void_shield',       icon:'🌑', name:'Void Shield',           desc:'A shield crackling with void energy.',                   stat:'ARM +6',  slot:'offHand',  tags:['Shield','Off-Hand'],        stackable:false, type:'medium' },
+    { id:'wolf_hide_vest',    icon:'🐺', name:'Wolf Hide Vest',        desc:'Tanned from a dungeon wolf. Tough and flexible.',        stat:'ARM +4, DEX +3',  slot:'chest',    tags:['Medium','Chest'],            stackable:false, type:'medium' },
+    { id:'cultist_robes',     icon:'🧟', name:'Varg Cultist Robes',    desc:'Dark robes torn from a cultist. Stinks of corruption.',  stat:'ARM +2, INT +4',  slot:'chest',    tags:['Light','Chest'],             stackable:false, type:'light'  },
+    { id:'stone_plate',       icon:'🗿', name:'Stone Plate',           desc:'Armor forged from golem stone. Heavy as the earth.',     stat:'ARM +7, STR +4',  slot:'chest',    tags:['Heavy','Chest'],             stackable:false, type:'heavy'  },
+    { id:'tower_shield',      icon:'🛡', name:'Tower Shield',          desc:'A massive shield covering most of your body.',           stat:'ARM +8, STR +3',  slot:'offHand',  tags:['Shield','Off-Hand'],        stackable:false, type:'heavy'  },
+    { id:'void_shield',       icon:'🌑', name:'Void Shield',           desc:'A shield crackling with void energy.',                   stat:'ARM +6, INT +3',  slot:'offHand',  tags:['Shield','Off-Hand'],        stackable:false, type:'medium' },
     { id:'wolf_fang_pendant', icon:'🐺', name:'Wolf Fang Pendant',     desc:'A pendant made from a dungeon wolf fang.',               stat:'STR +3',  slot:'neck1',    tags:['Neck'],                     stackable:false },
     { id:'dark_crystal_pendant',icon:'💎',name:'Dark Crystal Pendant', desc:'A pendant set with a pulsing dark crystal.',             stat:'INT +3',  slot:'neck1',    tags:['Neck'],                     stackable:false },
     { id:'void_ring',         icon:'💍', name:'Void Ring',             desc:'A ring infused with void energy.',                       stat:'INT +4',  slot:'ring1',    tags:['Ring'],                     stackable:false },
     { id:'shadow_ring',       icon:'💍', name:'Shadow Ring',           desc:'A ring that makes you harder to see.',                   stat:'DEX +4',  slot:'ring1',    tags:['Ring'],                     stackable:false },
     { id:'varg_ring',         icon:'💍', name:"Varg's Signet",         desc:'A ring bearing the mark of Varg. Radiates dark power.',  stat:'STR +4',  slot:'ring1',    tags:['Ring'],                     stackable:false },
-    { id:'shadow_wraps',      icon:'👤', name:'Shadow Wraps',          desc:'Wraps woven from shadow cloth.',                         stat:'DEX +3',  slot:'wrists1',  tags:['Light','Wrists'],           stackable:false, type:'light'  },
-    { id:'varg_pauldrons',   icon:'😈', name:"Varg's Pauldrons",     desc:'Cursed shoulder armor bearing the mark of Varg.',        stat:'ARM +6',  slot:'mantle',   tags:['Heavy','Mantle'],   stackable:false, type:'heavy'  },
-    { id:'bone_armguards',   icon:'🦴', name:'Bone Armguards',       desc:'Armguards carved from monster bone.',                    stat:'ARM +3',  slot:'arms',     tags:['Medium','Arms'],    stackable:false, type:'medium' },
-    { id:'void_bracers',     icon:'⚫', name:'Void Bracers',         desc:'Bracers crackling with void energy.',                    stat:'ARM +5',  slot:'arms',     tags:['Heavy','Arms'],     stackable:false, type:'heavy'  },
-    { id:'wolf_hide_belt',   icon:'🐺', name:'Wolf Hide Belt',       desc:'A belt cut from dungeon wolf hide.',                     stat:'ARM +3',  slot:'waist',    tags:['Medium','Waist'],   stackable:false, type:'medium' },
-    { id:'cultist_sash',     icon:'🧟', name:'Cultist Sash',         desc:'A dark sash worn by Varg cultists.',                     stat:'MP +6',   slot:'waist',    tags:['Light','Waist'],    stackable:false, type:'light'  },
-    { id:'dragon_scale_helm', icon:'🐉', name:'Dragon Scale Helm',     desc:'Scales of a dragon spawn. Resistant to all damage.',     stat:'ARM +6',  slot:'head',     tags:['Heavy','Head'],              stackable:false, type:'heavy'  },
-    { id:'wraith_wraps',      icon:'👻', name:'Wraith Wraps',          desc:'Ghostly wrappings from a shadow wraith.',                stat:'MP +8',   slot:'wrists1',  tags:['Light','Wrists'],            stackable:false, type:'light'  },
+    { id:'shadow_wraps',      icon:'👤', name:'Shadow Wraps',          desc:'Wraps woven from shadow cloth.',                         stat:'ARM +2, DEX +4',  slot:'wrists1',  tags:['Light','Wrists'],           stackable:false, type:'light'  },
+    { id:'varg_pauldrons',   icon:'😈', name:"Varg's Pauldrons",     desc:'Cursed shoulder armor bearing the mark of Varg.',        stat:'ARM +6, STR +4',  slot:'mantle',   tags:['Heavy','Mantle'],   stackable:false, type:'heavy'  },
+    { id:'bone_armguards',   icon:'🦴', name:'Bone Armguards',       desc:'Armguards carved from monster bone.',                    stat:'ARM +3, DEX +3',  slot:'arms',     tags:['Medium','Arms'],    stackable:false, type:'medium' },
+    { id:'void_bracers',     icon:'⚫', name:'Void Bracers',         desc:'Bracers crackling with void energy.',                    stat:'ARM +5, INT +3',  slot:'arms',     tags:['Heavy','Arms'],     stackable:false, type:'heavy'  },
+    { id:'wolf_hide_belt',   icon:'🐺', name:'Wolf Hide Belt',       desc:'A belt cut from dungeon wolf hide.',                     stat:'ARM +3, DEX +2',  slot:'waist',    tags:['Medium','Waist'],   stackable:false, type:'medium' },
+    { id:'cultist_sash',     icon:'🧟', name:'Cultist Sash',         desc:'A dark sash worn by Varg cultists.',                     stat:'ARM +2, INT +3, MP +4',   slot:'waist',    tags:['Light','Waist'],    stackable:false, type:'light'  },
+    { id:'dragon_scale_helm', icon:'🐉', name:'Dragon Scale Helm',     desc:'Scales of a dragon spawn. Resistant to all damage.',     stat:'ARM +6, STR +3',  slot:'head',     tags:['Heavy','Head'],              stackable:false, type:'heavy'  },
+    { id:'wraith_wraps',      icon:'👻', name:'Wraith Wraps',          desc:'Ghostly wrappings from a shadow wraith.',                stat:'ARM +2, INT +3, MP +4',   slot:'wrists1',  tags:['Light','Wrists'],            stackable:false, type:'light'  },
     // -- CONSUMABLES --
     { id:'health_potion',     icon:'🧪', name:'Health Potion',         desc:'Restores 40% of your maximum HP.',                      stat:'HP +40%', slot:'item',     tags:['Consumable'],                stackable:true  },
     { id:'mana_potion',       icon:'💧', name:'Mana Potion',           desc:'Restores 40% of your maximum MP.',                      stat:'MP +40%', slot:'item',     tags:['Consumable'],                stackable:true  },
@@ -4382,7 +4405,7 @@ const LEGENDARY_CHEST_ITEMS = [
     { id:'fenric_longbow',   icon:'🏹', name:"Fenric's Longbow of Precision", desc:"The longbow of Fenric, a Greatwolf Defender whose arrows never missed their mark. Grants +15% critical strike chance.", stat:'DEX +10', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,32], type:'legendary', special:'precision' },
     { id:'valorian_arbalest', icon:'🏹', name:"Valorian's Arbalest", desc:"The crossbow of Valorian, closest ally to Fenris and a Greatwolf Defender. Its bolts punch true through the thickest hide. Grants +15% critical strike chance.", stat:'DEX +9', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,30], type:'legendary', special:'precision' },
     { id:'wolfsteel_rocket_launcher', icon:'💥', name:'Wolfsteel Rocket Launcher', desc:"No one knows who built it or where it came from. Rumors swirl that Geminus wielded it alongside his torch — unconfirmed.", stat:'STR +10', slot:'mainHand', tags:['Gun'], stackable:false, dmg:[32,48], type:'legendary' },
-    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Valorian, his closest ally.", stat:'ARM +11', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
+    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Valorian, his closest ally.", stat:'ARM +11, STR +4', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
     { id:'spear_of_justice', icon:'🔱', name:'Spear of Justice', desc:"Wielded by an angelic thief — some say Nightshade of the Ragnar Council, others that Fennyx blessed a relic of Varg's evil and made it holy. Each strike has a 25% chance to restore your spirit.", stat:'STR +9', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[18,28], type:'legendary', special:'holy' },
     { id:'varg_unholy_scythe', icon:'☠', name:"Varg's Unholy Scythe of Deception", desc:"Wielded by Varg himself. It hums with corrupted energy, a serpent engraved on its handle.", stat:'STR +11', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[24,38], type:'legendary', special:'deception' },
 ];
@@ -4473,12 +4496,20 @@ const IRONHOLD_INVENTORY = {
         { id:'dwarven_pistol',    icon:'🔫', name:'Dwarven Pistol',       desc:'A compact dwarven sidearm. Short range but brutal impact.',           price:110, tags:['Gun'],    stat:'STR +5', slot:'mainHand', dmg:[14,22] },
     ],
     armor: [
-        { id:'dwarven_helm',      icon:'⛑',  name:'Dwarven Helm',         desc:'A masterwork dwarven helmet. Solid iron construction.',               price:75,  tags:['Heavy','Head'],     stat:'ARM +5', type:'heavy', slot:'head'    },
-        { id:'dwarven_chest',     icon:'🧥', name:'Dwarven Plate',         desc:'Heavy dwarven plate armor. Better than anything in the south.',       price:120, tags:['Heavy','Chest'],    stat:'ARM +7', type:'heavy', slot:'chest'   },
-        { id:'dwarven_boots',     icon:'🥾', name:'Dwarven Boots',         desc:'Iron-tipped boots built to last a lifetime in the mines.',            price:70,  tags:['Heavy','Feet'],     stat:'ARM +4', type:'heavy', slot:'feet'    },
-        { id:'dwarven_gauntlets', icon:'🧤', name:'Dwarven Gauntlets',     desc:'Iron gauntlets that protect the hands completely.',                   price:65,  tags:['Heavy','Hands'],    stat:'ARM +4', type:'heavy', slot:'hands'   },
-        { id:'dwarven_shield',    icon:'🛡', name:'Dwarven Shield',        desc:'A round shield bearing the Ironhold crest. Excellent protection.',    price:90,  tags:['Shield','Off-Hand'], stat:'ARM +6', slot:'offHand' },
-        { id:'stone_pauldrons',   icon:'🧣', name:'Stone Pauldrons',       desc:'Shoulder guards carved from deep stone.',                             price:80,  tags:['Heavy','Mantle'],   stat:'ARM +5', type:'heavy', slot:'mantle'  },
+        { id:'dwarven_helm',      icon:'⛑',  name:'Dwarven Helm',         desc:'A masterwork dwarven helmet. Solid iron construction.',               price:75,  tags:['Heavy','Head'],     stat:'ARM +5, STR +3', type:'heavy', slot:'head'    },
+        { id:'dwarven_chest',     icon:'🧥', name:'Dwarven Plate',         desc:'Heavy dwarven plate armor. Better than anything in the south.',       price:120, tags:['Heavy','Chest'],    stat:'ARM +7, STR +4', type:'heavy', slot:'chest'   },
+        { id:'dwarven_boots',     icon:'🥾', name:'Dwarven Boots',         desc:'Iron-tipped boots built to last a lifetime in the mines.',            price:70,  tags:['Heavy','Feet'],     stat:'ARM +4, STR +3', type:'heavy', slot:'feet'    },
+        { id:'dwarven_gauntlets', icon:'🧤', name:'Dwarven Gauntlets',     desc:'Iron gauntlets that protect the hands completely.',                   price:65,  tags:['Heavy','Hands'],    stat:'ARM +4, STR +3', type:'heavy', slot:'hands'   },
+        { id:'dwarven_shield',    icon:'🛡', name:'Dwarven Shield',        desc:'A round shield bearing the Ironhold crest. Excellent protection.',    price:90,  tags:['Shield','Off-Hand'], stat:'ARM +6, STR +3', slot:'offHand' },
+        { id:'stone_pauldrons',   icon:'🧣', name:'Stone Pauldrons',       desc:'Shoulder guards carved from deep stone.',                             price:80,  tags:['Heavy','Mantle'],   stat:'ARM +5, STR +3', type:'heavy', slot:'mantle'  },
+        { id:'dwarven_greaves',   icon:'🦾', name:'Dwarven Greaves',       desc:'Heavy leg plates of dwarven iron. Built for the front line.',          price:85,  tags:['Heavy','Legs'],     stat:'ARM +5, STR +3', type:'heavy', slot:'legs'    },
+        { id:'dwarven_girdle',    icon:'⚙',  name:'Dwarven Girdle',        desc:'A reinforced iron waistguard stamped with the Ironhold seal.',         price:72,  tags:['Heavy','Waist'],    stat:'ARM +4, STR +3', type:'heavy', slot:'waist'   },
+        { id:'dwarven_vambraces', icon:'🦾', name:'Dwarven Vambraces',     desc:'Iron forearm guards that turn aside blade and claw alike.',            price:68,  tags:['Heavy','Arms'],     stat:'ARM +4, STR +3', type:'heavy', slot:'arms'    },
+        { id:'miner_wristguard',  icon:'⌚', name:"Miner's Wristguard",    desc:'Iron band with depth-gauge markings. Sharpens the eye underground.',    price:55,  tags:['Medium','Wrists'],  stat:'ARM +3, PER +3', type:'medium', slot:'wrists1' },
+        { id:'rune_pendant',      icon:'📿', name:'Rune Pendant',           desc:'A pendant etched with ancient dwarven runes of strength.',             price:60,  tags:['Neck'],             stat:'STR +3', slot:'neck1'   },
+        { id:'hold_ring',         icon:'💍', name:'Hold Ring',              desc:'A heavy iron signet ring. Marks you as kin to the mountain.',          price:50,  tags:['Ring'],             stat:'ARM +2', slot:'ring1'   },
+        { id:'deep_leather_belt', icon:'👔', name:'Deep Leather Belt',      desc:'Thick leather from the mine depths. Flexible but tough.',              price:45,  tags:['Medium','Waist'],   stat:'ARM +3, DEX +3', type:'medium', slot:'waist'   },
+        { id:'miner_sash',        icon:'🎀', name:"Miner's Sash",          desc:'A practical cloth sash with tool loops. Surprisingly useful.',           price:35,  tags:['Light','Waist'],    stat:'ARM +2, MP +6',  type:'light',  slot:'waist'   },
     ],
 };
 
@@ -4559,7 +4590,12 @@ function renderIronholdShop() {
     ['weapons', 'armor'].forEach(category => {
         const panel = document.getElementById('ironhold-' + category);
         panel.innerHTML = '';
-        IRONHOLD_INVENTORY[category].forEach(item => {
+        let items = applyShopItemFilters(IRONHOLD_INVENTORY[category], category === 'armor');
+        if (items.length === 0) {
+            panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
+            return;
+        }
+        items.forEach(item => {
             const finalPrice = getDiscountedPrice(item.price);
             const canAfford = character.gold >= finalPrice;
             const tagHTML = item.tags.map(t => {
@@ -4696,9 +4732,46 @@ function openInventoryFilter() {
     ]);
 }
 
+function getActiveShopContext() {
+    const screens = [
+        { id: 'screen-shop', shopId: 'greymantle', tabPrefix: 'tab-' },
+        { id: 'screen-ironhold-shop', shopId: 'ironhold', tabPrefix: 'itab-' },
+        { id: 'screen-sunport-shop', shopId: 'sunport', tabPrefix: 'stab-' },
+        { id: 'screen-wolfhaven-shop', shopId: 'wolfhaven', tabPrefix: 'wtab-' },
+        { id: 'screen-ironwood-shop', shopId: 'ironwood', tabPrefix: 'iwoodtab-' },
+        { id: 'screen-windmane-shop', shopId: 'windmane', tabPrefix: 'wmtab-' },
+    ];
+    for (const s of screens) {
+        const el = document.getElementById(s.id);
+        if (el && el.classList.contains('active')) {
+            const activeTab = el.querySelector('.shop-tab.active');
+            const tab = activeTab ? activeTab.id.replace(s.tabPrefix, '') : null;
+            return { shopId: s.shopId, tab };
+        }
+    }
+    return null;
+}
+
+function isArmorShopTab(shopId, tab) {
+    if (tab === 'armor') return true;
+    if (shopId === 'sunport' && tab === 'accessories') return true;
+    return false;
+}
+
+function applyShopItemFilters(items, isArmorTab) {
+    let result = [...items];
+    if (isArmorTab && shopArmorFilter !== 'all') {
+        result = result.filter(i => i.type === shopArmorFilter);
+    }
+    if (shopSort === 'price_asc') result.sort((a, b) => (a.price || 0) - (b.price || 0));
+    else if (shopSort === 'price_desc') result.sort((a, b) => (b.price || 0) - (a.price || 0));
+    else if (shopSort === 'az') result.sort((a, b) => a.name.localeCompare(b.name));
+    return result;
+}
+
 function openShopFilter() {
-    const activeTab = document.querySelector('#screen-shop .shop-tab.active');
-    const isArmor = activeTab && activeTab.id === 'tab-armor';
+    const ctx = getActiveShopContext();
+    const isArmor = ctx && isArmorShopTab(ctx.shopId, ctx.tab);
 
     const options = [
         { label:'Sort: Default',         active: shopSort==='default',   action:()=>{ shopSort='default'; reshopCurrentTab(); } },
@@ -4720,9 +4793,21 @@ function openShopFilter() {
 }
 
 function reshopCurrentTab() {
-    const activeTab = document.querySelector('#screen-shop .shop-tab.active');
-    if (!activeTab) return;
-    renderShopTab(activeTab.id.replace('tab-', ''));
+    const ctx = getActiveShopContext();
+    if (!ctx || !ctx.tab) return;
+    if (ctx.shopId === 'greymantle') {
+        renderShopTab(ctx.tab);
+    } else if (ctx.shopId === 'ironhold') {
+        renderIronholdShop();
+    } else if (ctx.shopId === 'wolfhaven') {
+        renderWolfhavenTab(ctx.tab);
+    } else if (ctx.shopId === 'sunport') {
+        renderSunportTab(ctx.tab);
+    } else if (ctx.shopId === 'ironwood') {
+        renderIronwoodTab(ctx.tab);
+    } else if (ctx.shopId === 'windmane') {
+        renderWindmaneTab(ctx.tab);
+    }
 }
 
 // -- INVENTORY --------------------------------------------
@@ -6419,39 +6504,39 @@ const SHOP_INVENTORY = {
     ],
     armor: [
         // Chest
-        { id:'cloth_robe',      icon:'👘', name:'Cloth Robe',          desc:'Simple fabric robes. Light as a breeze.',              price:30,  tags:['Light','Chest'],    stat:'MP +10',  type:'light',  slot:'chest'  },
-        { id:'leather_vest',    icon:'🥋', name:'Leather Vest',         desc:'Tanned leather, worn and reliable.',                  price:40,  tags:['Medium','Chest'],   stat:'ARM +3',  type:'medium', slot:'chest'  },
-        { id:'chainmail',       icon:'🪖', name:'Chainmail Shirt',      desc:'Interlocked rings of iron. Heavy but protective.',     price:65,  tags:['Heavy','Chest'],    stat:'ARM +6',  type:'heavy',  slot:'chest'  },
+        { id:'cloth_robe',      icon:'👘', name:'Cloth Robe',          desc:'Simple fabric robes. Light as a breeze.',              price:30,  tags:['Light','Chest'],    stat:'ARM +2, INT +3, MP +8',  type:'light',  slot:'chest'  },
+        { id:'leather_vest',    icon:'🥋', name:'Leather Vest',         desc:'Tanned leather, worn and reliable.',                  price:40,  tags:['Medium','Chest'],   stat:'ARM +3, DEX +3',  type:'medium', slot:'chest'  },
+        { id:'chainmail',       icon:'🪖', name:'Chainmail Shirt',      desc:'Interlocked rings of iron. Heavy but protective.',     price:65,  tags:['Heavy','Chest'],    stat:'ARM +6, STR +3',  type:'heavy',  slot:'chest'  },
         // Head
-        { id:'leather_hood',    icon:'🧢', name:'Leather Hood',         desc:'Soft leather hood. Keeps you unseen.',                price:25,  tags:['Medium','Head'],    stat:'DEX +1',  type:'medium', slot:'head'   },
-        { id:'iron_helm',       icon:'⛑', name:'Iron Helm',            desc:'A dented but solid iron helmet.',                     price:50,  tags:['Heavy','Head'],     stat:'ARM +4',  type:'heavy',  slot:'head'   },
-        { id:'cloth_hood',      icon:'🎩', name:'Cloth Hood',           desc:'A loose hood of woven cloth. Favored by mages.',      price:20,  tags:['Light','Head'],     stat:'MP +5',   type:'light',  slot:'head'   },
+        { id:'leather_hood',    icon:'🧢', name:'Leather Hood',         desc:'Soft leather hood. Keeps you unseen.',                price:25,  tags:['Medium','Head'],    stat:'ARM +2, DEX +3',  type:'medium', slot:'head'   },
+        { id:'iron_helm',       icon:'⛑', name:'Iron Helm',            desc:'A dented but solid iron helmet.',                     price:50,  tags:['Heavy','Head'],     stat:'ARM +4, STR +3',  type:'heavy',  slot:'head'   },
+        { id:'cloth_hood',      icon:'🎩', name:'Cloth Hood',           desc:'A loose hood of woven cloth. Favored by mages.',      price:20,  tags:['Light','Head'],     stat:'ARM +2, INT +3, MP +4',   type:'light',  slot:'head'   },
         // Hands
-        { id:'leather_gloves',  icon:'🧤', name:'Leather Gloves',       desc:'Supple gloves that improve your grip.',               price:22,  tags:['Medium','Hands'],   stat:'DEX +1',  type:'medium', slot:'hands'  },
-        { id:'iron_gauntlets',  icon:'🥊', name:'Iron Gauntlets',       desc:'Heavy iron fists. Nothing gets through.',             price:45,  tags:['Heavy','Hands'],    stat:'ARM +3',  type:'heavy',  slot:'hands'  },
-        { id:'cloth_wraps',     icon:'🤲', name:'Cloth Hand Wraps',     desc:'Simple wraps. Light and flexible.',                   price:15,  tags:['Light','Hands'],    stat:'MP +4',   type:'light',  slot:'hands'  },
+        { id:'leather_gloves',  icon:'🧤', name:'Leather Gloves',       desc:'Supple gloves that improve your grip.',               price:22,  tags:['Medium','Hands'],   stat:'ARM +2, DEX +3',  type:'medium', slot:'hands'  },
+        { id:'iron_gauntlets',  icon:'🥊', name:'Iron Gauntlets',       desc:'Heavy iron fists. Nothing gets through.',             price:45,  tags:['Heavy','Hands'],    stat:'ARM +3, STR +3',  type:'heavy',  slot:'hands'  },
+        { id:'cloth_wraps',     icon:'🤲', name:'Cloth Hand Wraps',     desc:'Simple wraps. Light and flexible.',                   price:15,  tags:['Light','Hands'],    stat:'ARM +2, DEX +3',   type:'light',  slot:'hands'  },
         // Legs
-        { id:'leather_leggings',icon:'👖', name:'Leather Leggings',     desc:'Sturdy leggings cut from thick hide.',                price:35,  tags:['Medium','Legs'],    stat:'ARM +2',  type:'medium', slot:'legs'   },
-        { id:'iron_greaves',    icon:'🦾', name:'Iron Greaves',         desc:'Solid iron leg guards. Heavy but worth it.',          price:55,  tags:['Heavy','Legs'],     stat:'ARM +5',  type:'heavy',  slot:'legs'   },
-        { id:'cloth_trousers',  icon:'👘', name:'Cloth Trousers',       desc:'Flowing fabric trousers. Light and comfortable.',     price:18,  tags:['Light','Legs'],     stat:'MP +6',   type:'light',  slot:'legs'   },
+        { id:'leather_leggings',icon:'👖', name:'Leather Leggings',     desc:'Sturdy leggings cut from thick hide.',                price:35,  tags:['Medium','Legs'],    stat:'ARM +3, DEX +3',  type:'medium', slot:'legs'   },
+        { id:'iron_greaves',    icon:'🦾', name:'Iron Greaves',         desc:'Solid iron leg guards. Heavy but worth it.',          price:55,  tags:['Heavy','Legs'],     stat:'ARM +5, STR +3',  type:'heavy',  slot:'legs'   },
+        { id:'cloth_trousers',  icon:'👘', name:'Cloth Trousers',       desc:'Flowing fabric trousers. Light and comfortable.',     price:18,  tags:['Light','Legs'],     stat:'ARM +2, DEX +3, MP +4',   type:'light',  slot:'legs'   },
         // Mantle
-        { id:'wool_mantle',     icon:'🧣', name:'Wool Mantle',          desc:'A thick wool mantle draped over the shoulders.',         price:22,  tags:['Light','Mantle'],    stat:'ARM +2',  type:'light',  slot:'mantle' },
-        { id:'leather_mantle',  icon:'🧥', name:'Leather Mantle',       desc:'Cured leather draped across the shoulders and back.',    price:35,  tags:['Medium','Mantle'],   stat:'ARM +3',  type:'medium', slot:'mantle' },
-        { id:'iron_pauldrons',  icon:'⚔',  name:'Iron Pauldrons',       desc:'Heavy iron shoulder guards. Built for war.',             price:55,  tags:['Heavy','Mantle'],    stat:'ARM +5',  type:'heavy',  slot:'mantle' },
+        { id:'wool_mantle',     icon:'🧣', name:'Wool Mantle',          desc:'A thick wool mantle draped over the shoulders.',         price:22,  tags:['Light','Mantle'],    stat:'ARM +2, DEX +3',  type:'light',  slot:'mantle' },
+        { id:'leather_mantle',  icon:'🧥', name:'Leather Mantle',       desc:'Cured leather draped across the shoulders and back.',    price:35,  tags:['Medium','Mantle'],   stat:'ARM +3, DEX +3',  type:'medium', slot:'mantle' },
+        { id:'iron_pauldrons',  icon:'⚔',  name:'Iron Pauldrons',       desc:'Heavy iron shoulder guards. Built for war.',             price:55,  tags:['Heavy','Mantle'],    stat:'ARM +5, STR +3',  type:'heavy',  slot:'mantle' },
         // Arms
-        { id:'cloth_sleeves',   icon:'👘', name:'Cloth Sleeves',         desc:'Loose cloth sleeves. Light and flexible.',               price:16,  tags:['Light','Arms'],      stat:'MP +4',   type:'light',  slot:'arms'   },
-        { id:'leather_bracers', icon:'🥋', name:'Leather Bracers',       desc:'Hardened leather guards protecting the forearms.',       price:28,  tags:['Medium','Arms'],     stat:'ARM +2',  type:'medium', slot:'arms'   },
-        { id:'iron_armguards',  icon:'🦾', name:'Iron Armguards',        desc:'Solid iron guards strapped to the forearms.',            price:45,  tags:['Heavy','Arms'],      stat:'ARM +4',  type:'heavy',  slot:'arms'   },
+        { id:'cloth_sleeves',   icon:'👘', name:'Cloth Sleeves',         desc:'Loose cloth sleeves. Light and flexible.',               price:16,  tags:['Light','Arms'],      stat:'ARM +2, INT +3',   type:'light',  slot:'arms'   },
+        { id:'leather_bracers', icon:'🥋', name:'Leather Bracers',       desc:'Hardened leather guards protecting the forearms.',       price:28,  tags:['Medium','Arms'],     stat:'ARM +3, DEX +3',  type:'medium', slot:'arms'   },
+        { id:'iron_armguards',  icon:'🦾', name:'Iron Armguards',        desc:'Solid iron guards strapped to the forearms.',            price:45,  tags:['Heavy','Arms'],      stat:'ARM +4, STR +3',  type:'heavy',  slot:'arms'   },
         // Waist
-        { id:'cloth_sash',      icon:'🎀', name:'Cloth Sash',            desc:'A simple cloth sash tied at the waist.',                 price:14,  tags:['Light','Waist'],     stat:'MP +5',   type:'light',  slot:'waist'  },
-        { id:'leather_belt',    icon:'👔', name:'Leather Belt',          desc:'A sturdy belt of thick leather.',                        price:24,  tags:['Medium','Waist'],    stat:'ARM +2',  type:'medium', slot:'waist'  },
-        { id:'iron_girdle',     icon:'⚙',  name:'Iron Girdle',           desc:'A reinforced iron waistguard. Solid protection.',        price:42,  tags:['Heavy','Waist'],     stat:'ARM +3',  type:'heavy',  slot:'waist'  },
-        { id:'iron_boots',      icon:'🥾', name:'Iron Boots',           desc:'Heavy iron boots. Slow but protective.',              price:48,  tags:['Heavy','Feet'],     stat:'ARM +3',  type:'heavy',  slot:'feet'   },
-        { id:'leather_boots',   icon:'🥾', name:'Leather Boots',        desc:'Sturdy leather boots. A reliable choice for any traveler.',price:30, tags:['Medium','Feet'],    stat:'ARM +2',  type:'medium', slot:'feet'   },
-        { id:'cloth_slippers',  icon:'🩴', name:'Cloth Slippers',       desc:'Soft slippers. Silent as shadow.',                    price:16,  tags:['Light','Feet'],     stat:'MP +4',   type:'light',  slot:'feet'   },
+        { id:'cloth_sash',      icon:'🎀', name:'Cloth Sash',            desc:'A simple cloth sash tied at the waist.',                 price:14,  tags:['Light','Waist'],     stat:'ARM +2, DEX +3',   type:'light',  slot:'waist'  },
+        { id:'leather_belt',    icon:'👔', name:'Leather Belt',          desc:'A sturdy belt of thick leather.',                        price:24,  tags:['Medium','Waist'],    stat:'ARM +3, DEX +2',  type:'medium', slot:'waist'  },
+        { id:'iron_girdle',     icon:'⚙',  name:'Iron Girdle',           desc:'A reinforced iron waistguard. Solid protection.',        price:42,  tags:['Heavy','Waist'],     stat:'ARM +4, STR +3',  type:'heavy',  slot:'waist'  },
+        { id:'iron_boots',      icon:'🥾', name:'Iron Boots',           desc:'Heavy iron boots. Slow but protective.',              price:48,  tags:['Heavy','Feet'],     stat:'ARM +3, STR +3',  type:'heavy',  slot:'feet'   },
+        { id:'leather_boots',   icon:'🥾', name:'Leather Boots',        desc:'Sturdy leather boots. A reliable choice for any traveler.',price:30, tags:['Medium','Feet'],    stat:'ARM +3, DEX +3',  type:'medium', slot:'feet'   },
+        { id:'cloth_slippers',  icon:'🩴', name:'Cloth Slippers',       desc:'Soft slippers. Silent as shadow.',                    price:16,  tags:['Light','Feet'],     stat:'ARM +2, DEX +4',   type:'light',  slot:'feet'   },
         // Off Hand -- Shields
-        { id:'wooden_shield',   icon:'🛡', name:'Wooden Shield',         desc:'A round wooden shield. Light and reliable.',          price:30,  tags:['Shield','Off-Hand'], stat:'ARM +3',  type:'light',  slot:'offHand' },
-        { id:'iron_shield',     icon:'🛡', name:'Iron Shield',           desc:'A solid iron shield. Good protection.',               price:55,  tags:['Shield','Off-Hand'], stat:'ARM +5',  type:'medium', slot:'offHand' },
+        { id:'wooden_shield',   icon:'🛡', name:'Wooden Shield',         desc:'A round wooden shield. Light and reliable.',          price:30,  tags:['Shield','Off-Hand'], stat:'ARM +3, DEX +2',  type:'light',  slot:'offHand' },
+        { id:'iron_shield',     icon:'🛡', name:'Iron Shield',           desc:'A solid iron shield. Good protection.',               price:55,  tags:['Shield','Off-Hand'], stat:'ARM +5, STR +2',  type:'medium', slot:'offHand' },
         // Off Hand -- Spell Focus
         { id:'arcane_orb',      icon:'🔮', name:'Arcane Orb',            desc:'A pulsing orb that amplifies magical energy.',        price:50,  tags:['Focus','Off-Hand'],  stat:'INT +3',  type:'light',  slot:'offHand' },
         // Neck
@@ -6459,8 +6544,8 @@ const SHOP_INVENTORY = {
         { id:'mage_pendant',    icon:'💎', name:'Mage Pendant',           desc:'A pendant etched with arcane symbols.',               price:35,  tags:['Neck'],              stat:'INT +2',  slot:'neck1'   },
         { id:'warrior_pendant', icon:'⚔', name:'Warrior Pendant',        desc:'A pendant bearing the crest of a warrior.',          price:35,  tags:['Neck'],              stat:'STR +2',  slot:'neck1'   },
         // Wrists
-        { id:'cloth_wraps_shop',icon:'🤲', name:'Cloth Hand Wraps',      desc:'Simple wraps. Light and flexible.',                   price:15,  tags:['Light','Wrists'],    stat:'MP +4',   type:'light',  slot:'wrists1' },
-        { id:'leather_wristguard',icon:'🥋',name:'Leather Wristguard',   desc:'A leather band protecting the wrist.',               price:25,  tags:['Medium','Wrists'],   stat:'ARM +2',  type:'medium', slot:'wrists1' },
+        { id:'cloth_wraps_shop',icon:'🤲', name:'Cloth Hand Wraps',      desc:'Simple wraps. Light and flexible.',                   price:15,  tags:['Light','Wrists'],    stat:'ARM +2, DEX +3',   type:'light',  slot:'wrists1' },
+        { id:'leather_wristguard',icon:'🥋',name:'Leather Wristguard',   desc:'A leather band protecting the wrist.',               price:25,  tags:['Medium','Wrists'],   stat:'ARM +3, DEX +2',  type:'medium', slot:'wrists1' },
         // Rings
         { id:'iron_ring',       icon:'💍', name:'Iron Ring',             desc:'A plain iron ring. Simple but sturdy.',               price:20,  tags:['Ring'],              stat:'ARM +1',  slot:'ring1'   },
         { id:'mage_ring',       icon:'💍', name:'Mage Ring',             desc:'A ring set with a small blue gem.',                   price:35,  tags:['Ring'],              stat:'INT +2',  slot:'ring1'   },
@@ -6544,17 +6629,7 @@ function renderShopTab(category) {
     if (!panel) return;
     panel.innerHTML = '';
 
-    let items = [...SHOP_INVENTORY[category]];
-
-    // Apply armor filter
-    if (category === 'armor' && shopArmorFilter !== 'all') {
-        items = items.filter(i => i.type === shopArmorFilter);
-    }
-
-    // Apply sort
-    if (shopSort === 'price_asc') items.sort((a,b) => a.price - b.price);
-    else if (shopSort === 'price_desc') items.sort((a,b) => b.price - a.price);
-    else if (shopSort === 'az') items.sort((a,b) => a.name.localeCompare(b.name));
+    let items = applyShopItemFilters([...SHOP_INVENTORY[category]], category === 'armor');
 
     if (items.length === 0) {
         panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
@@ -6770,9 +6845,9 @@ const DUNGEONS = {
             { id:'summerwood_bow', icon:'🏹', name:'Summerwood Bow',   desc:'A ranger\'s bow strung with summerwood fiber. Light, swift, and deadly in open grassland.', stat:'DEX +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[11,17] },
             { id:'summerwood_staff', icon:'🪄', name:'Summerwood Staff', desc:'Carved from living summerwood in the Verdant Wilds. The wood still hums with warmth and wild magic.', stat:'INT +4, MP +8', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[8,13] },
             { id:'orc_axe',        icon:'🪓', name:'Orc Waraxe',       desc:'A brutal axe taken from an orc warrior.',              stat:'STR +5', slot:'mainHand', tags:['Axe'],   stackable:false },
-            { id:'wolf_pelt',      icon:'🐺', name:'Dire Wolf Pelt',   desc:'Thick fur from a dire wolf. Warm and protective.',      stat:'ARM +5', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
-            { id:'druidic_satin_pants', icon:'👖', name:'Druidic Satin Pants', desc:'Soft satin woven by Verdant Wilds druids. Light, cool, and enchanted to sustain magical energy.', stat:'MP +10', slot:'legs', tags:['Light','Legs'], stackable:false, type:'light' },
-            { id:'troll_hide',     icon:'🧌', name:'Troll Hide Vest',  desc:'Incredibly tough hide from a forest troll.',           stat:'ARM +6', slot:'chest',    tags:['Heavy','Chest'],      stackable:false, type:'heavy'  },
+            { id:'wolf_pelt',      icon:'🐺', name:'Dire Wolf Pelt',   desc:'Thick fur from a dire wolf. Warm and protective.',      stat:'ARM +5, DEX +3', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
+            { id:'druidic_satin_pants', icon:'👖', name:'Druidic Satin Pants', desc:'Soft satin woven by Verdant Wilds druids. Light, cool, and enchanted to sustain magical energy.', stat:'ARM +2, INT +3, MP +8', slot:'legs', tags:['Light','Legs'], stackable:false, type:'light' },
+            { id:'troll_hide',     icon:'🧌', name:'Troll Hide Vest',  desc:'Incredibly tough hide from a forest troll.',           stat:'ARM +6, STR +4', slot:'chest',    tags:['Heavy','Chest'],      stackable:false, type:'heavy'  },
             { id:'sprite_dust',    icon:'🧚', name:'Sprite Dust',      desc:'Shimmering dust from a woodland sprite.',              stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
             { id:'dire_fang',      icon:'🐺', name:'Dire Wolf Fang',   desc:'A massive fang from a dire wolf.',                     stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
         ],
@@ -6810,9 +6885,11 @@ const DUNGEONS = {
             { id:'spear_of_pure_ice', icon:'🔱', name:'Spear of Pure Ice', desc:'A spear carved from a shard of eternal ice. Cold as the Frostpeak — light, precise, and deadly in skilled hands.', stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[10,16] },
             { id:'staff_of_pure_ice', icon:'🪄', name:'Staff of Pure Ice', desc:'A staff forged from the same eternal ice as its spear counterpart. Channels frost magic with chilling clarity.', stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
             { id:'ice_staff',      icon:'🪄', name:'Ice Staff',         desc:'A staff carved from glacial ice. Amplifies frost magic.',stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false },
-            { id:'robe_of_snow',   icon:'👘', name:'Robe of Snow',      desc:'Woven from enchanted snow-thread on the Frostpeak. Warmth and arcane focus in equal measure.', stat:'INT +3, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
-            { id:'yeti_fur',       icon:'🦣', name:'Yeti Fur Cloak',   desc:'Incredibly warm fur from a yeti.',                     stat:'ARM +5', slot:'mantle',   tags:['Heavy','Mantle'],     stackable:false, type:'heavy'  },
-            { id:'viking_shield',  icon:'🛡', name:'Viking Shield',    desc:'A round shield bearing Norse markings.',               stat:'ARM +6', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
+            { id:'robe_of_snow',   icon:'👘', name:'Robe of Snow',      desc:'Woven from enchanted snow-thread on the Frostpeak. Warmth and arcane focus in equal measure.', stat:'ARM +2, INT +4, MP +10', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'frost_greaves',  icon:'🦾', name:'Frost Greaves',     desc:'Leg guards lined with yeti fur and ice-hardened leather.',             stat:'ARM +5, STR +4', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'ice_walker_boots', icon:'🥾', name:'Ice Walker Boots', desc:'Boots insulated against the Frostpeak. Sure footing on ice.',          stat:'ARM +3, DEX +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'yeti_fur',       icon:'🦣', name:'Yeti Fur Cloak',   desc:'Incredibly warm fur from a yeti.',                     stat:'ARM +5, STR +3', slot:'mantle',   tags:['Heavy','Mantle'],     stackable:false, type:'heavy'  },
+            { id:'viking_shield',  icon:'🛡', name:'Viking Shield',    desc:'A round shield bearing Norse markings.',               stat:'ARM +6, STR +3', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
             { id:'frost_ring',     icon:'💍', name:'Frost Ring',       desc:'A ring that crackles with cold energy.',               stat:'INT +4', slot:'ring1',    tags:['Ring'],               stackable:false },
             { id:'ice_crystal',    icon:'❄',  name:'Ice Crystal',      desc:'A perfectly formed crystal of magical ice.',           stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
         ],
@@ -6849,8 +6926,10 @@ const DUNGEONS = {
         loot: [
             { id:'sand_blade',     icon:'🗡',  name:'Sand Blade',       desc:'A curved blade forged in the ancient desert kingdoms.',  stat:'DEX +5', slot:'mainHand', tags:['Sword'], stackable:false },
             { id:'tomb_staff',     icon:'🪄', name:'Tomb Staff',        desc:'A staff topped with an ancient relic. Hums with power.',  stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false },
-            { id:'desert_robes',   icon:'👘', name:'Desert Robes',      desc:'Light robes that keep the heat at bay.',                  stat:'MP +8',  slot:'chest',    tags:['Light','Chest'],      stackable:false, type:'light'  },
-            { id:'scarab_shield',  icon:'🛡', name:'Scarab Shield',     desc:'A shield decorated with ancient scarab markings.',        stat:'ARM +6', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
+            { id:'desert_robes',   icon:'👘', name:'Desert Robes',      desc:'Light robes that keep the heat at bay.',                  stat:'ARM +2, INT +3, MP +8',  slot:'chest',    tags:['Light','Chest'],      stackable:false, type:'light'  },
+            { id:'tomb_greaves',   icon:'🦾', name:'Tomb Greaves',      desc:'Ancient leg guards recovered from a buried warrior\'s sarcophagus.', stat:'ARM +5, DEX +3', slot:'legs', tags:['Medium','Legs'], stackable:false, type:'medium' },
+            { id:'sandwalker_boots', icon:'🥾', name:'Sandwalker Boots', desc:'Light boots that keep feet cool on scorching dunes.',                  stat:'ARM +2, DEX +4', slot:'feet', tags:['Light','Feet'], stackable:false, type:'light' },
+            { id:'scarab_shield',  icon:'🛡', name:'Scarab Shield',     desc:'A shield decorated with ancient scarab markings.',        stat:'ARM +6, STR +3', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
             { id:'pharaoh_ring',   icon:'💍', name:"Pharaoh's Ring",    desc:'A golden ring bearing the seal of an ancient pharaoh.',   stat:'STR +4', slot:'ring1',    tags:['Ring'],               stackable:false },
             { id:'desert_sand',    icon:'🏜', name:'Ancient Sand',      desc:'Sand infused with ancient magical energy.',               stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
             { id:'scarab_gem',     icon:'🦂', name:'Scarab Gem',        desc:'A gem shaped like a scarab beetle. Rare and valuable.',   stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
@@ -6885,8 +6964,9 @@ const DUNGEONS = {
         loot: [
             { id:'vine_blade',       icon:'🗡',  name:'Vine Blade',           desc:'A curved blade wrapped in living vine. Light and deadly.',           stat:'DEX +5', slot:'mainHand', tags:['Sword'], stackable:false },
             { id:'canopy_blowgun',   icon:'🏹', name:'Canopy Blowgun',       desc:'A hollow reed tipped with poison darts. Silent and precise.',      stat:'DEX +5', slot:'mainHand', tags:['Bow'],   stackable:false },
-            { id:'scale_vest',       icon:'🦎', name:'Scale Vest',           desc:'Vest sewn from thick jungle lizard scales.',                        stat:'ARM +6', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
-            { id:'chameleon_cloak',  icon:'🧥', name:'Chameleon Cloak',      desc:'A cloak of shifting green hues. Blends with the canopy.',           stat:'ARM +5', slot:'mantle',   tags:['Light','Mantle'],     stackable:false, type:'light'  },
+            { id:'scale_vest',       icon:'🦎', name:'Scale Vest',           desc:'Vest sewn from thick jungle lizard scales.',                        stat:'ARM +6, DEX +3', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
+            { id:'vine_greaves',     icon:'🦾', name:'Vine Greaves',         desc:'Leg guards woven from living vine and hardened bark.',              stat:'ARM +3, DEX +4', slot:'legs',     tags:['Light','Legs'],       stackable:false, type:'light'  },
+            { id:'chameleon_cloak',  icon:'🧥', name:'Chameleon Cloak',      desc:'A cloak of shifting green hues. Blends with the canopy.',           stat:'ARM +4, DEX +4', slot:'mantle',   tags:['Light','Mantle'],     stackable:false, type:'light'  },
             { id:'monkey_charm',     icon:'🐒', name:"Monkey's Luck Charm",  desc:'A carved charm said to bring fortune to bold travelers.',             stat:'CHA +4', slot:'ring1',    tags:['Ring'],               stackable:false },
             { id:'canopy_resin',     icon:'🌴', name:'Canopy Resin',         desc:'Sticky resin harvested from the jungle canopy.',                    stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
         ],
@@ -6922,8 +7002,9 @@ const DUNGEONS = {
         loot: [
             { id:'crimson_claw',     icon:'🗡',  name:'Crimson Claw',         desc:'A jagged blade stained the color of red wolf blood.',                stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false },
             { id:'bog_staff',        icon:'🪄', name:'Bog Staff',             desc:'A staff of twisted bogwood. Channels corrupted swamp magic.',         stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false },
-            { id:'redwolf_pelt',     icon:'🐺', name:'Redwolf Pelt',          desc:'Fur from a Varg-touched wolf. Warm, heavy, and unsettling.',          stat:'ARM +6', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
-            { id:'swamp_cloak',       icon:'🧥', name:'Swamp Cloak',          desc:'A sodden cloak that reeks of bog water and old magic.',               stat:'ARM +5', slot:'mantle',   tags:['Light','Mantle'],     stackable:false, type:'light'  },
+            { id:'redwolf_pelt',     icon:'🐺', name:'Redwolf Pelt',          desc:'Fur from a Varg-touched wolf. Warm, heavy, and unsettling.',          stat:'ARM +6, STR +3', slot:'chest',    tags:['Medium','Chest'],     stackable:false, type:'medium' },
+            { id:'bog_boots',        icon:'🥾', name:'Bog Boots',             desc:'Waterlogged boots treated against swamp rot. Surprisingly sturdy.',   stat:'ARM +4, DEX +3', slot:'feet',     tags:['Medium','Feet'],      stackable:false, type:'medium' },
+            { id:'swamp_cloak',       icon:'🧥', name:'Swamp Cloak',          desc:'A sodden cloak that reeks of bog water and old magic.',               stat:'ARM +4, INT +3', slot:'mantle',   tags:['Light','Mantle'],     stackable:false, type:'light'  },
             { id:'blood_signet',     icon:'💍', name:'Blood Signet',          desc:'A ring that pulses faintly red. Marks you as predator, not prey.',    stat:'STR +4', slot:'ring1',    tags:['Ring'],               stackable:false },
             { id:'redwolf_fang',     icon:'🔴', name:'Redwolf Fang',          desc:'A fang from a corrupted red wolf. Still warm to the touch.',          stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
         ],
@@ -6958,11 +7039,12 @@ const DUNGEONS = {
             { id:'dwarven_axe',    icon:'⚒', name:'Dwarven War Axe',   desc:'Masterwork dwarven craftsmanship. Heavy and perfectly balanced.',   stat:'STR +6', slot:'mainHand', tags:['Axe'],   stackable:false },
             { id:'dwarven_crossbow', icon:'🏹', name:'Dwarven Crossbow', desc:'A heavy crank-loaded crossbow of dwarven make. Slow to wind, brutal on impact — strength, not finesse, drives the bolt.', stat:'STR +5', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[14,21] },
             { id:'stone_hammer',   icon:'🔨', name:'Stone Hammer',      desc:'A hammer carved from a single piece of granite.',                    stat:'STR +5', slot:'mainHand', tags:['Hammer'], stackable:false },
-            { id:'iron_plate',     icon:'🛡', name:'Iron Plate Armor',  desc:'Heavy dwarven plate. Virtually impenetrable.',                       stat:'ARM +8', slot:'chest',    tags:['Heavy','Chest'],      stackable:false, type:'heavy'  },
-            { id:'dwarven_leg_plates', icon:'🦾', name:'Dwarven Leg Plates', desc:'Heavy iron leg plates forged in Ironhold. Built for miners who haul stone — and warriors who stand their ground.', stat:'STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
-            { id:'stone_shield',   icon:'🛡', name:'Stone Shield',      desc:'A shield hewn from deep stone. Incredibly tough.',                   stat:'ARM +7', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
-            { id:'miners_helm',    icon:'⛑',  name:"Miner's Helm",      desc:'A dwarven mining helmet reinforced with iron.',                      stat:'ARM +5', slot:'head',     tags:['Heavy','Head'],       stackable:false, type:'heavy'  },
-            { id:'dwarven_depth_watch', icon:'⌚', name:'Dwarven Depth Watch', desc:'A pocket watch tuned to the deep mines. Keeps perfect time — and sharpens your eye for what others miss.', stat:'PER +4', slot:'wrists1', tags:['Medium','Wrists'], stackable:false, type:'medium' },
+            { id:'iron_plate',     icon:'🛡', name:'Iron Plate Armor',  desc:'Heavy dwarven plate. Virtually impenetrable.',                       stat:'ARM +8, STR +4', slot:'chest',    tags:['Heavy','Chest'],      stackable:false, type:'heavy'  },
+            { id:'dwarven_leg_plates', icon:'🦾', name:'Dwarven Leg Plates', desc:'Heavy iron leg plates forged in Ironhold. Built for miners who haul stone — and warriors who stand their ground.', stat:'ARM +5, STR +4', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'stone_shield',   icon:'🛡', name:'Stone Shield',      desc:'A shield hewn from deep stone. Incredibly tough.',                   stat:'ARM +7, STR +3', slot:'offHand',  tags:['Shield','Off-Hand'],  stackable:false },
+            { id:'miners_helm',    icon:'⛑',  name:"Miner's Helm",      desc:'A dwarven mining helmet reinforced with iron.',                      stat:'ARM +5, STR +3', slot:'head',     tags:['Heavy','Head'],       stackable:false, type:'heavy'  },
+            { id:'dwarven_waistguard', icon:'⚙', name:'Dwarven Waistguard', desc:'A reinforced iron girdle from the deepest forge levels.',           stat:'ARM +5, STR +3', slot:'waist', tags:['Heavy','Waist'], stackable:false, type:'heavy' },
+            { id:'dwarven_depth_watch', icon:'⌚', name:'Dwarven Depth Watch', desc:'A pocket watch tuned to the deep mines. Keeps perfect time — and sharpens your eye for what others miss.', stat:'ARM +2, PER +4', slot:'wrists1', tags:['Medium','Wrists'], stackable:false, type:'medium' },
             { id:'iron_ore',       icon:'🪨', name:'Iron Ore',          desc:'Raw iron ore from deep in the mine.',                                stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
             { id:'cave_crystal',   icon:'💎', name:'Cave Crystal',      desc:'A glowing crystal found deep in the Iron Depths.',                   stat:'Material', slot:'item',   tags:['Material'],           stackable:true  },
         ],
@@ -7004,8 +7086,10 @@ const DUNGEONS = {
         loot: [
             { id:'groveblade',      icon:'🗡',  name:'Groveblade',        desc:'A blade grown from corrupted heartwood. Hums with dark nature magic.',   stat:'INT +5', slot:'mainHand', tags:['Sword'],  stackable:false },
             { id:'thornstaff',      icon:'🪄', name:'Thornstaff',          desc:'A staff twisted from ashwood. Channels nature magic powerfully.',         stat:'INT +6', slot:'mainHand', tags:['Staff'],  stackable:false },
-            { id:'druid_robes',     icon:'👘', name:'Druid Robes',          desc:'Ancient robes woven from living moss and ashwood fiber.',                 stat:'MP +10', slot:'chest',    tags:['Light','Chest'],       stackable:false, type:'light' },
-            { id:'shadow_mantle',   icon:'🧥', name:'Shadow Mantle',        desc:'A cloak that absorbs ambient darkness, granting strange protection.',     stat:'ARM +5', slot:'mantle',   tags:['Medium','Mantle'],     stackable:false, type:'medium' },
+            { id:'druid_robes',     icon:'👘', name:'Druid Robes',          desc:'Ancient robes woven from living moss and ashwood fiber.',                 stat:'ARM +2, INT +4, MP +8', slot:'chest',    tags:['Light','Chest'],       stackable:false, type:'light' },
+            { id:'thorn_greaves',   icon:'🦾', name:'Thorn Greaves',        desc:'Leg guards grown from blighted thornwall. Flexible but cruel.',          stat:'ARM +5, DEX +3', slot:'legs',     tags:['Medium','Legs'],       stackable:false, type:'medium' },
+            { id:'void_walker_boots', icon:'🥾', name:'Void Walker Boots',  desc:'Boots that muffle footsteps in corrupted ashwood gloom.',                stat:'ARM +2, INT +4', slot:'feet',     tags:['Light','Feet'],        stackable:false, type:'light'  },
+            { id:'shadow_mantle',   icon:'🧥', name:'Shadow Mantle',        desc:'A cloak that absorbs ambient darkness, granting strange protection.',     stat:'ARM +5, INT +3', slot:'mantle',   tags:['Medium','Mantle'],     stackable:false, type:'medium' },
             { id:'root_ring',       icon:'💍', name:'Root Ring',            desc:'A ring braided from living roots. Pulses with quiet power.',              stat:'INT +4', slot:'ring1',    tags:['Ring'],                stackable:false },
             { id:'void_shard',      icon:'🌑', name:'Void Shard',           desc:'A fragment of crystallized shadow. Cold to the touch.',                   stat:'Material', slot:'item',   tags:['Material'],            stackable:true  },
             { id:'ashwood_bark',    icon:'🌳', name:'Ashwood Bark',         desc:'Bark from a corrupted ashwood tree. Used in dark alchemy.',               stat:'Material', slot:'item',   tags:['Material'],            stackable:true  },
@@ -7043,8 +7127,10 @@ const DUNGEONS = {
         loot: [
             { id:'corsair_blade',   icon:'⚔',  name:'Corsair Blade',     desc:'A curved pirate sword, well-balanced and razor-sharp.',          stat:'DEX +5', slot:'mainHand', tags:['Sword'],  stackable:false },
             { id:'harpoon',         icon:'🔱', name:'Sea Harpoon',        desc:'A weighted harpoon repurposed as a weapon. Brutal at close range.',stat:'STR +5', slot:'mainHand', tags:['Spear'],  stackable:false },
-            { id:'saltweave_coat',  icon:'🧥', name:'Saltweave Coat',     desc:'A heavy sea coat hardened by salt and age.',                     stat:'ARM +5', slot:'chest',    tags:['Medium','Chest'],      stackable:false, type:'medium' },
-            { id:'coral_shield',    icon:'🛡', name:'Coral Shield',       desc:'A shield grown from living coral, hardened by the sea.',          stat:'ARM +7', slot:'offHand',  tags:['Shield','Off-Hand'],   stackable:false },
+            { id:'saltweave_coat',  icon:'🧥', name:'Saltweave Coat',     desc:'A heavy sea coat hardened by salt and age.',                     stat:'ARM +5, DEX +3', slot:'chest',    tags:['Medium','Chest'],      stackable:false, type:'medium' },
+            { id:'deck_plates',     icon:'🛡', name:'Deck Plates',        desc:'Iron breastplate salvaged from the warship\'s armory.',          stat:'ARM +7, STR +4', slot:'chest',    tags:['Heavy','Chest'],       stackable:false, type:'heavy'  },
+            { id:'barnacle_greaves', icon:'🦾', name:'Barnacle Greaves',  desc:'Leg guards crusted with hardened barnacle shell. Tough as iron.', stat:'ARM +5, STR +3', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'coral_shield',    icon:'🛡', name:'Coral Shield',       desc:'A shield grown from living coral, hardened by the sea.',          stat:'ARM +7, DEX +3', slot:'offHand',  tags:['Shield','Off-Hand'],   stackable:false },
             { id:'navigator_ring',  icon:'💍', name:"Navigator's Ring",   desc:'A ring bearing the compass rose of an old sea captain.',          stat:'DEX +4', slot:'ring1',    tags:['Ring'],                stackable:false },
             { id:'kraken_ink',      icon:'🐙', name:'Kraken Ink',         desc:'Thick black ink from a kraken spawn. Valuable to scholars.',      stat:'Material', slot:'item',   tags:['Material'],            stackable:true  },
             { id:'sea_glass',       icon:'🌊', name:'Sea Glass',          desc:'Smooth glass worn by the ocean. Used in coastal crafts.',         stat:'Material', slot:'item',   tags:['Material'],            stackable:true  },
@@ -7083,9 +7169,12 @@ const DUNGEONS = {
             { id:'mesa_hunter_bow',     icon:'🏹', name:"Mesa Hunter's Bow",   desc:'Sinew-strung bone bow built for canyon hunts.',                        stat:'DEX +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[11,17] },
             { id:'thunderstone_staff',  icon:'🪄', name:'Thunderstone Staff',  desc:'Petrified wood struck by lightning. Still crackles with power.',       stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[9,15] },
             { id:'amber_focus',         icon:'🔮', name:'Amber Focus',         desc:'Amber with an insect trapped inside. Amplifies arcane sight.',         stat:'INT +4', slot:'offHand',  tags:['Focus','Off-Hand'], stackable:false },
-            { id:'plateback_pauldrons', icon:'🧣', name:'Plateback Pauldrons', desc:'Shoulder guards layered from armored dinosaur scutes.',                stat:'ARM +6', slot:'mantle',   tags:['Heavy','Mantle'], stackable:false, type:'heavy' },
-            { id:'scalehide_vest',      icon:'🥋', name:'Scalehide Vest',      desc:'Vest sewn from mesa lizard hide. Light, tough, and heat-resistant.',   stat:'DEX +3', slot:'chest',    tags:['Medium','Chest'], stackable:false, type:'medium' },
-            { id:'sunscorched_robes',   icon:'👘', name:'Sunscorched Robes',   desc:'Thin weave for brutal mesa heat. Channels focus over comfort.',          stat:'INT +3, MP +10', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'plateback_pauldrons', icon:'🧣', name:'Plateback Pauldrons', desc:'Shoulder guards layered from armored dinosaur scutes.',                stat:'ARM +6, STR +4', slot:'mantle',   tags:['Heavy','Mantle'], stackable:false, type:'heavy' },
+            { id:'scalehide_vest',      icon:'🥋', name:'Scalehide Vest',      desc:'Vest sewn from mesa lizard hide. Light, tough, and heat-resistant.',   stat:'ARM +4, DEX +4', slot:'chest',    tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'sunscorched_robes',   icon:'👘', name:'Sunscorched Robes',   desc:'Thin weave for brutal mesa heat. Channels focus over comfort.',          stat:'ARM +2, INT +4, MP +8', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'fossil_greaves',      icon:'🦾', name:'Fossil Greaves',      desc:'Leg plates laminated from mesa fossil bone. Ancient and unyielding.',   stat:'ARM +5, STR +4', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'canyon_stalker_boots', icon:'🥾', name:'Canyon Stalker Boots', desc:'Soft hide boots that muffle footfalls on red stone.',                  stat:'ARM +3, DEX +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'sun_bone_helm',       icon:'⛑',  name:'Sun-Bone Helm',       desc:'A helm carved from bleached mesa bone. Light but sharp-edged.',         stat:'ARM +4, DEX +3', slot:'head', tags:['Medium','Head'], stackable:false, type:'medium' },
             { id:'fossil_shard',        icon:'🦴', name:'Fossil Shard',        desc:'A shard of ancient fossil bone. Used in forging.',                     stat:'Material', slot:'item', tags:['Material'], stackable:true },
         ],
     },
@@ -7122,8 +7211,13 @@ const DUNGEONS = {
             { id:'ironwood_longblade',  icon:'⚔',  name:'Ironwood Longblade',  desc:'A straight elven war blade of living ironwood. Perfectly balanced.', stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,19] },
             { id:'ironwood_longbow',    icon:'🏹', name:'Ironwood Longbow',    desc:'A ranger\'s bow of ironwood and silver string. Deadly at range.',       stat:'DEX +5', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[12,18] },
             { id:'ironwood_staff',      icon:'🪄', name:'Ironwood Staff',      desc:'A battle-mage staff of hardened ironwood. Channels spell and strike.', stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[9,15] },
-            { id:'leafweave_chest',     icon:'🥋', name:'Leafweave Chest',     desc:'Chest armor woven from ironwood leaves. Light but surprisingly tough.', stat:'DEX +3', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
-            { id:'warden_plate',        icon:'🧥', name:'Warden Plate',        desc:'Elven plate forged with ironwood ribs. Built for the line.',           stat:'ARM +7', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'leafweave_chest',     icon:'🥋', name:'Leafweave Chest',     desc:'Chest armor woven from ironwood leaves. Light but surprisingly tough.', stat:'ARM +4, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'warden_plate',        icon:'🧥', name:'Warden Plate',        desc:'Elven plate forged with ironwood ribs. Built for the line.',           stat:'ARM +7, STR +4', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'blight_greaves',      icon:'🦾', name:'Blight Greaves',      desc:'Heavy leg plates salvaged from fallen wardens. Still proud, still strong.', stat:'ARM +6, STR +4', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'shadowleaf_boots',    icon:'🥾', name:'Shadowleaf Boots',    desc:'Boots of dark ironwood leaf. Silent on blighted root.',                   stat:'ARM +2, DEX +4', slot:'feet', tags:['Light','Feet'], stackable:false, type:'light' },
+            { id:'heartwood_helm',      icon:'👑', name:'Heartwood Helm',      desc:'An elven helm of living ironwood. For those who hold the line.',          stat:'ARM +5, STR +3', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'thorn_vambraces',     icon:'🥋', name:'Thorn Vambraces',     desc:'Forearm guards grown from blighted thornwall. Tough and cruel.',          stat:'ARM +4, DEX +3', slot:'arms', tags:['Medium','Arms'], stackable:false, type:'medium' },
+            { id:'darkelf_mantle',      icon:'🧥', name:'Dark Elf Mantle',     desc:'A cloak of shadow-weave worn by deep grove exiles.',                     stat:'ARM +3, DEX +4', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
             { id:'root_ring',           icon:'💍', name:'Root Ring',           desc:'A ring braided from living ironwood roots.',                           stat:'INT +4', slot:'ring1', tags:['Ring'], stackable:false },
             { id:'ironwood_bark',       icon:'🌳', name:'Ironwood Bark',       desc:'Bark from the deep groves. Dense and valuable.',                       stat:'Material', slot:'item', tags:['Material'], stackable:true },
         ],
@@ -7158,8 +7252,13 @@ const DUNGEONS = {
         loot: [
             { id:'steppe_lance',        icon:'🔱', name:'Steppe Lance',        desc:'A centaur-forged lance built for charging the open flats.',          stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[11,17] },
             { id:'windchaser_bow',      icon:'🏹', name:'Windchaser Bow',      desc:'A composite bow strung for speed and distance on the steppe.',       stat:'DEX +5', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[12,18] },
-            { id:'hoof_iron_greaves',   icon:'🦾', name:'Hoof-Iron Greaves',   desc:'Leg guards modeled after centaur iron-shod hooves.',                   stat:'STR +4', slot:'legs', tags:['Medium','Legs'], stackable:false, type:'medium' },
-            { id:'windrunner_vest',     icon:'🥋', name:'Windrunner Vest',     desc:'Light vest of steppe leather. Built for riders and runners.',          stat:'DEX +4', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'hoof_iron_greaves',   icon:'🦾', name:'Hoof-Iron Greaves',   desc:'Leg guards modeled after centaur iron-shod hooves.',                   stat:'ARM +4, STR +4', slot:'legs', tags:['Medium','Legs'], stackable:false, type:'medium' },
+            { id:'windrunner_vest',     icon:'🥋', name:'Windrunner Vest',     desc:'Light vest of steppe leather. Built for riders and runners.',          stat:'ARM +3, DEX +4', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'dustwalker_boots',    icon:'🥾', name:'Dustwalker Boots',    desc:'Light boots that leave no print on red canyon dust.',                     stat:'ARM +2, DEX +4', slot:'feet', tags:['Light','Feet'], stackable:false, type:'light' },
+            { id:'canyon_hood',         icon:'🧢', name:'Canyon Hood',         desc:'Sun-bleached hood that cuts glare from the steppe sky.',                  stat:'ARM +2, PER +4', slot:'head', tags:['Light','Head'], stackable:false, type:'light' },
+            { id:'harpy_plume_mantle',  icon:'🧥', name:'Harpy Plume Mantle',  desc:'A mantle lined with harpy feathers. Light as thermals.',                  stat:'ARM +3, DEX +4', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
+            { id:'rider_bracers',       icon:'🥋', name:'Rider Bracers',       desc:'Leather bracers built for rein, lance, and bow alike.',                   stat:'ARM +4, DEX +3', slot:'arms', tags:['Medium','Arms'], stackable:false, type:'medium' },
+            { id:'thunder_bull_girdle', icon:'⚙',  name:'Thunder Bull Girdle', desc:'A heavy belt of bison hide and iron studs. Survives any stampede.',       stat:'ARM +4, STR +4', slot:'waist', tags:['Heavy','Waist'], stackable:false, type:'heavy' },
             { id:'plains_ring',         icon:'💍', name:'Plains Ring',         desc:'A ring of braided grass-steel worn by centaur scouts.',               stat:'PER +3', slot:'ring1', tags:['Ring'], stackable:false },
             { id:'centaur_javelin',     icon:'🔱', name:'Centaur Javelin',     desc:'A heavy throwing javelin. Same level-scaled damage as a grenade.',     stat:'DEX +3', slot:'item', tags:['Consumable'], stackable:true },
             { id:'steppe_dust',         icon:'🏜', name:'Sunstone Dust',       desc:'Fine red dust from the canyons. Used in crafting.',                    stat:'Material', slot:'item', tags:['Material'], stackable:true },
@@ -7629,18 +7728,26 @@ const WOLFHAVEN_INVENTORY = {
         { id:'golden_greatbow',  icon:'🏹', name:'Golden Greatbow',       desc:'A massive greatbow bathed in golden light — blessed by the Greatwolf himself. Its draw is legendary.', price:130, tags:['Bow'],    stat:'DEX +6', slot:'mainHand', dmg:[18,26] },
     ],
     armor: [
-        // Light — INT/MP focus
-        { id:'moss_robes',      icon:'👘', name:'Moss Robes',           desc:'Soft robes grown from living forest moss. Cool and light.',            price:45,  tags:['Light','Chest'],    stat:'MP +12',  type:'light',  slot:'chest'  },
-        { id:'druid_hood',      icon:'🎩', name:'Druid Hood',            desc:'A hood woven from ashwood leaves. Rustles when magic is near.',        price:30,  tags:['Light','Head'],     stat:'INT +2',  type:'light',  slot:'head'   },
-        { id:'bark_bracers',    icon:'🥋', name:'Bark Bracers',          desc:'Hardened bark fitted to the forearms. Surprisingly tough.',            price:35,  tags:['Medium','Arms'],    stat:'ARM +3',  type:'medium', slot:'arms'   },
-        { id:'grove_sash',      icon:'🎀', name:'Grove Sash',            desc:'A sash woven from living vines. Channels natural energy.',             price:25,  tags:['Light','Waist'],    stat:'MP +6',   type:'light',  slot:'waist'  },
-        { id:'leaf_mantle',     icon:'🧣', name:'Leaf Mantle',           desc:'A mantle of layered ashwood leaves, light but protective.',            price:38,  tags:['Light','Mantle'],   stat:'INT +2',  type:'light',  slot:'mantle' },
+        // Light — INT/MP focus (casters & rogues welcome)
+        { id:'moss_robes',      icon:'👘', name:'Moss Robes',           desc:'Soft robes grown from living forest moss. Cool and light.',            price:45,  tags:['Light','Chest'],    stat:'ARM +2, INT +4, MP +8',  type:'light',  slot:'chest'  },
+        { id:'druid_hood',      icon:'🎩', name:'Druid Hood',            desc:'A hood woven from ashwood leaves. Rustles when magic is near.',        price:30,  tags:['Light','Head'],     stat:'ARM +2, INT +3',  type:'light',  slot:'head'   },
+        { id:'bark_bracers',    icon:'🥋', name:'Bark Bracers',          desc:'Hardened bark fitted to the forearms. Surprisingly tough.',            price:35,  tags:['Medium','Arms'],    stat:'ARM +3, DEX +3',  type:'medium', slot:'arms'   },
+        { id:'grove_sash',      icon:'🎀', name:'Grove Sash',            desc:'A sash woven from living vines. Channels natural energy.',             price:25,  tags:['Light','Waist'],    stat:'ARM +2, MP +6',   type:'light',  slot:'waist'  },
+        { id:'leaf_mantle',     icon:'🧣', name:'Leaf Mantle',           desc:'A mantle of layered ashwood leaves, light but protective.',            price:38,  tags:['Light','Mantle'],   stat:'ARM +2, INT +3',  type:'light',  slot:'mantle' },
         { id:'spirit_pendant',  icon:'📿', name:'Spirit Pendant',        desc:'A pendant bearing Fennyx\'s golden wolf. Warm to the touch.',         price:50,  tags:['Neck'],             stat:'INT +3',  slot:'neck1'  },
         { id:'nature_ring',     icon:'💍', name:'Nature Ring',           desc:'A ring of woven roots set with a green gemstone.',                    price:45,  tags:['Ring'],             stat:'INT +2',  slot:'ring1'  },
-        { id:'grove_boots',     icon:'🩴', name:'Grove Slippers',        desc:'Soft slippers of woven bark and moss. Silent in the forest.',         price:30,  tags:['Light','Feet'],     stat:'MP +5',   type:'light',  slot:'feet'   },
+        { id:'grove_boots',     icon:'🩴', name:'Grove Slippers',        desc:'Soft slippers of woven bark and moss. Silent in the forest.',         price:30,  tags:['Light','Feet'],     stat:'ARM +2, DEX +4',   type:'light',  slot:'feet'   },
         // Medium options for mixed builds
-        { id:'hide_vest_grove', icon:'🥋', name:'Grove Leather Vest',   desc:'Treated hide imbued with druidic preservation magic.',                price:60,  tags:['Medium','Chest'],   stat:'ARM +4',  type:'medium', slot:'chest'  },
-        { id:'warden_helm',     icon:'🧢', name:'Warden Helm',           desc:'A leather cap reinforced with ashwood plates.',                       price:45,  tags:['Medium','Head'],    stat:'ARM +3',  type:'medium', slot:'head'   },
+        { id:'hide_vest_grove', icon:'🥋', name:'Grove Leather Vest',   desc:'Treated hide imbued with druidic preservation magic.',                price:60,  tags:['Medium','Chest'],   stat:'ARM +4, DEX +3',  type:'medium', slot:'chest'  },
+        { id:'warden_helm',     icon:'🧢', name:'Warden Helm',           desc:'A leather cap reinforced with ashwood plates.',                       price:45,  tags:['Medium','Head'],    stat:'ARM +3, DEX +3',  type:'medium', slot:'head'   },
+        { id:'moonlit_greaves',   icon:'👘', name:'Moonlit Greaves',        desc:'Silken leg wraps blessed under Fennyx\'s moon. Light and focused.',      price:42,  tags:['Light','Legs'],     stat:'ARM +2, INT +3', type:'light',  slot:'legs'    },
+        { id:'bark_leggings',     icon:'🥋', name:'Bark Leggings',          desc:'Layered bark leggings. Druid-crafted and surprisingly tough.',           price:38,  tags:['Light','Legs'],     stat:'ARM +2, DEX +3, MP +4',  type:'light',  slot:'legs'    },
+        { id:'root_greaves',      icon:'🦾', name:'Root Greaves',           desc:'Leg guards grown from hardened ashwood root. Flexible protection.',      price:55,  tags:['Medium','Legs'],    stat:'ARM +4, DEX +3', type:'medium', slot:'legs'    },
+        { id:'forest_plate_boots',icon:'🥾', name:'Forest Plate Boots',     desc:'Ashwood-plated boots for wardens who patrol the deep grove.',            price:50,  tags:['Medium','Feet'],    stat:'ARM +3, DEX +3', type:'medium', slot:'feet'    },
+        { id:'warden_iron_boots', icon:'🥾', name:'Warden Iron Boots',      desc:'Heavy boots with ironwood toe caps. Built for standing ground.',         price:58,  tags:['Heavy','Feet'],     stat:'ARM +4, STR +3', type:'heavy',  slot:'feet'    },
+        { id:'rootbound_girdle',  icon:'⚙',  name:'Rootbound Girdle',       desc:'Ironwood and root woven into a heavy waistguard. For grove defenders.', price:65,  tags:['Heavy','Waist'],    stat:'ARM +4, STR +3', type:'heavy',  slot:'waist'   },
+        { id:'moonweave_hands',   icon:'🧤', name:'Moonweave Gloves',       desc:'Gloves of silver-threaded moss. Aid focus and spellcraft.',              price:40,  tags:['Light','Hands'],    stat:'ARM +2, INT +3', type:'light',  slot:'hands'   },
+        { id:'grove_armguards',   icon:'🥋', name:'Grove Armguards',        desc:'Medium bracers of treated hide and ashwood plates.',                    price:48,  tags:['Medium','Arms'],    stat:'ARM +3, DEX +3', type:'medium', slot:'arms'    },
     ],
     consumables: [
         { id:'healing_herb',    icon:'🌿', name:'Healing Herb',          desc:'A potent natural herb. Restores 40% HP.',                             price:20,  tags:['Consumable'],       stackable:true  },
@@ -7677,11 +7784,20 @@ const IRONWOOD_INVENTORY = {
         { id:'warden_spear',      icon:'🔱', name:'Warden Spear',       desc:'An ironwood-hafted spear for elven wardens.',                        price:75,  tags:['Spear'],  stat:'STR +4', slot:'mainHand', dmg:[11,16] },
     ],
     armor: [
-        { id:'ironwood_mail',     icon:'🥋', name:'Ironwood Mail',      desc:'Mail woven with ironwood rings. Light for its protection.',            price:70,  tags:['Medium','Chest'], stat:'ARM +5', type:'medium', slot:'chest' },
-        { id:'ranger_leathers',   icon:'🥋', name:'Ranger Armor',       desc:'Supple armor favored by Ironwood scouts.',                            price:55,  tags:['Medium','Chest'], stat:'DEX +3', type:'medium', slot:'chest' },
-        { id:'spellward_circlet', icon:'👑', name:'Spellward Circlet',  desc:'A circlet that sharpens arcane focus.',                                price:45,  tags:['Light','Head'],   stat:'INT +3', type:'light',  slot:'head' },
-        { id:'ironwood_gauntlets',icon:'🧤', name:'Ironwood Gauntlets', desc:'Gauntlets reinforced with living ironwood plates.',                    price:50,  tags:['Medium','Hands'], stat:'ARM +3', type:'medium', slot:'hands' },
-        { id:'leafweave_mantle',  icon:'🧣', name:'Leafweave Mantle',   desc:'A mantle of woven ironwood leaves.',                                   price:40,  tags:['Light','Mantle'], stat:'MP +8',  type:'light',  slot:'mantle' },
+        { id:'ironwood_mail',     icon:'🥋', name:'Ironwood Mail',      desc:'Mail woven with ironwood rings. Light for its protection.',            price:70,  tags:['Medium','Chest'], stat:'ARM +5, DEX +3', type:'medium', slot:'chest' },
+        { id:'ranger_leathers',   icon:'🥋', name:'Ranger Armor',       desc:'Supple armor favored by Ironwood scouts.',                            price:55,  tags:['Medium','Chest'], stat:'ARM +4, DEX +4', type:'medium', slot:'chest' },
+        { id:'spellward_circlet', icon:'👑', name:'Spellward Circlet',  desc:'A circlet that sharpens arcane focus.',                                price:45,  tags:['Light','Head'],   stat:'ARM +2, INT +4', type:'light',  slot:'head' },
+        { id:'ironwood_gauntlets',icon:'🧤', name:'Ironwood Gauntlets', desc:'Gauntlets reinforced with living ironwood plates.',                    price:50,  tags:['Medium','Hands'], stat:'ARM +3, DEX +3', type:'medium', slot:'hands' },
+        { id:'leafweave_mantle',  icon:'🧣', name:'Leafweave Mantle',   desc:'A mantle of woven ironwood leaves.',                                   price:40,  tags:['Light','Mantle'], stat:'ARM +2, INT +3, MP +4',  type:'light',  slot:'mantle' },
+        { id:'ironwood_greaves',    icon:'🦾', name:'Ironwood Greaves',      desc:'Leg guards reinforced with living ironwood ribbing.',                    price:58,  tags:['Medium','Legs'],    stat:'ARM +4, DEX +3', type:'medium', slot:'legs'    },
+        { id:'scout_boots',         icon:'🥾', name:'Scout Boots',            desc:'Soft-soled boots that grip bark and mud without sound.',                 price:48,  tags:['Medium','Feet'],    stat:'ARM +3, DEX +4', type:'medium', slot:'feet'    },
+        { id:'ironwood_plate_boots',icon:'🥾', name:'Ironwood Plate Boots',   desc:'Iron-tipped boots with ironwood shin guards.',                          price:62,  tags:['Heavy','Feet'],     stat:'ARM +4, STR +3', type:'heavy',  slot:'feet'    },
+        { id:'warden_leg_plates',   icon:'🦾', name:'Warden Leg Plates',      desc:'Heavy elven leg plates with ironwood ribs. For the line.',               price:75,  tags:['Heavy','Legs'],     stat:'ARM +5, STR +4', type:'heavy',  slot:'legs'    },
+        { id:'warden_sash',         icon:'🎀', name:'Warden Sash',            desc:'A green sash marking an Ironwood warden. Focus over flash.',             price:38,  tags:['Light','Waist'],    stat:'ARM +2, INT +3, MP +4',  type:'light',  slot:'waist'   },
+        { id:'thorn_armguards',     icon:'🥋', name:'Thorn Armguards',        desc:'Hardened bracers studded with ironwood thorns.',                        price:52,  tags:['Medium','Arms'],    stat:'ARM +3, DEX +3', type:'medium', slot:'arms'    },
+        { id:'spellthread_pendant', icon:'📿', name:'Spellthread Pendant',    desc:'A pendant woven with silver thread that hums near magic.',               price:55,  tags:['Neck'],             stat:'INT +3', slot:'neck1'   },
+        { id:'ranger_ring',         icon:'💍', name:'Ranger Ring',            desc:'A ring of ironwood inlaid with leaf-green stone.',                       price:50,  tags:['Ring'],             stat:'DEX +3', slot:'ring1'   },
+        { id:'scholar_wraps',       icon:'🤲', name:'Scholar Wraps',          desc:'Light wrist wraps that aid spell gestures.',                            price:35,  tags:['Light','Wrists'],   stat:'ARM +2, INT +3', type:'light',  slot:'wrists1' },
     ],
 };
 
@@ -7708,10 +7824,19 @@ const WINDMANE_INVENTORY = {
         { id:'hoof_axe',          icon:'🪓', name:'Hoof Axe',           desc:'A compact axe balanced for centaur strength.',                         price:70,  tags:['Axe'],    stat:'STR +4', slot:'mainHand', dmg:[12,17] },
     ],
     armor: [
-        { id:'steppe_leathers',   icon:'🥋', name:'Steppe Armor',       desc:'Light armor built for speed on the open flats.',                       price:52,  tags:['Light','Chest'],  stat:'DEX +3', type:'light',  slot:'chest' },
-        { id:'hoofplate_greaves', icon:'🦾', name:'Hoofplate Greaves',  desc:'Leg guards modeled after centaur iron-shod hooves.',                   price:48,  tags:['Medium','Legs'],  stat:'STR +3', type:'medium', slot:'legs' },
-        { id:'windchaser_boots',  icon:'🥾', name:'Windchaser Boots',   desc:'Soft-soled boots that grip the steppe without noise.',                   price:38,  tags:['Light','Feet'],   stat:'DEX +2', type:'light',  slot:'feet' },
-        { id:'plains_mantle',     icon:'🧥', name:'Plains Mantle',      desc:'A mantle dyed the color of dry grass. Hard to spot at distance.',       price:42,  tags:['Light','Mantle'], stat:'PER +2', type:'light',  slot:'mantle' },
+        { id:'steppe_leathers',   icon:'🥋', name:'Steppe Armor',       desc:'Light armor built for speed on the open flats.',                       price:52,  tags:['Light','Chest'],  stat:'ARM +3, DEX +4', type:'light',  slot:'chest' },
+        { id:'hoofplate_greaves', icon:'🦾', name:'Hoofplate Greaves',  desc:'Leg guards modeled after centaur iron-shod hooves.',                   price:48,  tags:['Medium','Legs'],  stat:'ARM +4, STR +3', type:'medium', slot:'legs' },
+        { id:'windchaser_boots',  icon:'🥾', name:'Windchaser Boots',   desc:'Soft-soled boots that grip the steppe without noise.',                   price:38,  tags:['Light','Feet'],   stat:'ARM +2, DEX +4', type:'light',  slot:'feet' },
+        { id:'plains_mantle',     icon:'🧥', name:'Plains Mantle',      desc:'A mantle dyed the color of dry grass. Hard to spot at distance.',       price:42,  tags:['Light','Mantle'], stat:'ARM +2, PER +3', type:'light',  slot:'mantle' },
+        { id:'steppe_hood',       icon:'🧢', name:'Steppe Hood',            desc:'A hood of sun-bleached leather. Shields eyes from dust and glare.',        price:36,  tags:['Light','Head'],     stat:'ARM +2, DEX +3', type:'light',  slot:'head'    },
+        { id:'ridge_helm',        icon:'⛑',  name:'Ridge Helm',             desc:'An iron cap favored by centaur champions who stand their ground.',       price:55,  tags:['Medium','Head'],    stat:'ARM +4, STR +3', type:'medium', slot:'head'    },
+        { id:'rider_gloves',      icon:'🧤', name:'Rider Gloves',           desc:'Thin leather gloves that keep grip on reins and bowstring.',             price:34,  tags:['Light','Hands'],    stat:'ARM +2, DEX +3', type:'light',  slot:'hands'   },
+        { id:'grassweave_sash',   icon:'🎀', name:'Grassweave Sash',        desc:'Braided steppe grass and sinew. Light as wind.',                         price:32,  tags:['Light','Waist'],    stat:'ARM +2, DEX +3',  type:'light',  slot:'waist'   },
+        { id:'stampede_girdle',   icon:'⚙',  name:'Stampede Girdle',        desc:'A heavy leather-and-iron belt built to survive a bison charge.',           price:58,  tags:['Heavy','Waist'],    stat:'ARM +4, STR +4', type:'heavy',  slot:'waist'   },
+        { id:'wind_bracers',      icon:'🥋', name:'Wind Bracers',           desc:'Leather bracers cut for speed. No metal to weigh you down.',               price:40,  tags:['Light','Arms'],     stat:'ARM +2, DEX +4', type:'light',  slot:'arms'    },
+        { id:'centaur_wristwraps',icon:'🤲', name:'Centaur Wristwraps',     desc:'Wraps worn by centaur riders. Built for the rein and the bow.',          price:44,  tags:['Medium','Wrists'],  stat:'ARM +3, DEX +3', type:'medium', slot:'wrists1' },
+        { id:'nomad_pendant',     icon:'📿', name:'Nomad Pendant',          desc:'A carved sunstone on a horsehair cord.',                                   price:46,  tags:['Neck'],             stat:'DEX +3', slot:'neck1'   },
+        { id:'sky_hunter_ring',   icon:'💍', name:'Sky Hunter Ring',        desc:'A ring of sunstone set in hoof-beaten iron.',                              price:48,  tags:['Ring'],             stat:'PER +3', slot:'ring1'   },
     ],
 };
 
@@ -7780,8 +7905,13 @@ function renderWolfhavenTab(tab) {
         return;
     }
 
-    const items = WOLFHAVEN_INVENTORY[tab] || [];
+    const items = applyShopItemFilters(WOLFHAVEN_INVENTORY[tab] || [], tab === 'armor');
     panel.innerHTML = '';
+
+    if (items.length === 0) {
+        panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
+        return;
+    }
 
     items.forEach(item => {
         const finalPrice = getDiscountedPrice(item.price);
@@ -7911,7 +8041,7 @@ function renderIronwoodTab(tab) {
     const panel = document.getElementById('ironwood-' + tab);
     if (!panel) return;
     if (tab === 'sell') { renderIronwoodSellTab(); return; }
-    renderTownShopItems(panel, IRONWOOD_INVENTORY[tab] || [], 'buyIronwoodItem');
+    renderTownShopItems(panel, IRONWOOD_INVENTORY[tab] || [], 'buyIronwoodItem', tab === 'armor');
 }
 
 function renderIronwoodSellTab() {
@@ -7963,7 +8093,7 @@ function renderWindmaneTab(tab) {
     const panel = document.getElementById('windmane-' + tab);
     if (!panel) return;
     if (tab === 'sell') { renderWindmaneSellTab(); return; }
-    renderTownShopItems(panel, WINDMANE_INVENTORY[tab] || [], 'buyWindmaneItem');
+    renderTownShopItems(panel, WINDMANE_INVENTORY[tab] || [], 'buyWindmaneItem', tab === 'armor');
 }
 
 function renderWindmaneSellTab() {
@@ -7974,9 +8104,14 @@ function buyWindmaneItem(itemId) {
     promptBuy('windmane', itemId);
 }
 
-function renderTownShopItems(panel, items, buyFnName) {
+function renderTownShopItems(panel, items, buyFnName, isArmorTab) {
     panel.innerHTML = '';
-    items.forEach(item => {
+    const filtered = applyShopItemFilters(items, !!isArmorTab);
+    if (filtered.length === 0) {
+        panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
+        return;
+    }
+    filtered.forEach(item => {
         const finalPrice = getDiscountedPrice(item.price);
         const canAfford = character.gold >= finalPrice;
         const tagHTML = (item.tags || []).map(t => {
@@ -8694,11 +8829,17 @@ const SUNPORT_INVENTORY = {
         { id:'compass_ring',    icon:'💍', name:'Compass Ring',          desc:'An enchanted ring that always points toward fortune.',               price:55,  tags:['Ring'],                stat:'DEX +3',  slot:'ring1'   },
         { id:'pearl_pendant',   icon:'📿', name:'Pearl Pendant',          desc:'A lustrous deep-sea pearl on a silver chain.',                       price:50,  tags:['Neck'],                stat:'INT +3',  slot:'neck1'   },
         { id:'anchor_talisman', icon:'⚓', name:'Anchor Talisman',        desc:'A small iron anchor worn as a talisman. Grounds the wearer.',        price:45,  tags:['Neck'],                stat:'ARM +2',  slot:'neck1'   },
-        { id:'sailor_bracers',  icon:'🥋', name:"Sailor's Bracers",       desc:'Salt-cured leather bracers worn by veteran sailors.',                price:40,  tags:['Medium','Wrists'],     stat:'ARM +3',  slot:'wrists1', type:'medium' },
+        { id:'sailor_bracers',  icon:'🥋', name:"Sailor's Bracers",       desc:'Salt-cured leather bracers worn by veteran sailors.',                price:40,  tags:['Medium','Wrists'],     stat:'ARM +3, DEX +3',  slot:'wrists1', type:'medium' },
         { id:'tide_ring',       icon:'💍', name:'Tide Ring',              desc:'A ring carved from driftwood and sea-glass. Crackles with sea magic.',price:60,  tags:['Ring'],                stat:'INT +3',  slot:'ring2'   },
         { id:'barnacle_band',   icon:'💍', name:'Barnacle Band',          desc:'A ring of calcified barnacle. Strangely resilient.',                 price:45,  tags:['Ring'],                stat:'RES +2',  slot:'ring1'   },
-        { id:'naval_boots',     icon:'🥾', name:'Naval Boots',            desc:'Reinforced leather boots built for wet decks.',                      price:50,  tags:['Medium','Feet'],       stat:'ARM +3',  slot:'feet', type:'medium' },
-        { id:'sea_cloak',       icon:'🧥', name:'Sea Cloak',              desc:'A treated cloak that sheds water and wind alike.',                   price:55,  tags:['Medium','Mantle'],     stat:'ARM +3',  slot:'mantle', type:'medium' },
+        { id:'naval_boots',     icon:'🥾', name:'Naval Boots',            desc:'Reinforced leather boots built for wet decks.',                      price:50,  tags:['Medium','Feet'],       stat:'ARM +3, DEX +3',  slot:'feet', type:'medium' },
+        { id:'sea_cloak',       icon:'🧥', name:'Sea Cloak',              desc:'A treated cloak that sheds water and wind alike.',                   price:55,  tags:['Medium','Mantle'],     stat:'ARM +3, DEX +2',  slot:'mantle', type:'medium' },
+        { id:'corsair_vest',      icon:'🥋', name:'Corsair Vest',           desc:'Reinforced leather vest worn by deck fighters.',                        price:58,  tags:['Medium','Chest'],   stat:'ARM +4, DEX +3',  slot:'chest', type:'medium' },
+        { id:'saltwash_robes',    icon:'👘', name:'Saltwash Robes',         desc:'Sea-blessed robes for coastal mages. Salt-stiff but arcane-aligned.',   price:48,  tags:['Light','Chest'],    stat:'ARM +2, INT +3, MP +8',  slot:'chest', type:'light'  },
+        { id:'deckhand_hood',     icon:'🧢', name:'Deckhand Hood',          desc:'A tarred hood that sheds spray and sun alike.',                         price:38,  tags:['Light','Head'],     stat:'ARM +2, DEX +3',  slot:'head', type:'light'  },
+        { id:'anchor_greaves',    icon:'🦾', name:'Anchor Greaves',         desc:'Heavy iron leg guards bolted like ship fittings.',                      price:62,  tags:['Heavy','Legs'],     stat:'ARM +5, STR +3',  slot:'legs', type:'heavy'  },
+        { id:'boarding_gauntlets',icon:'🧤', name:'Boarding Gauntlets',     desc:'Heavy gloves with studded knuckles for close quarters.',                price:52,  tags:['Heavy','Hands'],    stat:'ARM +3, STR +4',  slot:'hands', type:'heavy'  },
+        { id:'tide_sash',         icon:'🎀', name:'Tide Sash',              desc:'A rope-and-silk sash worn by naval officers.',                           price:42,  tags:['Medium','Waist'],   stat:'ARM +3, DEX +2',  slot:'waist', type:'medium' },
     ],
     consumables: [
         { id:'brine_tonic',     icon:'🧴', name:'Brine Tonic',            desc:'A harsh coastal remedy. Restores 50% HP.',                          price:28,  tags:['Consumable'],          stackable:true  },
@@ -8773,8 +8914,13 @@ function renderSunportTab(tab) {
         return;
     }
 
-    const items = SUNPORT_INVENTORY[tab === 'consumables' ? 'consumables' : tab] || [];
+    const items = applyShopItemFilters(SUNPORT_INVENTORY[tab === 'consumables' ? 'consumables' : tab] || [], tab === 'accessories');
     panel.innerHTML = '';
+
+    if (items.length === 0) {
+        panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
+        return;
+    }
 
     items.forEach(item => {
         const finalPrice = getDiscountedPrice(item.price);
