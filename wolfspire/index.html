@@ -530,6 +530,61 @@
         }
         .fishing-hint { text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 18px; }
 
+        /* -- GAME ROOM -- */
+        .game-status {
+            text-align: center; font-style: italic; color: var(--text-dim);
+            margin-bottom: 14px; min-height: 2.4em; line-height: 1.35;
+        }
+        .game-status.win { color: #80d080; font-style: normal; }
+        .memory-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+            margin-bottom: 16px;
+        }
+        .memory-card {
+            aspect-ratio: 1; font-size: 1.5em; border-radius: 10px;
+            border: 2px solid #2a2a44; background: var(--bg-card); color: var(--gold);
+            cursor: pointer; transition: all 0.15s;
+        }
+        .memory-card:hover:not(:disabled) { border-color: var(--gold-dim); transform: translateY(-1px); }
+        .memory-card:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .memory-card.shown { background: var(--bg-panel); border-color: var(--gold-dim); }
+        .memory-card.matched { background: #1a2a1a; border-color: #3a6a3a; opacity: 0.85; cursor: default; }
+        .memory-card:disabled { opacity: 0.7; }
+        .memory-stats {
+            display: flex; justify-content: center; gap: 20px; margin-bottom: 12px;
+            font-family: 'Cinzel', serif; font-size: 0.85em; color: var(--text-dim);
+        }
+        .mastermind-slots { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+        .mastermind-slot {
+            width: 52px; height: 52px; border-radius: 10px; border: 2px solid #2a2a44;
+            background: var(--bg-card); font-size: 1.4em; cursor: pointer;
+        }
+        .mastermind-slot.selected { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212,175,55,0.35); }
+        .mastermind-slot.filled { background: var(--bg-panel); }
+        .mastermind-runes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+        .mastermind-rune-btn {
+            padding: 12px 8px; border-radius: 10px; border: 1px solid #2a2a44;
+            background: var(--bg-card); color: var(--text); cursor: pointer;
+            font-family: 'Cinzel', serif; font-size: 0.75em;
+        }
+        .mastermind-rune-btn:hover { border-color: var(--gold-dim); }
+        .mastermind-rune-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .mastermind-history {
+            background: var(--bg-deep); border: 1px solid #2a2a44; border-radius: 10px;
+            padding: 10px 12px; max-height: 140px; overflow-y: auto; margin-bottom: 14px;
+            font-size: 0.88em; line-height: 1.45; color: var(--text-dim);
+        }
+        .mastermind-history .guess-line { margin-bottom: 6px; }
+        .game-actions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+        .game-action-btn {
+            font-family: 'Cinzel', serif; font-weight: 700; padding: 14px;
+            border-radius: 10px; border: 1px solid #2a2a44; background: var(--bg-card);
+            color: var(--gold); cursor: pointer;
+        }
+        .game-action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .game-action-btn.primary { background: linear-gradient(135deg, #3a2a10, #6a5020); color: var(--gold-light); }
+        .game-action-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+
         /* -- CHARACTER SHEET -- */
         .char-portrait { background: var(--bg-card); border: 2px solid var(--gold-dim); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px; }
         .portrait-icon { font-size: 3.5em; display: block; margin-bottom: 8px; }
@@ -1386,7 +1441,94 @@
             <span class="btn-label">Inn</span>
             <span class="btn-sub">Olivia's Rest</span>
         </button>
+        <button class="menu-btn" onclick="openGameRoom()" aria-label="Visit the Greatwolf Game Room">
+            <span class="btn-icon" aria-hidden="true">🎲</span>
+            <span class="btn-label">Game Room</span>
+            <span class="btn-sub">Cards & rune puzzles</span>
+        </button>
     </div>
+</div>
+
+<!-- -- GAME ROOM HUB -- -->
+<div id="screen-game-room" class="screen" role="main" aria-label="Greatwolf Game Room">
+    <p class="screen-header">Greatwolf City</p>
+    <h2 class="screen-title">Game Room</h2>
+
+    <div class="shopkeeper-banner" aria-label="Game room welcome">
+        <span class="shopkeeper-icon" aria-hidden="true">🎲</span>
+        <div>
+            <div class="shopkeeper-name">The Wolf's Den Arcade</div>
+            <div class="shopkeeper-quote" id="game-room-quote">"Fortune favors the patient — and the clever."</div>
+        </div>
+    </div>
+
+    <p class="game-status" id="game-room-status" role="status">Play for fun. Small gold prizes, no penalties.</p>
+
+    <div class="menu-grid" role="group" aria-label="Games">
+        <button class="menu-btn" onclick="openMemoryMatch()" aria-label="Play Wolf Pair matching cards">
+            <span class="btn-icon" aria-hidden="true">🃏</span>
+            <span class="btn-label">Wolf Pairs</span>
+            <span class="btn-sub">Flip and match — no timer</span>
+        </button>
+        <button class="menu-btn" onclick="openRuneMastermind()" aria-label="Play Rune Code puzzle">
+            <span class="btn-icon" aria-hidden="true">🔮</span>
+            <span class="btn-label">Rune Code</span>
+            <span class="btn-sub">Mastermind-style puzzle</span>
+        </button>
+    </div>
+
+    <button class="leave-shop-btn" onclick="leaveGameRoom()" aria-label="Leave the game room">
+        ← Back to City
+    </button>
+</div>
+
+<!-- -- WOLF PAIRS (MEMORY) -- -->
+<div id="screen-memory-match" class="screen" role="main" aria-label="Wolf Pairs card game">
+    <p class="screen-header">Game Room</p>
+    <h2 class="screen-title">Wolf Pairs</h2>
+
+    <p class="game-status" id="memory-status" role="status" aria-live="polite">Find all matching pairs. No time limit.</p>
+
+    <div class="memory-stats" aria-label="Game statistics">
+        <span id="memory-moves">Moves: 0</span>
+        <span id="memory-pairs">Pairs: 0 / 8</span>
+    </div>
+
+    <div class="memory-grid" id="memory-grid" role="group" aria-label="Card grid"></div>
+
+    <div class="game-actions">
+        <button class="game-action-btn" id="memory-new-btn" onclick="initMemoryGame()" aria-label="Start a new Wolf Pairs game">New Game</button>
+    </div>
+
+    <button class="leave-shop-btn" onclick="leaveMemoryMatch()" aria-label="Leave Wolf Pairs">
+        ← Back to Game Room
+    </button>
+</div>
+
+<!-- -- RUNE CODE (MASTERMIND) -- -->
+<div id="screen-rune-mastermind" class="screen" role="main" aria-label="Rune Code puzzle">
+    <p class="screen-header">Game Room</p>
+    <h2 class="screen-title">Rune Code</h2>
+
+    <p class="game-status" id="mastermind-status" role="status" aria-live="polite">Crack the four-rune code. Gold peg: right rune, right slot. Pale peg: right rune, wrong slot.</p>
+
+    <p class="fishing-hint" id="mastermind-hint">Select a slot, pick a rune, then Submit Guess. Ten tries. No penalty for missing.</p>
+
+    <div class="mastermind-slots" id="mastermind-slots" role="group" aria-label="Your guess slots"></div>
+
+    <div class="mastermind-runes" id="mastermind-runes" role="group" aria-label="Rune choices"></div>
+
+    <div class="game-actions">
+        <button class="game-action-btn primary" id="mastermind-submit-btn" onclick="mastermindSubmitGuess()" disabled
+            aria-label="Submit your current guess">Submit Guess</button>
+        <button class="game-action-btn" onclick="initRuneMastermind()" aria-label="Start a new Rune Code puzzle">New Code</button>
+    </div>
+
+    <div class="mastermind-history" id="mastermind-history" role="log" aria-label="Guess history" aria-live="polite"></div>
+
+    <button class="leave-shop-btn" onclick="leaveRuneMastermind()" aria-label="Leave Rune Code">
+        ← Back to Game Room
+    </button>
 </div>
 
 <!-- -- COMBAT -- -->
@@ -3331,7 +3473,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','ironwood','windmane','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','ironwood','windmane','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -9431,6 +9573,383 @@ function fishingResolveCatch() {
     announce(msg);
     fishingState.phase = 'idle';
     fishingFocusCastSoon();
+}
+
+// -- GAME ROOM (VoiceOver-friendly — no timers, no penalties) --
+const GAME_ROOM_QUOTES = [
+    '"The Den stays open late. Losers walk out with their gold — winners walk out with more."',
+    '"Dungeon delvers need sharp minds too. These games keep yours honed."',
+    '"No wagers, no shame. Just wolves being clever."',
+];
+
+const MEMORY_SYMBOLS = [
+    { sym: '🐺', name: 'Wolf' },
+    { sym: '🌙', name: 'Moon' },
+    { sym: '⚓', name: 'Anchor' },
+    { sym: '🔥', name: 'Flame' },
+    { sym: '🗡', name: 'Blade' },
+    { sym: '🛡', name: 'Shield' },
+    { sym: '🦴', name: 'Bone' },
+    { sym: '💎', name: 'Gem' },
+];
+
+const MASTERMIND_RUNES = [
+    { id: 'flame', sym: '🔥', name: 'Flame' },
+    { id: 'tide',  sym: '💧', name: 'Tide' },
+    { id: 'stone', sym: '🪨', name: 'Stone' },
+    { id: 'gale',  sym: '💨', name: 'Gale' },
+    { id: 'void',  sym: '🌑', name: 'Void' },
+    { id: 'life',  sym: '🌿', name: 'Life' },
+];
+
+const MASTERMIND_MAX_GUESSES = 10;
+
+let memoryState = null;
+let mastermindState = null;
+
+function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function getMemorySymbolName(sym) {
+    const found = MEMORY_SYMBOLS.find(s => s.sym === sym);
+    return found ? found.name : 'Symbol';
+}
+
+function openGameRoom() {
+    if (!character) return;
+    document.getElementById('game-room-quote').textContent =
+        GAME_ROOM_QUOTES[Math.floor(Math.random() * GAME_ROOM_QUOTES.length)];
+    document.getElementById('game-room-status').textContent =
+        'Play for fun. Small gold prizes, no penalties.';
+    goToScreen('game-room');
+    announce('Greatwolf Game Room. Wolf Pairs is a matching card game. Rune Code is a mastermind-style puzzle. No timers and no penalties.');
+}
+
+function leaveGameRoom() {
+    goToScreen('town');
+    announce('You return to Greatwolf City.');
+}
+
+// -- WOLF PAIRS -------------------------------------------
+function initMemoryGame() {
+    const deck = shuffleArray(
+        MEMORY_SYMBOLS.flatMap(s => [{ sym: s.sym, name: s.name }, { sym: s.sym, name: s.name }])
+    );
+    memoryState = {
+        cards: deck.map((c, i) => ({ id: i, sym: c.sym, name: c.name, state: 'hidden' })),
+        picked: [],
+        moves: 0,
+        lock: false,
+        won: false,
+    };
+    document.getElementById('memory-moves').textContent = 'Moves: 0';
+    document.getElementById('memory-pairs').textContent = 'Pairs: 0 / 8';
+    document.getElementById('memory-status').className = 'game-status';
+    document.getElementById('memory-status').textContent = 'Find all matching pairs. No time limit.';
+    renderMemoryBoard();
+    announce('New Wolf Pairs game. Sixteen cards, eight pairs. Flip two cards at a time.');
+}
+
+function openMemoryMatch() {
+    if (!character) return;
+    goToScreen('memory-match');
+    initMemoryGame();
+}
+
+function leaveMemoryMatch() {
+    memoryState = null;
+    openGameRoom();
+}
+
+function memoryPairsFound() {
+    return memoryState.cards.filter(c => c.state === 'matched').length / 2;
+}
+
+function renderMemoryBoard() {
+    const grid = document.getElementById('memory-grid');
+    if (!grid || !memoryState) return;
+    grid.innerHTML = '';
+
+    memoryState.cards.forEach((card, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'memory-card';
+        if (card.state === 'shown') btn.classList.add('shown');
+        if (card.state === 'matched') btn.classList.add('matched');
+
+        let label;
+        if (card.state === 'hidden') {
+            label = `Card ${i + 1}, face down`;
+            btn.textContent = '?';
+        } else {
+            label = `Card ${i + 1}, ${card.name}${card.state === 'matched' ? ', matched' : ''}`;
+            btn.textContent = card.sym;
+        }
+        btn.setAttribute('aria-label', label);
+        btn.disabled = card.state === 'matched' || memoryState.lock;
+        if (card.state !== 'matched' && !memoryState.lock) {
+            btn.onclick = () => memoryCardClick(i);
+        }
+        grid.appendChild(btn);
+    });
+}
+
+function memoryCardClick(index) {
+    if (!memoryState || memoryState.lock || memoryState.won) return;
+    const card = memoryState.cards[index];
+    if (card.state !== 'hidden') return;
+    if (memoryState.picked.includes(index)) return;
+
+    card.state = 'shown';
+    memoryState.picked.push(index);
+    announce(`Card ${index + 1}, ${card.name}.`);
+
+    if (memoryState.picked.length < 2) {
+        renderMemoryBoard();
+        return;
+    }
+
+    memoryState.lock = true;
+    memoryState.moves++;
+    document.getElementById('memory-moves').textContent = `Moves: ${memoryState.moves}`;
+
+    const [a, b] = memoryState.picked;
+    const cardA = memoryState.cards[a];
+    const cardB = memoryState.cards[b];
+    renderMemoryBoard();
+
+    if (cardA.sym === cardB.sym) {
+        cardA.state = cardB.state = 'matched';
+        const pairs = memoryPairsFound();
+        document.getElementById('memory-pairs').textContent = `Pairs: ${pairs} / 8`;
+        memoryState.picked = [];
+        memoryState.lock = false;
+        announce(`Match! ${cardA.name} pair found. ${pairs} of 8 pairs.`);
+
+        if (pairs >= 8) {
+            memoryWin();
+        } else {
+            renderMemoryBoard();
+        }
+    } else {
+        announce(`No match. ${cardA.name} and ${cardB.name}. Cards will hide again.`);
+        setTimeout(() => {
+            if (!memoryState) return;
+            cardA.state = cardB.state = 'hidden';
+            memoryState.picked = [];
+            memoryState.lock = false;
+            renderMemoryBoard();
+            announce('Cards hidden. Pick again.');
+        }, 1400);
+    }
+}
+
+function memoryWin() {
+    memoryState.won = true;
+    memoryState.lock = true;
+    let gold = roll(18, 38);
+    if (memoryState.moves <= 16) gold += 12;
+    else if (memoryState.moves <= 22) gold += 5;
+    character.gold += gold;
+    saveGame();
+
+    const status = document.getElementById('memory-status');
+    status.className = 'game-status win';
+    status.textContent = `Board cleared in ${memoryState.moves} moves! +${gold} gold.`;
+    renderMemoryBoard();
+    showToast(`+${gold} gold`);
+    announce(`Wolf Pairs complete in ${memoryState.moves} moves. You earned ${gold} gold. New Game to play again.`);
+    document.getElementById('memory-new-btn').focus();
+}
+
+// -- RUNE CODE (MASTERMIND) --------------------------------
+function getRuneById(id) {
+    return MASTERMIND_RUNES.find(r => r.id === id) || null;
+}
+
+function scoreMastermindGuess(secret, guess) {
+    const s = secret.map(id => id);
+    const g = guess.map(id => id);
+    let gold = 0;
+    const sLeft = [];
+    const gLeft = [];
+    for (let i = 0; i < 4; i++) {
+        if (g[i] === s[i]) gold++;
+        else { sLeft.push(s[i]); gLeft.push(g[i]); }
+    }
+    let pale = 0;
+    gLeft.forEach(rid => {
+        const idx = sLeft.indexOf(rid);
+        if (idx !== -1) { pale++; sLeft.splice(idx, 1); }
+    });
+    const miss = 4 - gold - pale;
+    return { gold, pale, miss };
+}
+
+function initRuneMastermind() {
+    const pick = () => MASTERMIND_RUNES[Math.floor(Math.random() * MASTERMIND_RUNES.length)].id;
+    mastermindState = {
+        secret: [pick(), pick(), pick(), pick()],
+        guesses: [],
+        current: [null, null, null, null],
+        selectedSlot: 0,
+        won: false,
+        lost: false,
+    };
+    document.getElementById('mastermind-history').innerHTML = '';
+    document.getElementById('mastermind-status').className = 'game-status';
+    document.getElementById('mastermind-status').textContent =
+        'Crack the four-rune code. Gold peg: right rune, right slot. Pale peg: right rune, wrong slot.';
+    renderMastermindUI();
+    announce('New Rune Code puzzle. Four hidden runes, six colors, ten guesses. Select slot one through four, pick a rune, submit guess.');
+    document.getElementById('mastermind-slots').querySelector('button')?.focus();
+}
+
+function openRuneMastermind() {
+    if (!character) return;
+    goToScreen('rune-mastermind');
+    initRuneMastermind();
+}
+
+function leaveRuneMastermind() {
+    mastermindState = null;
+    openGameRoom();
+}
+
+function mastermindAllFilled() {
+    return mastermindState.current.every(id => id !== null);
+}
+
+function renderMastermindUI() {
+    if (!mastermindState) return;
+    const slotsEl = document.getElementById('mastermind-slots');
+    const runesEl = document.getElementById('mastermind-runes');
+    const submitBtn = document.getElementById('mastermind-submit-btn');
+    slotsEl.innerHTML = '';
+    runesEl.innerHTML = '';
+
+    mastermindState.current.forEach((runeId, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mastermind-slot';
+        if (i === mastermindState.selectedSlot) btn.classList.add('selected');
+        if (runeId) btn.classList.add('filled');
+        const rune = runeId ? getRuneById(runeId) : null;
+        btn.textContent = rune ? rune.sym : '·';
+        btn.setAttribute('aria-label', rune
+            ? `Slot ${i + 1}, ${rune.name}, selected for editing`
+            : `Slot ${i + 1}, empty, tap to select`);
+        if (!mastermindState.won && !mastermindState.lost) {
+            btn.onclick = () => mastermindSelectSlot(i);
+        }
+        slotsEl.appendChild(btn);
+    });
+
+    MASTERMIND_RUNES.forEach(rune => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mastermind-rune-btn';
+        btn.innerHTML = `<span aria-hidden="true">${rune.sym}</span> ${rune.name}`;
+        btn.setAttribute('aria-label', `Set ${rune.name} rune in slot ${mastermindState.selectedSlot + 1}`);
+        if (!mastermindState.won && !mastermindState.lost) {
+            btn.onclick = () => mastermindPickRune(rune.id);
+        }
+        runesEl.appendChild(btn);
+    });
+
+    submitBtn.disabled = !mastermindAllFilled() || mastermindState.won || mastermindState.lost;
+}
+
+function mastermindSelectSlot(i) {
+    if (!mastermindState || mastermindState.won || mastermindState.lost) return;
+    mastermindState.selectedSlot = i;
+    renderMastermindUI();
+    announce(`Slot ${i + 1} selected. Pick a rune.`);
+}
+
+function mastermindPickRune(runeId) {
+    if (!mastermindState || mastermindState.won || mastermindState.lost) return;
+    const rune = getRuneById(runeId);
+    const slot = mastermindState.selectedSlot;
+    mastermindState.current[slot] = runeId;
+    const next = mastermindState.current.findIndex((id, idx) => id === null && idx > slot);
+    if (next !== -1) mastermindState.selectedSlot = next;
+    else if (mastermindState.current.some(id => id === null)) {
+        mastermindState.selectedSlot = mastermindState.current.indexOf(null);
+    }
+    renderMastermindUI();
+    const filled = mastermindAllFilled();
+    announce(`${rune.name} rune in slot ${slot + 1}.${filled ? ' Guess complete. Submit when ready.' : ''}`);
+}
+
+function mastermindSubmitGuess() {
+    if (!mastermindState || !mastermindAllFilled() || mastermindState.won || mastermindState.lost) return;
+
+    const guess = [...mastermindState.current];
+    const score = scoreMastermindGuess(mastermindState.secret, guess);
+    const guessNum = mastermindState.guesses.length + 1;
+    const runeNames = guess.map(id => getRuneById(id).name).join(', ');
+    const feedback = `${score.gold} gold peg${score.gold !== 1 ? 's' : ''}, ${score.pale} pale peg${score.pale !== 1 ? 's' : ''}, ${score.miss} miss${score.miss !== 1 ? 'es' : ''}`;
+
+    mastermindState.guesses.push({ guess, score });
+
+    const hist = document.getElementById('mastermind-history');
+    const line = document.createElement('div');
+    line.className = 'guess-line';
+    line.textContent = `Guess ${guessNum}: ${runeNames}. ${feedback}.`;
+    hist.appendChild(line);
+    hist.scrollTop = hist.scrollHeight;
+
+    announce(`Guess ${guessNum}: ${feedback}.`);
+
+    if (score.gold === 4) {
+        mastermindWin(guessNum);
+        return;
+    }
+
+    if (mastermindState.guesses.length >= MASTERMIND_MAX_GUESSES) {
+        mastermindLose();
+        return;
+    }
+
+    mastermindState.current = [null, null, null, null];
+    mastermindState.selectedSlot = 0;
+    renderMastermindUI();
+    document.getElementById('mastermind-status').textContent =
+        `Guess ${guessNum}: ${feedback}. ${MASTERMIND_MAX_GUESSES - mastermindState.guesses.length} tries left.`;
+}
+
+function mastermindWin(guessNum) {
+    mastermindState.won = true;
+    let gold = roll(22, 42);
+    if (guessNum <= 6) gold += 15;
+    else if (guessNum <= 8) gold += 8;
+    character.gold += gold;
+    saveGame();
+
+    const secretNames = mastermindState.secret.map(id => getRuneById(id).name).join(', ');
+    const status = document.getElementById('mastermind-status');
+    status.className = 'game-status win';
+    status.textContent = `Code cracked in ${guessNum} guesses! The code was ${secretNames}. +${gold} gold.`;
+    renderMastermindUI();
+    showToast(`+${gold} gold`);
+    announce(`Rune Code solved in ${guessNum} guesses. Secret code: ${secretNames}. You earned ${gold} gold. New Code to play again.`);
+}
+
+function mastermindLose() {
+    mastermindState.lost = true;
+    const secretNames = mastermindState.secret.map(id => getRuneById(id).name).join(', ');
+    const status = document.getElementById('mastermind-status');
+    status.className = 'game-status';
+    status.textContent = `Out of guesses. The code was ${secretNames}. No penalty — try New Code.`;
+    renderMastermindUI();
+    announce(`Ten guesses used. The code was ${secretNames}. No gold lost. Tap New Code to try again.`);
 }
 
 // -- SHIPWRECK DUNGEON ------------------------------------
