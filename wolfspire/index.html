@@ -476,6 +476,60 @@
         .menu-btn .btn-label { font-family: 'Cinzel', serif; font-size: 0.85em; font-weight: 700; color: var(--gold); }
         .menu-btn .btn-sub { font-size: 0.8em; color: var(--text-dim); font-style: italic; }
 
+        /* -- FISHING -- */
+        .fishing-scene {
+            position: relative; height: 140px; margin-bottom: 16px;
+            background: linear-gradient(180deg, #1a2a3a 0%, #0d2035 55%, #0a2840 100%);
+            border: 1px solid #2a4a6a; border-radius: 12px; overflow: hidden;
+        }
+        .fishing-scene::before {
+            content: ''; position: absolute; left: 0; right: 0; top: 0; height: 42%;
+            background: linear-gradient(180deg, #2a3a4a, #1a2838);
+        }
+        .fishing-pier {
+            position: absolute; left: 0; right: 0; bottom: 0; height: 28px;
+            background: linear-gradient(180deg, #4a3520, #2a2010);
+            border-top: 2px solid #6a5030;
+        }
+        .fishing-line {
+            position: absolute; left: 50%; bottom: 28px; width: 2px; height: 55px;
+            background: linear-gradient(180deg, #8a8a9a, #4a6a8a); transform: translateX(-50%);
+            transform-origin: top center; transition: transform 0.3s ease;
+        }
+        .fishing-line.waiting { animation: fishingLineSway 2s ease-in-out infinite; }
+        .fishing-line.bite { animation: fishingLineTug 0.15s ease-in-out infinite; }
+        @keyframes fishingLineSway { 0%, 100% { transform: translateX(-50%) rotate(-2deg); } 50% { transform: translateX(-50%) rotate(2deg); } }
+        @keyframes fishingLineTug { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+        .fishing-bobber {
+            position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%);
+            font-size: 1.6em; transition: bottom 0.4s ease; pointer-events: none;
+        }
+        .fishing-bobber.waiting { animation: bobberFloat 2.5s ease-in-out infinite; }
+        .fishing-bobber.bite { animation: bobberSplash 0.12s ease-in-out infinite; color: #ff6060; }
+        @keyframes bobberFloat { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-4px); } }
+        @keyframes bobberSplash { 0%, 100% { transform: translateX(-50%) translateY(0) scale(1); } 50% { transform: translateX(-50%) translateY(-8px) scale(1.15); } }
+        .fishing-status {
+            text-align: center; font-style: italic; color: var(--text-dim);
+            margin-bottom: 12px; min-height: 2.6em; line-height: 1.3;
+        }
+        .fishing-status.bite { color: var(--gold-light); font-weight: 700; font-style: normal; }
+        .fishing-status.success { color: #80d080; font-style: normal; }
+        .fishing-actions { display: flex; gap: 10px; margin-bottom: 12px; }
+        .fishing-action-btn {
+            flex: 1; font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.95em;
+            padding: 16px 12px; border-radius: 10px; cursor: pointer; border: 1px solid #2a2a44;
+            background: var(--bg-card); color: var(--gold); transition: all 0.15s;
+        }
+        .fishing-action-btn:hover:not(:disabled) { border-color: var(--gold-dim); transform: translateY(-1px); }
+        .fishing-action-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .fishing-action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .fishing-action-btn.primary { background: linear-gradient(135deg, #1a3a5a, #2a5a8a); color: #c0e0f0; }
+        .fishing-action-btn.accent {
+            background: linear-gradient(135deg, #1a5a4a, #2a8a6a); color: #c0f0e0;
+            border-color: #3a7a5a;
+        }
+        .fishing-hint { text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 18px; }
+
         /* -- CHARACTER SHEET -- */
         .char-portrait { background: var(--bg-card); border: 2px solid var(--gold-dim); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px; }
         .portrait-icon { font-size: 3.5em; display: block; margin-bottom: 8px; }
@@ -1109,6 +1163,7 @@
 <body>
 
 <div id="sr-announce" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div id="sr-announce-urgent" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
 <!-- Desktop right panel -->
 <div id="desktop-right-panel" aria-label="Equipment and inventory panel">
@@ -1729,6 +1784,11 @@
             <span class="btn-label">Dockside Market</span>
             <span class="btn-sub">Maren's exotic wares</span>
         </button>
+        <button class="menu-btn" onclick="openSunportFishing()" aria-label="Fish at the harbor pier">
+            <span class="btn-icon" aria-hidden="true">🎣</span>
+            <span class="btn-label">Harbor Pier</span>
+            <span class="btn-sub">Chance-based — no penalty</span>
+        </button>
         <button class="menu-btn" onclick="openTownDungeonSelect('sunport')" aria-label="Choose a dungeon near Sunport">
             <span class="btn-icon" aria-hidden="true">🏚</span>
             <span class="btn-label">Dungeons</span>
@@ -1740,6 +1800,52 @@
             <span class="btn-sub">Back to Greatwolf City</span>
         </button>
     </div>
+</div>
+
+<!-- -- SUNPORT FISHING -- -->
+<div id="screen-sunport-fishing" class="screen" role="main" aria-label="Sunport Harbor Pier">
+    <p class="screen-header">Sunport</p>
+    <h2 class="screen-title">Harbor Pier</h2>
+
+    <div class="shopkeeper-banner" aria-label="Pier atmosphere">
+        <span class="shopkeeper-icon" aria-hidden="true">🌊</span>
+        <div>
+            <div class="shopkeeper-name">The Old Pier</div>
+            <div class="shopkeeper-quote" id="fishing-quote">"The tide remembers every cast."</div>
+        </div>
+    </div>
+
+    <div class="town-vitals" aria-label="Your vitals">
+        <div class="vital-pill" aria-label="Hit points">
+            <span aria-hidden="true">❤</span>
+            <span id="sunport-fishing-hp">100</span>
+        </div>
+        <div class="vital-pill" aria-label="Gold">
+            <span aria-hidden="true">💰</span>
+            <span id="sunport-fishing-gold">200</span>
+        </div>
+    </div>
+
+    <div class="fishing-scene" id="fishing-scene" aria-hidden="true">
+        <div class="fishing-pier"></div>
+        <div class="fishing-line" id="fishing-line"></div>
+        <div class="fishing-bobber" id="fishing-bobber">🔴</div>
+    </div>
+
+    <p class="fishing-status" id="fishing-status" role="status" aria-live="polite">Line ready. Cast when you like.</p>
+
+    <div class="fishing-actions" role="group" aria-label="Fishing actions">
+        <button class="fishing-action-btn primary" id="fishing-cast-btn" onclick="fishingCast()"
+            aria-label="Cast your fishing line">Cast Line</button>
+        <button class="fishing-action-btn accent" id="fishing-reel-btn" onclick="fishingReel()" hidden
+            aria-label="Reel in your catch">Reel In</button>
+    </div>
+
+    <p class="fishing-hint" id="fishing-hint" aria-live="polite">Most casts land something. PER helps. Misses cost nothing.</p>
+
+    <button class="leave-shop-btn" onclick="leaveSunportFishing()" aria-label="Leave the harbor pier">
+        ← Leave Pier
+    </button>
 </div>
 
 <!-- -- SUNPORT SHOP -- -->
@@ -2979,6 +3085,12 @@ function announce(msg) {
     setTimeout(() => { el.textContent = msg; }, 50);
 }
 
+function announceUrgent(msg) {
+    const el = document.getElementById('sr-announce-urgent');
+    el.textContent = '';
+    setTimeout(() => { el.textContent = msg; }, 50);
+}
+
 // -- STAT ALLOCATION --------------------------------------
 // All six stats share the same pool. Secondary stats start at 1 (not 5)
 // so BASE accounts for that: 4 primary x 5 = 20, 2 secondary x 1 = 2, total = 22
@@ -3219,7 +3331,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','ironwood','windmane','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -4348,6 +4460,15 @@ const LOOT_POOL = [
     { id:'iron_scrap',        icon:'⚙', name:'Iron Scrap',            desc:'Salvageable metal fragments.',                          stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
     { id:'dragon_scale',      icon:'🐉', name:'Dragon Scale',          desc:'A scale from a dragon spawn. Extremely tough.',         stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
     { id:'void_essence',      icon:'🌑', name:'Void Essence',          desc:'Crystallised void energy. Rare and powerful.',          stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
+    // -- FISHING (Sunport Pier) --
+    { id:'tide_minnow',       icon:'🐟', name:'Tide Minnow',           desc:'A common pier fish. Coastal cooks buy these by the basket.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+    { id:'silver_sprat',      icon:'🐠', name:'Silver Sprat',          desc:'Shimmers like coin in the harbor light.',               stat:'Material', slot:'item', tags:['Material'], stackable:true },
+    { id:'brine_carp',        icon:'🎣', name:'Brine Carp',            desc:'A sturdy coastal carp. Good eating or good trade.',      stat:'Material', slot:'item', tags:['Material'], stackable:true },
+    { id:'moonscale',         icon:'🌙', name:'Moonscale',             desc:'A rare scale that gleams under moonlight. Artisans pay well.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+    { id:'abyss_pearl',       icon:'🦪', name:'Abyss Pearl',           desc:'A pale pearl dredged from Sunport depths. Extremely rare.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+    { id:'salted_mackerel',   icon:'🥩', name:'Salted Mackerel',       desc:'Sun-dried pier catch. Restores 20% HP.',                stat:'HP +20%', slot:'item', tags:['Consumable'], stackable:true },
+    { id:'grilled_brine_carp',icon:'🍖', name:'Grilled Brine Carp',    desc:'Hot off the dockside grill. Restores 25% HP.',            stat:'HP +25%', slot:'item', tags:['Consumable'], stackable:true },
+    { id:'fishermans_broth',  icon:'🍲', name:"Fisherman's Broth",     desc:'A hearty coastal stew. Restores 30% MP.',               stat:'MP +30%', slot:'item', tags:['Consumable'], stackable:true },
 ];
 
 // Enemy-specific loot chances
@@ -5279,6 +5400,24 @@ function useFromDetail() {
         character.hp = character.maxHp;
         character.mp = character.maxMp;
         resultMsg = `Fennyx's Blessing fully restored your HP and MP!`;
+    } else if (item.id === 'grilled_brine_carp') {
+        const restore = Math.floor(character.maxHp * 0.25);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
+    } else if (item.id === 'salted_mackerel') {
+        const restore = Math.floor(character.maxHp * 0.2);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
+    } else if (item.id === 'fishermans_broth') {
+        const restore = Math.floor(character.maxMp * 0.3);
+        character.mp = Math.min(character.maxMp, character.mp + restore);
+        resultMsg = `Restored ${restore} MP!`;
+    }
+
+    if (!resultMsg) {
+        closeDetail();
+        showToast('That item cannot be used here.');
+        return;
     }
 
     // Consume one
@@ -8374,6 +8513,7 @@ function isRelic(item) {
 // Consumables (potions, throwables, etc.) and these ids are never forge sacrifice fodder
 const FORGE_SACRIFICE_EXCLUDE_IDS = [
     'health_potion','mana_potion','brine_tonic','surge_draught','salted_rations','healing_herb','mana_bloom',
+    'salted_mackerel','grilled_brine_carp','fishermans_broth',
     'fennyx_blessing','smoke_bomb','iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','smoke_flare',
     'nettle_poison','thornpoison','bark_shield',
 ];
@@ -9011,6 +9151,286 @@ function promptSunportSell(invIndex) {
 
 function buySunportItem(itemId) {
     promptBuy('sunport', itemId);
+}
+
+// -- SUNPORT FISHING (chance-based, no timers — VoiceOver-friendly) --
+const FISHING_SUCCESS_BASE = 0.80;
+const FISHING_SUCCESS_PER = 0.015;
+const FISHING_SUCCESS_MAX = 0.92;
+const FISHING_LUCKY_BONUS_CHANCE = 0.12;
+
+const FISHING_QUOTES = [
+    '"The old wolves of Sunport fished this pier before the city had walls."',
+    '"Take your time. The tide is patient, and so is a good fisher."',
+    '"Some say the deep remembers every hook that ever touched it."',
+    '"PER helps you land the tricky ones."',
+    '"No limit out here — a miss costs you nothing."',
+];
+
+const FISHING_MISS_LINES = [
+    'The fish slipped the hook. Nothing lost — cast again.',
+    'Line went slack. The sea wins this round. Try again.',
+    'Almost had it. No penalty — cast when you are ready.',
+    'A nibble, then nothing. The pier stays forgiving.',
+];
+
+const FISHING_CATCHES = [
+    { weight: 32, itemId: 'tide_minnow' },
+    { weight: 22, itemId: 'silver_sprat' },
+    { weight: 18, itemId: 'brine_carp' },
+    { weight: 12, gold: [3, 8],  label: 'tangled sea glass' },
+    { weight: 8,  itemId: 'salted_mackerel' },
+    { weight: 5,  itemId: 'grilled_brine_carp' },
+    { weight: 2,  itemId: 'fishermans_broth' },
+    { weight: 1.5, itemId: 'moonscale' },
+    { weight: 1,  gold: [12, 28], label: 'sunken coin pouch' },
+    { weight: 0.5, itemId: 'abyss_pearl' },
+];
+
+let fishingState = { phase: 'idle', waitTimer: null, luckyCatch: false };
+
+function clearFishingTimers() {
+    if (fishingState.waitTimer) { clearTimeout(fishingState.waitTimer); fishingState.waitTimer = null; }
+}
+
+function getFishingItemTemplate(itemId) {
+    return LOOT_POOL.find(i => i.id === itemId) || null;
+}
+
+function getFishingSuccessChance() {
+    const per = character.stats.per || 1;
+    return Math.min(FISHING_SUCCESS_MAX, FISHING_SUCCESS_BASE + (per - 1) * FISHING_SUCCESS_PER);
+}
+
+function formatFishingChancePct() {
+    return Math.round(getFishingSuccessChance() * 100);
+}
+
+function rollFishingCatch() {
+    const total = FISHING_CATCHES.reduce((s, c) => s + c.weight, 0);
+    let r = Math.random() * total;
+    for (const entry of FISHING_CATCHES) {
+        r -= entry.weight;
+        if (r <= 0) return entry;
+    }
+    return FISHING_CATCHES[0];
+}
+
+function fishingFocusCastSoon() {
+    setTimeout(() => {
+        const btn = document.getElementById('fishing-cast-btn');
+        if (btn && !btn.hidden && fishingState.phase === 'idle') btn.focus();
+    }, 120);
+}
+
+function resetFishingUI() {
+    const line = document.getElementById('fishing-line');
+    const bobber = document.getElementById('fishing-bobber');
+    const status = document.getElementById('fishing-status');
+    const castBtn = document.getElementById('fishing-cast-btn');
+    const reelBtn = document.getElementById('fishing-reel-btn');
+
+    if (line) line.className = 'fishing-line';
+    if (bobber) bobber.className = 'fishing-bobber';
+    if (status) {
+        status.className = 'fishing-status';
+        status.textContent = 'Line ready. Cast when you like.';
+        status.setAttribute('aria-live', 'polite');
+    }
+    if (castBtn) {
+        castBtn.hidden = false;
+        castBtn.disabled = false;
+        castBtn.textContent = 'Cast Line';
+        castBtn.setAttribute('aria-label', 'Cast your fishing line');
+    }
+    if (reelBtn) {
+        reelBtn.hidden = true;
+        reelBtn.setAttribute('aria-label', 'Reel in your catch');
+    }
+
+    const hint = document.getElementById('fishing-hint');
+    if (hint && character) {
+        const per = character.stats.per || 1;
+        hint.textContent = `About ${formatFishingChancePct()}% land rate (PER ${per}). Misses cost nothing.`;
+    }
+}
+
+function openSunportFishing() {
+    if (!character) return;
+    clearFishingTimers();
+    fishingState.phase = 'idle';
+    document.getElementById('sunport-fishing-hp').textContent = character.hp + ' / ' + character.maxHp;
+    document.getElementById('sunport-fishing-gold').textContent = character.gold;
+    document.getElementById('fishing-quote').textContent =
+        FISHING_QUOTES[Math.floor(Math.random() * FISHING_QUOTES.length)];
+    resetFishingUI();
+    goToScreen('sunport-fishing');
+    announce(`Sunport harbor pier. Cast your line, then Reel when you hear a bite. About ${formatFishingChancePct()} percent chance to land a catch. No penalty if you miss.`);
+}
+
+function leaveSunportFishing() {
+    clearFishingTimers();
+    fishingState.phase = 'idle';
+    travelToSunport();
+}
+
+function fishingCast() {
+    if (!character || (fishingState.phase !== 'idle' && fishingState.phase !== 'result')) return;
+    clearFishingTimers();
+    fishingState.phase = 'waiting';
+    fishingState.luckyCatch = false;
+
+    const line = document.getElementById('fishing-line');
+    const bobber = document.getElementById('fishing-bobber');
+    const status = document.getElementById('fishing-status');
+    const castBtn = document.getElementById('fishing-cast-btn');
+    const reelBtn = document.getElementById('fishing-reel-btn');
+
+    if (line) line.className = 'fishing-line waiting';
+    if (bobber) bobber.className = 'fishing-bobber waiting';
+    if (status) {
+        status.className = 'fishing-status';
+        status.textContent = 'Line cast… waiting for a bite…';
+    }
+    if (castBtn) {
+        castBtn.disabled = true;
+        castBtn.textContent = 'Waiting…';
+        castBtn.setAttribute('aria-label', 'Waiting for a bite. Line is cast.');
+    }
+    if (reelBtn) reelBtn.hidden = true;
+
+    const waitMs = 1500 + Math.random() * 3000;
+    fishingState.waitTimer = setTimeout(fishingTriggerBite, waitMs);
+    announce('Line cast. Waiting for a bite.');
+}
+
+function fishingTriggerBite() {
+    fishingState.waitTimer = null;
+    if (fishingState.phase !== 'waiting') return;
+
+    fishingState.phase = 'bite';
+
+    const line = document.getElementById('fishing-line');
+    const bobber = document.getElementById('fishing-bobber');
+    const status = document.getElementById('fishing-status');
+    const castBtn = document.getElementById('fishing-cast-btn');
+    const reelBtn = document.getElementById('fishing-reel-btn');
+
+    if (line) line.className = 'fishing-line bite';
+    if (bobber) bobber.className = 'fishing-bobber bite';
+    if (status) {
+        status.className = 'fishing-status bite';
+        status.textContent = 'Something on the line! Reel when ready.';
+    }
+    if (castBtn) castBtn.hidden = true;
+    if (reelBtn) {
+        reelBtn.hidden = false;
+        reelBtn.setAttribute('aria-label', 'Reel in your catch. Take your time.');
+    }
+
+    announce('Bite! Double-tap Reel In when you are ready. No time limit.');
+    setTimeout(() => {
+        const btn = document.getElementById('fishing-reel-btn');
+        if (btn && !btn.hidden && fishingState.phase === 'bite') btn.focus();
+    }, 120);
+}
+
+function fishingReel() {
+    if (fishingState.phase !== 'bite') return;
+    clearFishingTimers();
+
+    if (Math.random() < getFishingSuccessChance()) {
+        fishingState.luckyCatch = Math.random() < FISHING_LUCKY_BONUS_CHANCE;
+        fishingResolveCatch();
+    } else {
+        fishingShowMiss();
+    }
+}
+
+function fishingShowMiss() {
+    fishingState.phase = 'idle';
+
+    const line = document.getElementById('fishing-line');
+    const bobber = document.getElementById('fishing-bobber');
+    const status = document.getElementById('fishing-status');
+    const castBtn = document.getElementById('fishing-cast-btn');
+    const reelBtn = document.getElementById('fishing-reel-btn');
+    const missLine = FISHING_MISS_LINES[Math.floor(Math.random() * FISHING_MISS_LINES.length)];
+
+    if (line) line.className = 'fishing-line';
+    if (bobber) bobber.className = 'fishing-bobber';
+    if (status) {
+        status.className = 'fishing-status';
+        status.textContent = missLine;
+    }
+    if (reelBtn) reelBtn.hidden = true;
+    if (castBtn) {
+        castBtn.hidden = false;
+        castBtn.disabled = false;
+        castBtn.textContent = 'Cast Again';
+        castBtn.setAttribute('aria-label', 'Cast your fishing line again');
+    }
+
+    showToast('Nothing landed.');
+    announce(`${missLine} Cast again when ready.`);
+    fishingFocusCastSoon();
+}
+
+function fishingResolveCatch() {
+    fishingState.phase = 'result';
+    const entry = rollFishingCatch();
+    let msg = '';
+    let toastMsg = '';
+
+    if (entry.gold) {
+        let gold = roll(entry.gold[0], entry.gold[1]);
+        if (fishingState.luckyCatch) gold += Math.max(2, Math.floor(gold * 0.5));
+        character.gold += gold;
+        msg = fishingState.luckyCatch
+            ? `Lucky haul! ${entry.label} — +${gold} gold!`
+            : `Found ${entry.label} — +${gold} gold.`;
+        toastMsg = `+${gold} gold`;
+    } else {
+        const template = getFishingItemTemplate(entry.itemId);
+        if (template) {
+            const qty = fishingState.luckyCatch ? 2 : 1;
+            for (let i = 0; i < qty; i++) addToInventory({ ...template });
+            msg = fishingState.luckyCatch
+                ? `Lucky catch! ${template.name} x${qty}!`
+                : `Caught ${template.name}!`;
+            toastMsg = qty > 1 ? `${template.name} x${qty}` : template.name;
+        } else {
+            msg = 'Something tugged the line… but it was not worth keeping.';
+            toastMsg = 'Nothing usable';
+        }
+    }
+
+    const status = document.getElementById('fishing-status');
+    const castBtn = document.getElementById('fishing-cast-btn');
+    const reelBtn = document.getElementById('fishing-reel-btn');
+    const line = document.getElementById('fishing-line');
+    const bobber = document.getElementById('fishing-bobber');
+
+    if (line) line.className = 'fishing-line';
+    if (bobber) bobber.className = 'fishing-bobber';
+    if (status) {
+        status.className = 'fishing-status success';
+        status.textContent = msg;
+    }
+    if (reelBtn) reelBtn.hidden = true;
+    if (castBtn) {
+        castBtn.hidden = false;
+        castBtn.disabled = false;
+        castBtn.textContent = 'Cast Again';
+        castBtn.setAttribute('aria-label', 'Cast your fishing line again');
+    }
+
+    document.getElementById('sunport-fishing-gold').textContent = character.gold;
+    saveGame();
+    showToast(toastMsg);
+    announce(msg);
+    fishingState.phase = 'idle';
+    fishingFocusCastSoon();
 }
 
 // -- SHIPWRECK DUNGEON ------------------------------------
