@@ -561,6 +561,7 @@
         }
         .mastermind-slot.selected { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212,175,55,0.35); }
         .mastermind-slot.filled { background: var(--bg-panel); }
+        .mastermind-slot:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
         .mastermind-runes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
         .mastermind-rune-btn {
             padding: 12px 8px; border-radius: 10px; border: 1px solid #2a2a44;
@@ -1465,9 +1466,9 @@
     <p class="game-status" id="game-room-status" role="status">Play for fun. Small gold prizes, no penalties.</p>
 
     <div class="menu-grid" role="group" aria-label="Games">
-        <button class="menu-btn" onclick="openMemoryMatch()" aria-label="Play Wolf Pair matching cards">
+        <button class="menu-btn" onclick="openMemoryMatch()" aria-label="Play Wolf Cards matching game">
             <span class="btn-icon" aria-hidden="true">🃏</span>
-            <span class="btn-label">Wolf Pairs</span>
+            <span class="btn-label">Wolf Cards</span>
             <span class="btn-sub">Flip and match — no timer</span>
         </button>
         <button class="menu-btn" onclick="openRuneMastermind()" aria-label="Play Rune Code puzzle">
@@ -1482,10 +1483,10 @@
     </button>
 </div>
 
-<!-- -- WOLF PAIRS (MEMORY) -- -->
-<div id="screen-memory-match" class="screen" role="main" aria-label="Wolf Pairs card game">
+<!-- -- WOLF CARDS (MEMORY) -- -->
+<div id="screen-memory-match" class="screen" role="main" aria-label="Wolf Cards matching game">
     <p class="screen-header">Game Room</p>
-    <h2 class="screen-title">Wolf Pairs</h2>
+    <h2 class="screen-title">Wolf Cards</h2>
 
     <p class="game-status" id="memory-status" role="status" aria-live="polite">Find all matching pairs. No time limit.</p>
 
@@ -1497,10 +1498,10 @@
     <div class="memory-grid" id="memory-grid" role="group" aria-label="Card grid"></div>
 
     <div class="game-actions">
-        <button class="game-action-btn" id="memory-new-btn" onclick="initMemoryGame()" aria-label="Start a new Wolf Pairs game">New Game</button>
+        <button class="game-action-btn" id="memory-new-btn" onclick="initMemoryGame()" aria-label="Start a new Wolf Cards game">New Game</button>
     </div>
 
-    <button class="leave-shop-btn" onclick="leaveMemoryMatch()" aria-label="Leave Wolf Pairs">
+    <button class="leave-shop-btn" onclick="leaveMemoryMatch()" aria-label="Leave Wolf Cards">
         ← Back to Game Room
     </button>
 </div>
@@ -1512,7 +1513,7 @@
 
     <p class="game-status" id="mastermind-status" role="status" aria-live="polite">Crack the four-rune code. Gold peg: right rune, right slot. Pale peg: right rune, wrong slot.</p>
 
-    <p class="fishing-hint" id="mastermind-hint">Select a slot, pick a rune, then Submit Guess. Ten tries. No penalty for missing.</p>
+    <p class="fishing-hint" id="mastermind-hint">Tap a slot to focus it — tap again to cycle runes, or pick from the list below. Submit when all four are set. Ten tries, no penalty.</p>
 
     <div class="mastermind-slots" id="mastermind-slots" role="group" aria-label="Your guess slots"></div>
 
@@ -9628,7 +9629,7 @@ function openGameRoom() {
     document.getElementById('game-room-status').textContent =
         'Play for fun. Small gold prizes, no penalties.';
     goToScreen('game-room');
-    announce('Greatwolf Game Room. Wolf Pairs is a matching card game. Rune Code is a mastermind-style puzzle. No timers and no penalties.');
+    announce('Greatwolf Game Room. Wolf Cards is a matching card game. Rune Code is a mastermind-style puzzle. No timers and no penalties.');
 }
 
 function leaveGameRoom() {
@@ -9636,7 +9637,7 @@ function leaveGameRoom() {
     announce('You return to Greatwolf City.');
 }
 
-// -- WOLF PAIRS -------------------------------------------
+// -- WOLF CARDS -------------------------------------------
 function initMemoryGame() {
     const deck = shuffleArray(
         MEMORY_SYMBOLS.flatMap(s => [{ sym: s.sym, name: s.name }, { sym: s.sym, name: s.name }])
@@ -9653,7 +9654,7 @@ function initMemoryGame() {
     document.getElementById('memory-status').className = 'game-status';
     document.getElementById('memory-status').textContent = 'Find all matching pairs. No time limit.';
     renderMemoryBoard();
-    announce('New Wolf Pairs game. Sixteen cards, eight pairs. Flip two cards at a time.');
+    announce('New Wolf Cards game. Sixteen cards, eight pairs. Flip two cards at a time.');
 }
 
 function openMemoryMatch() {
@@ -9764,7 +9765,7 @@ function memoryWin() {
     status.textContent = `Board cleared in ${memoryState.moves} moves! +${gold} gold.`;
     renderMemoryBoard();
     showToast(`+${gold} gold`);
-    announce(`Wolf Pairs complete in ${memoryState.moves} moves. You earned ${gold} gold. New Game to play again.`);
+    announce(`Wolf Cards complete in ${memoryState.moves} moves. You earned ${gold} gold. New Game to play again.`);
     document.getElementById('memory-new-btn').focus();
 }
 
@@ -9807,7 +9808,7 @@ function initRuneMastermind() {
     document.getElementById('mastermind-status').textContent =
         'Crack the four-rune code. Gold peg: right rune, right slot. Pale peg: right rune, wrong slot.';
     renderMastermindUI();
-    announce('New Rune Code puzzle. Four hidden runes, six colors, ten guesses. Select slot one through four, pick a rune, submit guess.');
+    announce('New Rune Code puzzle. Four hidden runes, six colors, ten guesses. Tap a slot to focus it, tap again to cycle runes, or pick from the rune list. Submit when all four slots are filled.');
     document.getElementById('mastermind-slots').querySelector('button')?.focus();
 }
 
@@ -9842,11 +9843,12 @@ function renderMastermindUI() {
         if (runeId) btn.classList.add('filled');
         const rune = runeId ? getRuneById(runeId) : null;
         btn.textContent = rune ? rune.sym : '·';
+        const isSelected = i === mastermindState.selectedSlot;
         btn.setAttribute('aria-label', rune
-            ? `Slot ${i + 1}, ${rune.name}, selected for editing`
-            : `Slot ${i + 1}, empty, tap to select`);
+            ? `Slot ${i + 1}, ${rune.name}${isSelected ? ', tap again to change rune' : ', tap to select'}`
+            : `Slot ${i + 1}, empty${isSelected ? ', tap again to cycle runes' : ', tap to select'}`);
         if (!mastermindState.won && !mastermindState.lost) {
-            btn.onclick = () => mastermindSelectSlot(i);
+            btn.onclick = () => mastermindTapSlot(i);
         }
         slotsEl.appendChild(btn);
     });
@@ -9866,11 +9868,34 @@ function renderMastermindUI() {
     submitBtn.disabled = !mastermindAllFilled() || mastermindState.won || mastermindState.lost;
 }
 
-function mastermindSelectSlot(i) {
+function mastermindNextRuneId(currentId) {
+    if (!currentId) return MASTERMIND_RUNES[0].id;
+    const idx = MASTERMIND_RUNES.findIndex(r => r.id === currentId);
+    if (idx === -1 || idx >= MASTERMIND_RUNES.length - 1) return null;
+    return MASTERMIND_RUNES[idx + 1].id;
+}
+
+function mastermindTapSlot(i) {
     if (!mastermindState || mastermindState.won || mastermindState.lost) return;
+    if (mastermindState.selectedSlot === i) {
+        const nextId = mastermindNextRuneId(mastermindState.current[i]);
+        mastermindState.current[i] = nextId;
+        renderMastermindUI();
+        const rune = nextId ? getRuneById(nextId) : null;
+        const filled = mastermindAllFilled();
+        if (rune) {
+            announce(`${rune.name} in slot ${i + 1}.${filled ? ' Guess complete. Submit when ready.' : ' Tap again to change, or pick another slot.'}`);
+        } else {
+            announce(`Slot ${i + 1} cleared. Tap again to set a rune.`);
+        }
+        return;
+    }
     mastermindState.selectedSlot = i;
     renderMastermindUI();
-    announce(`Slot ${i + 1} selected. Pick a rune.`);
+    const rune = mastermindState.current[i] ? getRuneById(mastermindState.current[i]) : null;
+    announce(rune
+        ? `Slot ${i + 1}, ${rune.name}. Tap again to change rune, or pick from the list below.`
+        : `Slot ${i + 1} selected. Tap again to cycle runes, or pick from the list below.`);
 }
 
 function mastermindPickRune(runeId) {
