@@ -1498,7 +1498,7 @@
     <div class="memory-grid" id="memory-grid" role="group" aria-label="Card grid"></div>
 
     <div class="game-actions">
-        <button class="game-action-btn" id="memory-new-btn" onclick="initMemoryGame()" aria-label="Start a new Wolf Cards game">New Game</button>
+        <button class="game-action-btn" id="memory-new-btn" onclick="requestNewMemoryGame()" aria-label="Start a new Wolf Cards game">New Game</button>
     </div>
 
     <button class="leave-shop-btn" onclick="leaveMemoryMatch()" aria-label="Leave Wolf Cards">
@@ -1522,7 +1522,7 @@
     <div class="game-actions">
         <button class="game-action-btn primary" id="mastermind-submit-btn" onclick="mastermindSubmitGuess()" disabled
             aria-label="Submit your current guess">Submit Guess</button>
-        <button class="game-action-btn" onclick="initRuneMastermind()" aria-label="Start a new Rune Code puzzle">New Code</button>
+        <button class="game-action-btn" id="mastermind-new-btn" onclick="requestNewRuneMastermind()" aria-label="Start a new Rune Code puzzle">New Code</button>
     </div>
 
     <div class="mastermind-history" id="mastermind-history" role="log" aria-label="Guess history" aria-live="polite"></div>
@@ -2939,6 +2939,18 @@
         <div class="confirm-buttons">
             <button class="confirm-btn danger" onclick="confirmDeleteChar()" aria-label="Confirm delete character">Yes, Delete</button>
             <button class="confirm-btn cancel" onclick="closeDeleteChar()" aria-label="Cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- -- GAME ROOM RESTART CONFIRM -- -->
+<div class="confirm-overlay" id="game-restart-overlay" role="dialog" aria-modal="true" aria-labelledby="game-restart-title">
+    <div class="confirm-card">
+        <div class="confirm-title" id="game-restart-title">Start Over?</div>
+        <div class="confirm-body" id="game-restart-body">Your progress will be lost and you'll have to start over. Are you sure?</div>
+        <div class="confirm-buttons">
+            <button class="confirm-btn danger" id="game-restart-forfeit-btn" onclick="confirmGameRestart()" aria-label="Yes, forfeit current game and start over">Yes, Forfeit</button>
+            <button class="confirm-btn cancel" id="game-restart-keep-btn" onclick="closeGameRestartConfirm()" aria-label="No, keep playing current game">Keep Playing</button>
         </div>
     </div>
 </div>
@@ -9607,6 +9619,63 @@ const MASTERMIND_MAX_GUESSES = 10;
 
 let memoryState = null;
 let mastermindState = null;
+let gameRestartConfirmCallback = null;
+
+function memoryGameInProgress() {
+    if (!memoryState || memoryState.won) return false;
+    return memoryState.moves > 0
+        || memoryState.cards.some(c => c.state === 'shown' || c.state === 'matched');
+}
+
+function runeCodeInProgress() {
+    if (!mastermindState || mastermindState.won || mastermindState.lost) return false;
+    return mastermindState.guesses.length > 0
+        || mastermindState.current.some(id => id !== null);
+}
+
+function showGameRestartConfirm(gameName, onForfeit) {
+    document.getElementById('game-restart-title').textContent = `Start New ${gameName}?`;
+    document.getElementById('game-restart-body').textContent =
+        "Your progress will be lost and you'll have to start over. Are you sure?";
+    gameRestartConfirmCallback = onForfeit;
+    document.getElementById('game-restart-overlay').classList.add('show');
+    announce(`Start new ${gameName}? Your progress will be lost. Keep Playing or Yes, Forfeit.`);
+    document.getElementById('game-restart-keep-btn').focus();
+}
+
+function closeGameRestartConfirm() {
+    document.getElementById('game-restart-overlay').classList.remove('show');
+    gameRestartConfirmCallback = null;
+    if (document.getElementById('screen-memory-match')?.classList.contains('active')) {
+        document.getElementById('memory-new-btn')?.focus();
+    } else if (document.getElementById('screen-rune-mastermind')?.classList.contains('active')) {
+        document.getElementById('mastermind-new-btn')?.focus();
+    }
+    announce('Kept your current game.');
+}
+
+function confirmGameRestart() {
+    const fn = gameRestartConfirmCallback;
+    document.getElementById('game-restart-overlay').classList.remove('show');
+    gameRestartConfirmCallback = null;
+    if (fn) fn();
+}
+
+function requestNewMemoryGame() {
+    if (memoryGameInProgress()) {
+        showGameRestartConfirm('Wolf Cards', initMemoryGame);
+        return;
+    }
+    initMemoryGame();
+}
+
+function requestNewRuneMastermind() {
+    if (runeCodeInProgress()) {
+        showGameRestartConfirm('Rune Code', initRuneMastermind);
+        return;
+    }
+    initRuneMastermind();
+}
 
 function shuffleArray(arr) {
     const a = [...arr];
