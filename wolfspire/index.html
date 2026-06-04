@@ -3649,7 +3649,7 @@ function startNextEncounter() {
         addLog(`⚠ ${enemy.name} emerges from the darkness!`, 'defeat');
         addLog(enemy.desc + '.', 'system');
     } else {
-        addLog(`A ${enemy.name} appears!`, 'system');
+        addLog(`${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} appears!`, 'system');
     }
     addLog(`Your turn. Choose an action.`, 'system');
 
@@ -3667,7 +3667,7 @@ function startNextEncounter() {
 
     const announceMsg = isBoss
         ? `Boss encounter! ${enemy.name} appears. ${enemy.desc}. It has ${enemy.hp} HP. Your turn.`
-        : `Combat begins. A ${enemy.name} appears with ${enemy.hp} HP. Your turn.`;
+        : `Combat begins. ${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} appears with ${enemy.hp} HP. Your turn.`;
     announce(announceMsg);
 }
 
@@ -3794,31 +3794,31 @@ function useCombatItem(itemId) {
     } else if (itemId === 'iron_grenade') {
         const dmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= dmg;
-        logMsg = `You hurl an Iron Grenade at the ${combat.enemy.name} for ${dmg} damage!`;
+        logMsg = `You hurl an Iron Grenade at ${theName(combat.enemy.name)} for ${dmg} damage!`;
         announceMsg = `Grenade deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'moon_bomb') {
         const dmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= dmg;
-        logMsg = `You lob a Moon Bomb — pale light erupts around the ${combat.enemy.name} for ${dmg} damage!`;
+        logMsg = `You lob a Moon Bomb — pale light erupts around ${theName(combat.enemy.name)} for ${dmg} damage!`;
         announceMsg = `Moon Bomb deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'thrown_axe') {
         const dmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= dmg;
-        logMsg = `You throw a Throwing Axe at the ${combat.enemy.name} for ${dmg} damage!`;
+        logMsg = `You throw a Throwing Axe at ${theName(combat.enemy.name)} for ${dmg} damage!`;
         announceMsg = `Throwing Axe deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'throwing_star') {
         const dmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= dmg;
-        logMsg = `You fling a Throwing Star at the ${combat.enemy.name} for ${dmg} damage!`;
+        logMsg = `You fling a Throwing Star at ${theName(combat.enemy.name)} for ${dmg} damage!`;
         announceMsg = `Throwing Star deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'centaur_javelin') {
         const dmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= dmg;
-        logMsg = `You hurl a Centaur Javelin at the ${combat.enemy.name} for ${dmg} damage!`;
+        logMsg = `You hurl a Centaur Javelin at ${theName(combat.enemy.name)} for ${dmg} damage!`;
         announceMsg = `Centaur Javelin deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'brine_tonic') {
@@ -3838,7 +3838,7 @@ function useCombatItem(itemId) {
     } else if (itemId === 'smoke_flare') {
         const dmg = roll(character.level * 9, character.level * 13);
         combat.enemy.hp -= dmg;
-        logMsg = `You fire a Smoke Flare at the ${combat.enemy.name} for ${dmg} fire damage!`;
+        logMsg = `You fire a Smoke Flare at ${theName(combat.enemy.name)} for ${dmg} fire damage!`;
         announceMsg = `Smoke Flare deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'salted_rations') {
@@ -3850,7 +3850,7 @@ function useCombatItem(itemId) {
         setCombatPlayerBars();
     } else if (itemId === 'nettle_poison') {
         combat.enemyPoisoned = 3; // 3 turns of 20 damage
-        logMsg = `You apply Nettle Poison! The ${combat.enemy.name} will take 20 damage each turn for 3 turns!`;
+        logMsg = `You apply Nettle Poison! ${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} will take 20 damage each turn for 3 turns!`;
         announceMsg = `Nettle Poison applied. Enemy will take 20 damage per turn for 3 turns.`;
     } else if (itemId === 'healing_herb') {
         const restore = Math.floor(character.maxHp * 0.4);
@@ -3869,7 +3869,7 @@ function useCombatItem(itemId) {
     } else if (itemId === 'thornpoison') {
         combat.enemyPoisoned = 3;
         combat.poisonDmg = 25;
-        logMsg = `You apply Thorn Poison! The ${combat.enemy.name} will take 25 damage each turn for 3 turns!`;
+        logMsg = `You apply Thorn Poison! ${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} will take 25 damage each turn for 3 turns!`;
         announceMsg = `Thorn Poison applied. Enemy will take 25 damage per turn for 3 turns.`;
     } else if (itemId === 'bark_shield') {
         combat.barkShieldActive = true;
@@ -3904,6 +3904,16 @@ function useCombatItem(itemId) {
 }
 
 function roll(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+// Grammar helpers
+// Returns "an" before vowel sounds, "a" otherwise
+function aOrAn(name) {
+    return /^[aeiouAEIOU]/.test(name.trim()) ? 'an' : 'a';
+}
+// Returns "the Name" but avoids "the The Name" for named bosses that start with "The "
+function theName(name) {
+    return /^[Tt]he\s/.test(name.trim()) ? name : `the ${name}`;
+}
 
 // Calculate total stat bonuses from equipped gear
 function getEquipBonuses() {
@@ -4042,7 +4052,7 @@ function playerAttack(hand) {
         if (weaponData && weaponData.special) {
             if (weaponData.special === 'justice' && Math.random() < 0.3) {
                 combat.enemyFrozen = true;
-                addLog(`The Maul of Justice rings out with judgment! The ${combat.enemy.name} is stunned and you strike again!`, 'player');
+                addLog(`The Maul of Justice rings out with judgment! ${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is stunned and you strike again!`, 'player');
                 const { damage: bonusDmg } = calcPlayerDamage(hand);
                 combat.enemy.hp -= bonusDmg;
                 addLog(`Bonus strike deals ${bonusDmg} more damage!`, 'player');
@@ -4061,7 +4071,7 @@ function playerAttack(hand) {
             if (weaponData.special === 'torch') {
                 combat.enemyPoisoned = 3;
                 combat.poisonDmg = 18;
-                addLog(`Geminus's Torch roars! The ${combat.enemy.name} is set ablaze and will burn for 3 turns!`, 'player');
+                addLog(`Geminus's Torch roars! ${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is set ablaze and will burn for 3 turns!`, 'player');
                 announce(`Enemy is burning. 18 fire damage per turn for 3 turns.`);
             }
             if (weaponData.special === 'holy' && Math.random() < 0.25) {
@@ -4076,7 +4086,7 @@ function playerAttack(hand) {
                 combat.enemyWeakened = true;
                 combat.enemyPoisoned = Math.max(combat.enemyPoisoned || 0, 2);
                 combat.poisonDmg = Math.max(combat.poisonDmg || 0, 15);
-                addLog(`Varg's scythe hisses! The serpent on its handle strikes — the ${combat.enemy.name} is deceived, weakened, and poisoned!`, 'player');
+                addLog(`Varg's scythe hisses! The serpent on its handle strikes — ${theName(combat.enemy.name)} is deceived, weakened, and poisoned!`, 'player');
                 announce(`Unholy Scythe poisons and weakens the enemy.`);
             }
         }
@@ -4163,7 +4173,7 @@ function enemyTurn() {
         const acidDmg = combat.enemyAcid;
         combat.enemy.hp -= acidDmg;
         combat.enemyAcid = 0;
-        addLog(`Acid corrosion deals ${acidDmg} additional damage to the ${combat.enemy.name}!`, 'player');
+        addLog(`Acid corrosion deals ${acidDmg} additional damage to ${theName(combat.enemy.name)}!`, 'player');
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
         if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
     }
@@ -4175,7 +4185,7 @@ function enemyTurn() {
         combat.enemyPoisoned--;
         if (combat.enemyPoisoned <= 0) combat.poisonDmg = 0;
         const turns = combat.enemyPoisoned;
-        addLog(`Poison deals ${poisonDmg} damage to the ${combat.enemy.name}! (${turns} turn${turns !== 1 ? 's' : ''} remaining)`, 'player');
+        addLog(`Poison deals ${poisonDmg} damage to ${theName(combat.enemy.name)}! (${turns} turn${turns !== 1 ? 's' : ''} remaining)`, 'player');
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
         if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
     }
@@ -4183,8 +4193,8 @@ function enemyTurn() {
     // Frost bolt freeze -- enemy skips their turn
     if (combat.enemyFrozen) {
         combat.enemyFrozen = false;
-        addLog(`The ${combat.enemy.name} is frozen and cannot act!`, 'system');
-        announce(`The ${combat.enemy.name} is frozen and skips their turn.`);
+        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is frozen and cannot act!`, 'system');
+        announce(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is frozen and skips their turn.`);
         addLog(`Your turn.`, 'system');
         setActionsEnabled(true);
         return;
@@ -4193,8 +4203,8 @@ function enemyTurn() {
     const { damage, dodged } = calcEnemyDamage();
 
     if (dodged) {
-        addLog(`The ${combat.enemy.name} attacks but you dodge!`, 'system');
-        announce(`You dodge the ${combat.enemy.name}'s attack!`);
+        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} attacks but you dodge!`, 'system');
+        announce(`You dodge ${theName(combat.enemy.name)}'s attack!`);
     } else if (combat.barkShieldActive) {
         const reducedDmg = Math.floor(damage * 0.5);
         combat.playerHp -= reducedDmg;
@@ -4205,16 +4215,16 @@ function enemyTurn() {
         const bracedDmg = Math.floor(damage * 0.25);
         combat.playerHp -= bracedDmg;
         combat.braceActive = false;
-        addLog(`The ${combat.enemy.name} strikes but your brace absorbs most of it! Only ${bracedDmg} damage!`, 'defend');
+        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} strikes but your brace absorbs most of it! Only ${bracedDmg} damage!`, 'defend');
         announce(`Brace absorbed the hit! Only ${bracedDmg} damage got through.`);
     } else if (combat.defending && damage < combat.enemy.atk) {
         combat.playerHp -= damage;
-        addLog(`The ${combat.enemy.name} strikes but your guard absorbs most of it! ${damage} damage.`, 'defend');
+        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} strikes but your guard absorbs most of it! ${damage} damage.`, 'defend');
         announce(`You block most of the hit. ${damage} damage gets through.`);
     } else {
         combat.playerHp -= damage;
-        addLog(`The ${combat.enemy.name} strikes you for ${damage} damage.`, 'enemy');
-        announce(`The ${combat.enemy.name} hits you for ${damage} damage. You have ${Math.max(0,combat.playerHp)} HP.`);
+        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} strikes you for ${damage} damage.`, 'enemy');
+        announce(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} hits you for ${damage} damage. You have ${Math.max(0,combat.playerHp)} HP.`);
     }
 
     combat.defending = false;
@@ -4280,7 +4290,7 @@ function victory() {
     // Save dungeon progress
     character.dungeonState = { ...dungeonState };
     saveGame(); populateUI();
-    addLog(`You defeated the ${enemy.name}!`, 'victory');
+    addLog(`You defeated ${theName(enemy.name)}!`, 'victory');
     if (enemy.isBoss) {
         addLog(`⚠ Boss defeated! The dungeon shudders around you.`, 'victory');
         dungeonState.bossDefeated = true;
@@ -4301,8 +4311,8 @@ function victory() {
     document.getElementById('result-title').textContent = 'Victory!';
     document.getElementById('result-title').className = 'result-title win';
     document.getElementById('result-body').textContent = levelsGained > 0
-        ? `You defeated the ${enemy.name} and reached Level ${character.level}!`
-        : `You defeated the ${enemy.name}.`;
+        ? `You defeated ${theName(enemy.name)} and reached Level ${character.level}!`
+        : `You defeated ${theName(enemy.name)}.`;
     document.getElementById('result-rewards').innerHTML = rewardsHTML;
     document.getElementById('result-btn-main').textContent = floorDone ? 'Floor Complete!' : 'Next Encounter';
     document.getElementById('combat-result').classList.add('show');
@@ -4339,7 +4349,7 @@ function defeat() {
     document.getElementById('result-icon').textContent = '💀';
     document.getElementById('result-title').textContent = 'Defeated';
     document.getElementById('result-title').className = 'result-title lose';
-    document.getElementById('result-body').textContent = `The ${combat.enemy.name} overwhelmed you. You wake in ${getTownDisplayName(getHomeTownForDungeon(currentDungeonId))}.`;
+    document.getElementById('result-body').textContent = `${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} overwhelmed you. You wake in ${getTownDisplayName(getHomeTownForDungeon(currentDungeonId))}.`;
     document.getElementById('result-rewards').innerHTML = `
         <div class="reward-line" style="color:#ff8080">- ${goldLost} Gold lost<\/div>
         <div class="reward-line" style="color:#aaa">HP restored to 30%<\/div>
@@ -4347,7 +4357,7 @@ function defeat() {
     document.getElementById('result-btn-main').textContent = 'Try Again';
     document.getElementById('combat-result').classList.add('show');
     document.getElementById('bottomNav').classList.add('visible'); // show nav on defeat screen
-    announce(`Defeated by the ${combat.enemy.name}. Lost ${goldLost} gold. You wake in town.`);
+    announce(`Defeated by ${theName(combat.enemy.name)}. Lost ${goldLost} gold. You wake in town.`);
 }
 
 function resultMain() {
@@ -5822,7 +5832,7 @@ const SKILLS_DATA = [
         tags:['Skill','Physical'],
         use:(c,enemy) => {
             const dmg = Math.floor(roll(c.stats.str*2, c.stats.str*4) * 2.0);
-            return { damage:dmg, log:`SLAM! You bring your weapon down on the ${enemy.name} for ${dmg} massive damage!`, type:'player' };
+            return { damage:dmg, log:`SLAM! You bring your weapon down on ${theName(enemy.name)} for ${dmg} massive damage!`, type:'player' };
         }
     },
     {
@@ -5834,7 +5844,7 @@ const SKILLS_DATA = [
             const hit = calcPlayerDamage('mainHand');
             const dmg = Math.floor(hit.damage * 2.5);
             const critNote = hit.crit ? ' Critical hit!' : '';
-            return { damage:dmg, log:`GROUND STRIKE! You slam your weapon into the earth — a shockwave tears through the ${enemy.name} for ${dmg} massive damage!${critNote}`, type:'player' };
+            return { damage:dmg, log:`GROUND STRIKE! You slam your weapon into the earth — a shockwave tears through ${theName(enemy.name)} for ${dmg} massive damage!${critNote}`, type:'player' };
         }
     },
     {
@@ -5844,7 +5854,7 @@ const SKILLS_DATA = [
         tags:['Skill','Physical'],
         use:(c,enemy) => {
             const dmg = Math.floor(roll(c.stats.str*2, c.stats.str*4) * 1.5);
-            return { damage:dmg, log:`You cleave the ${enemy.name} for ${dmg} damage!`, type:'player' };
+            return { damage:dmg, log:`You cleave ${theName(enemy.name)} for ${dmg} damage!`, type:'player' };
         }
     },
     {
@@ -5855,7 +5865,7 @@ const SKILLS_DATA = [
         use:(c,enemy) => {
             const h1 = Math.floor(roll(c.stats.str*2, c.stats.str*4)*0.75);
             const h2 = Math.floor(roll(c.stats.str*2, c.stats.str*4)*0.75);
-            return { damage:h1+h2, log:`Rapid Strike! You hit the ${enemy.name} twice -- ${h1} + ${h2} = ${h1+h2} damage!`, type:'player' };
+            return { damage:h1+h2, log:`Rapid Strike! You hit ${theName(enemy.name)} twice -- ${h1} + ${h2} = ${h1+h2} damage!`, type:'player' };
         }
     },
     {
@@ -5876,7 +5886,7 @@ const SKILLS_DATA = [
         use:(c,enemy) => {
             const dmg = Math.floor(roll(c.stats.str*2, c.stats.str*4) * 1.6);
             combat.enemyWeakened = true;
-            return { damage:dmg, log:`Overpower! You force the ${enemy.name} back for ${dmg} damage! Their next attack is weakened!`, type:'player' };
+            return { damage:dmg, log:`Overpower! You force ${theName(enemy.name)} back for ${dmg} damage! Their next attack is weakened!`, type:'player' };
         }
     },
     {
@@ -5895,7 +5905,7 @@ const SKILLS_DATA = [
         use:(c,enemy) => {
             const dmg = roll(c.stats.str*2, c.stats.str*3);
             combat.enemyFrozen = true;
-            return { damage:dmg, log:`Shield Bash! You stun the ${enemy.name} for ${dmg} damage! They lose their next turn!`, type:'player' };
+            return { damage:dmg, log:`Shield Bash! You stun ${theName(enemy.name)} for ${dmg} damage! They lose their next turn!`, type:'player' };
         }
     },
     {
@@ -5919,7 +5929,7 @@ const SKILLS_DATA = [
             const dex = c.stats.dex + getEquipBonuses().dex;
             const dmg = roll(dex*2, dex*3);
             combat.enemyWeakened = true;
-            return { damage:dmg, log:`Crippling Shot! You wound the ${enemy.name} for ${dmg} damage! Their next attack is weakened!`, type:'player' };
+            return { damage:dmg, log:`Crippling Shot! You wound ${theName(enemy.name)} for ${dmg} damage! Their next attack is weakened!`, type:'player' };
         }
     },
     {
@@ -5941,7 +5951,7 @@ const SKILLS_DATA = [
         use:(c,enemy) => {
             const dex = c.stats.dex + getEquipBonuses().dex;
             const dmg = Math.floor(roll(dex*2, dex*4) * 2.0);
-            return { damage:dmg, log:`Backstab! You slip behind the ${enemy.name} and drive your blade in for ${dmg} devastating damage!`, type:'player' };
+            return { damage:dmg, log:`Backstab! You slip behind ${theName(enemy.name)} and drive your blade in for ${dmg} devastating damage!`, type:'player' };
         }
     },
     {
@@ -5955,7 +5965,7 @@ const SKILLS_DATA = [
             const b2 = Math.floor(roll(dex*2, dex*3) * 1.5);
             const b3 = Math.floor(roll(dex*2, dex*3) * 1.5);
             const total = b1 + b2 + b3;
-            return { damage:total, log:`Shadow Blades! Three blades erupt from the darkness — ${b1}, ${b2}, and ${b3} damage shred the ${enemy.name}!`, type:'player' };
+            return { damage:total, log:`Shadow Blades! Three blades erupt from the darkness — ${b1}, ${b2}, and ${b3} damage shred ${theName(enemy.name)}!`, type:'player' };
         }
     },
 ];
@@ -5969,7 +5979,7 @@ const SPELLS_DATA = [
         use:(c,enemy) => {
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*3, int*5);
-            return { damage:dmg, log:`Fireball! You scorch the ${enemy.name} for ${dmg} magic damage!`, type:'player' };
+            return { damage:dmg, log:`Fireball! You scorch ${theName(enemy.name)} for ${dmg} magic damage!`, type:'player' };
         }
     },
     {
@@ -5981,7 +5991,7 @@ const SPELLS_DATA = [
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*2, int*3);
             combat.enemyFrozen = true;
-            return { damage:dmg, log:`Frost Bolt! The ${enemy.name} takes ${dmg} damage and is frozen -- they lose their next turn!`, type:'player' };
+            return { damage:dmg, log:`Frost Bolt! ${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} takes ${dmg} damage and is frozen -- they lose their next turn!`, type:'player' };
         }
     },
     {
@@ -6006,7 +6016,7 @@ const SPELLS_DATA = [
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*2, int*3);
             combat.enemyAcid = Math.floor(int * 1.5); // bonus damage next turn
-            return { damage:dmg, log:`Acid Dart! The ${enemy.name} takes ${dmg} damage and is corroded! They will take more damage next turn!`, type:'player' };
+            return { damage:dmg, log:`Acid Dart! ${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} takes ${dmg} damage and is corroded! They will take more damage next turn!`, type:'player' };
         }
     },
     {
@@ -6017,7 +6027,7 @@ const SPELLS_DATA = [
         use:(c,enemy) => {
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*4, int*6);
-            return { damage:dmg, log:`Lightning Bolt! A bolt of lightning strikes the ${enemy.name} for ${dmg} damage!`, type:'player' };
+            return { damage:dmg, log:`Lightning Bolt! A bolt of lightning strikes ${theName(enemy.name)} for ${dmg} damage!`, type:'player' };
         }
     },
     {
@@ -6028,7 +6038,7 @@ const SPELLS_DATA = [
         use:(c,enemy) => {
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*6, int*9);
-            return { damage:dmg, log:`SOLAR BEAM! Blinding light obliterates the ${enemy.name} for ${dmg} massive magic damage!`, type:'player' };
+            return { damage:dmg, log:`SOLAR BEAM! Blinding light obliterates ${theName(enemy.name)} for ${dmg} massive magic damage!`, type:'player' };
         }
     },
     {
@@ -6039,7 +6049,7 @@ const SPELLS_DATA = [
         use:(c,enemy) => {
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*4, int*6);
-            return { damage:dmg, log:`Solar Flare! Radiance erupts in a blinding flash — the ${enemy.name} takes ${dmg} searing light damage!`, type:'player' };
+            return { damage:dmg, log:`Solar Flare! Radiance erupts in a blinding flash — ${theName(enemy.name)} takes ${dmg} searing light damage!`, type:'player' };
         }
     },
     {
@@ -6056,7 +6066,7 @@ const SPELLS_DATA = [
                 hits.push(d);
                 total += d;
             }
-            return { damage:total, log:`Shard Storm! Crystal shards fly in every direction — ${hits.join(', ')}! The ${enemy.name} is shredded for ${total} total damage!`, type:'player' };
+            return { damage:total, log:`Shard Storm! Crystal shards fly in every direction — ${hits.join(', ')}! ${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} is shredded for ${total} total damage!`, type:'player' };
         }
     },
     {
@@ -6068,7 +6078,7 @@ const SPELLS_DATA = [
             const int = c.stats.int + getEquipBonuses().int;
             const dmg = roll(int*4, int*7);
             combat.enemyFrozen = true;
-            return { damage:dmg, log:`TEMPEST! A roaring storm of wind and lightning blasts the ${enemy.name} for ${dmg} damage -- they are knocked back and lose their next turn!`, type:'player' };
+            return { damage:dmg, log:`TEMPEST! A roaring storm of wind and lightning blasts ${theName(enemy.name)} for ${dmg} damage -- they are knocked back and lose their next turn!`, type:'player' };
         }
     },
     {
@@ -6082,7 +6092,7 @@ const SPELLS_DATA = [
             const mpRestore = Math.floor(dmg * 0.5);
             combat.playerMp = Math.min(c.maxMp, combat.playerMp + mpRestore);
             c.mp = combat.playerMp;
-            return { damage:dmg, log:`Void Pulse! Dark energy drains the ${enemy.name} for ${dmg} damage and restores ${mpRestore} of your MP!`, type:'player' };
+            return { damage:dmg, log:`Void Pulse! Dark energy drains ${theName(enemy.name)} for ${dmg} damage and restores ${mpRestore} of your MP!`, type:'player' };
         }
     },
     {
@@ -7558,11 +7568,106 @@ const DUNGEONS = {
             { id:'steppe_dust',         icon:'🏜', name:'Sunstone Dust',       desc:'Fine red dust from the canyons. Used in crafting.',                    stat:'Material', slot:'item', tags:['Material'], stackable:true },
         ],
     },
+    volcanic_depths: {
+        id: 'volcanic_depths',
+        name: 'The Volcanic Depths',
+        icon: '🌋',
+        desc: 'A molten underworld beneath the mountains outside Greatwolf City. Ancient fire stirs in the deep.',
+        flavor: 'Fire, ash, and molten fury',
+        color: '#e05020',
+        enemies: [
+            { name:'Ember Imp',          icon:'😈', level:1, hp:24,  atk:7,  xp:13, gold:[3,8],   floors:[1,5]   },
+            { name:'Ash Stalker',        icon:'👤', level:1, hp:32,  atk:8,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Cinder Hound',       icon:'🐕', level:2, hp:48,  atk:11, xp:26, gold:[6,14],  floors:[4,18]  },
+            { name:'Magma Golem',        icon:'🗿', level:2, hp:70,  atk:10, xp:30, gold:[9,18],  floors:[5,22]  },
+            { name:'Ash Cultist',        icon:'🧟', level:2, hp:52,  atk:12, xp:28, gold:[7,15],  floors:[6,22]  },
+            { name:'Fire Elemental',     icon:'🔥', level:3, hp:68,  atk:14, xp:44, gold:[11,22], floors:[8,28]  },
+            { name:'Salamander Knight',  icon:'🦎', level:3, hp:85,  atk:15, xp:50, gold:[14,26], floors:[10,30] },
+            { name:'Molten Drake',       icon:'🐉', level:3, hp:90,  atk:16, xp:54, gold:[15,28], floors:[14,35] },
+            { name:'Lava Golem',         icon:'🗿', level:4, hp:115, atk:18, xp:68, gold:[20,38], floors:[20,99] },
+            { name:'Ember Wraith',       icon:'👻', level:3, hp:72,  atk:15, xp:46, gold:[12,24], floors:[16,34] },
+            { name:'Ash Shaman',         icon:'🔮', level:3, hp:65,  atk:16, xp:50, gold:[13,26], floors:[18,35] },
+            { name:'Inferno Drake',      icon:'🐉', level:4, hp:128, atk:21, xp:80, gold:[26,46], floors:[28,99] },
+            { name:'Molten Colossus',    icon:'🗿', level:4, hp:142, atk:20, xp:84, gold:[28,48], floors:[30,99] },
+            { name:'Cinder Titan',       icon:'🔥', level:5, hp:158, atk:24, xp:94, gold:[32,54], floors:[35,99] },
+        ],
+        bosses: {
+            10: { name:'Scorch the Cinder Hound',   icon:'🐕', level:4, hp:215, atk:19, xp:158, gold:[44,74],   desc:'An enormous cinder hound whose bark sets the walls ablaze' },
+            20: { name:'High Cultist Marvek',        icon:'🧟', level:5, hp:375, atk:24, xp:295, gold:[84,138],  desc:'An ash cultist leader who offered himself to the volcano\'s fire' },
+            30: { name:'Ignarath the Salamander King', icon:'🦎', level:6, hp:535, atk:30, xp:470, gold:[158,238], desc:'An ancient salamander knight who crowned himself king of the deep heat' },
+            40: { name:'The Lava Colossus',          icon:'🌋', level:7, hp:790, atk:37, xp:730, gold:[258,370], desc:'A colossal being of living magma, older than the mountain itself' },
+        },
+        loot: [
+            { id:'magma_blade',          icon:'⚔',  name:'Magma Blade',          desc:'A sword forged in volcanic rock. The edge never cools.',               stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
+            { id:'ember_axe',            icon:'🪓', name:'Ember Axe',            desc:'A war axe with a head of volcanic iron. Brutal and relentless.',      stat:'STR +5', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[14,21] },
+            { id:'ash_spear',            icon:'🔱', name:'Ash Spear',            desc:'A spear tipped with hardened volcanic glass. Light and lethal.',      stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[11,17] },
+            { id:'flame_staff',          icon:'🪄', name:'Flame Staff',          desc:'A staff carved from basalt and topped with an ember core.',           stat:'INT +5', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[9,15] },
+            { id:'cinder_dagger',        icon:'🗡',  name:'Cinder Dagger',        desc:'A dagger made from fused cinders. Fast, sharp, still warm.',          stat:'DEX +4', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[9,14] },
+            { id:'ashen_plate',          icon:'🧥', name:'Ashen Plate',          desc:'Heavy armor forged from volcanic iron. Dense and unyielding.',        stat:'ARM +7, STR +4', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'salamander_vest',      icon:'🥋', name:'Salamander Vest',      desc:'A vest of salamander hide. Tough, heat-resistant, and supple.',       stat:'ARM +5, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'ember_robes',          icon:'👘', name:'Ember Robes',          desc:'Robes woven from heat-treated volcanic fiber. Amplifies fire magic.', stat:'ARM +2, INT +5, MP +10', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'magma_greaves',        icon:'🦾', name:'Magma Greaves',        desc:'Leg plates of cooled magma-iron. Impossibly heavy, impossibly tough.', stat:'ARM +6, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'cinder_boots',         icon:'🥾', name:'Cinder Boots',         desc:'Boots hardened in volcanic fire. Walk where others cannot follow.',   stat:'ARM +3, DEX +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'volcanic_helm',        icon:'⛑',  name:'Volcanic Helm',        desc:'A helm shaped from a volcanic rock vein. Brutal and imposing.',       stat:'ARM +5, STR +4', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'ash_mantle',           icon:'🧥', name:'Ash Mantle',           desc:'A cloak woven from fireproof ash fiber. Dark and silent.',            stat:'ARM +3, DEX +4', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
+            { id:'ember_ring',           icon:'💍', name:'Ember Ring',           desc:'A ring of volcanic glass with a coal-red core.',                     stat:'INT +4', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'magma_shard',          icon:'🌋', name:'Magma Shard',          desc:'A shard of hardened magma, still warm to the touch.',                stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    crystal_cavern: {
+        id: 'crystal_cavern',
+        name: 'The Crystal Cavern',
+        icon: '💎',
+        desc: 'An ancient dig site beneath Greatwolf City, abandoned after something woke up in the deep. Wolfstone was first unearthed here.',
+        flavor: 'Ancient crystal and deep mystery',
+        color: '#80d0ff',
+        enemies: [
+            { name:'Shard Sprite',       icon:'🧚', level:1, hp:20,  atk:7,  xp:14, gold:[2,7],   floors:[1,5]   },
+            { name:'Crystal Crawler',    icon:'🦀', level:1, hp:30,  atk:8,  xp:15, gold:[3,8],   floors:[1,8]   },
+            { name:'Cave Lurker',        icon:'👤', level:2, hp:48,  atk:11, xp:26, gold:[6,14],  floors:[4,18]  },
+            { name:'Prism Wraith',       icon:'👻', level:2, hp:42,  atk:13, xp:30, gold:[5,12],  floors:[5,22]  },
+            { name:'Crystal Golem',      icon:'🗿', level:2, hp:72,  atk:10, xp:28, gold:[9,18],  floors:[6,24]  },
+            { name:'Shard Spider',       icon:'🕷', level:3, hp:65,  atk:14, xp:44, gold:[11,22], floors:[8,28]  },
+            { name:'Wolfstone Guardian', icon:'🔷', level:3, hp:88,  atk:14, xp:50, gold:[14,26], floors:[12,32] },
+            { name:'Crystal Wraith',     icon:'💠', level:3, hp:70,  atk:16, xp:52, gold:[13,26], floors:[14,34] },
+            { name:'Prism Colossus',     icon:'🗿', level:4, hp:118, atk:18, xp:70, gold:[22,40], floors:[20,99] },
+            { name:'Deep Echo',          icon:'🌀', level:3, hp:62,  atk:17, xp:54, gold:[12,24], floors:[18,36] },
+            { name:'Crystal Titan',      icon:'💎', level:4, hp:135, atk:20, xp:80, gold:[26,46], floors:[28,99] },
+            { name:'Void Shard',         icon:'⚫', level:4, hp:112, atk:21, xp:78, gold:[24,44], floors:[26,99] },
+            { name:'Ancient Refractor',  icon:'🔮', level:4, hp:125, atk:22, xp:82, gold:[26,46], floors:[30,99] },
+            { name:'Deep Leviathan',     icon:'🌊', level:5, hp:160, atk:25, xp:96, gold:[34,56], floors:[36,99] },
+        ],
+        bosses: {
+            10: { name:'The Shard Queen',          icon:'🦀', level:4, hp:218, atk:19, xp:160, gold:[44,74],   desc:'A crystal crawler grown enormous in the deep dark, wrapped in a shell of razor shards' },
+            20: { name:'Refractor the Golem King', icon:'🗿', level:5, hp:380, atk:24, xp:295, gold:[84,138],  desc:'A crystal golem of immense size — forged by no hand anyone alive can name' },
+            30: { name:'The Deep Echo',            icon:'🌀', level:6, hp:545, atk:30, xp:472, gold:[160,240], desc:'An entity of unknown origin that speaks in reflections and answers no question directly' },
+            40: { name:'The Wolfstone Colossus',   icon:'🔷', level:7, hp:800, atk:37, xp:735, gold:[260,372], desc:'A colossal guardian of pure Wolfstone, ancient and unyielding' },
+        },
+        loot: [
+            { id:'wolfstone_axe',        icon:'🪓', name:'Wolfstone Axe',        desc:'A war axe hewn from raw Wolfstone. Heavy, brutal, and charged with old power.', stat:'STR +6', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,22] },
+            { id:'wolfstone_hammer',     icon:'🔨', name:'Wolfstone Hammer',     desc:'A forge hammer of pure Wolfstone. Hits like a falling wall.',              stat:'STR +6', slot:'mainHand', tags:['Hammer'], stackable:false, dmg:[15,23] },
+            { id:'wolfstone_maul',       icon:'🔨', name:'Wolfstone Maul',       desc:'A two-handed maul of Wolfstone. Slow to raise. Impossible to ignore.',    stat:'STR +7', slot:'mainHand', tags:['Maul'], stackable:false, dmg:[16,25] },
+            { id:'wolfstone_mace',       icon:'🔨', name:'Wolfstone Mace',       desc:'A flanged mace of Wolfstone. Each strike rings like a bell in the cavern.', stat:'STR +5', slot:'mainHand', tags:['Mace'], stackable:false, dmg:[13,20] },
+            { id:'wolfstone_staff',      icon:'🪄', name:'Wolfstone Staff',      desc:'A staff of crystalline Wolfstone. Channels arcane power with frightening clarity.', stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
+            { id:'wolfstone_blade',      icon:'⚔',  name:'Wolfstone Blade',      desc:'A straight sword of Wolfstone. Cold, heavy, and unerringly sharp.',       stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
+            { id:'wolfstone_dagger',     icon:'🗡',  name:'Wolfstone Dagger',     desc:'A dagger of Wolfstone shard. Small, dense, and vicious in close quarters.', stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
+            { id:'crystal_plate',        icon:'🧥', name:'Crystal Plate',        desc:'Heavy plate reinforced with Wolfstone crystal. Gleams in the dark.',      stat:'ARM +8, STR +4', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'prism_mail',           icon:'🥋', name:'Prism Mail',           desc:'Medium armor of interlocked crystal scales. Refracts light and blades alike.', stat:'ARM +5, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'cavern_robes',         icon:'👘', name:'Cavern Robes',         desc:'Robes lined with Wolfstone powder. Deep focus, deep silence.',           stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'wolfstone_greaves',    icon:'🦾', name:'Wolfstone Greaves',    desc:'Leg plates of Wolfstone crystal. Heavy enough to shake the floor.',      stat:'ARM +7, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'crystal_boots',        icon:'🥾', name:'Crystal Boots',        desc:'Boots of fused crystal. Light but harder than iron.',                   stat:'ARM +3, DEX +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'wolfstone_helm',       icon:'👑', name:'Wolfstone Helm',       desc:'A helm of Wolfstone. Dense, ancient, and impossible to crack.',         stat:'ARM +6, STR +4', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'wolfstone_medallion',  icon:'📿', name:'Wolfstone Medallion',  desc:'A medallion of polished Wolfstone worn by the cavern\'s ancient guardians.', stat:'RES +4, STR +3', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'wolfstone_ring',       icon:'💍', name:'Wolfstone Ring',       desc:'A ring of Wolfstone crystal, cool to the touch and heavy with old power.', stat:'STR +3, INT +3', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'wolfstone_shard',      icon:'🔷', name:'Wolfstone Shard',      desc:'A raw shard of Wolfstone from the deep cavern. Prized by smiths and scholars alike.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+            { id:'wolfsteel_ore',        icon:'⚙',  name:'Wolfsteel Ore',        desc:'A rough ore of Wolfsteel found in a deep vein. Rare beyond measure.',   stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
 };
 
 
 // Dungeons reachable from Greatwolf City dungeon select (teleport paths)
-const CITY_DUNGEONS = ['wolfspire', 'verdant', 'frostpeak', 'sunken_sands', 'emerald_canopy', 'red_wolf_swamp', 'stoneback_mesas'];
+const CITY_DUNGEONS = ['wolfspire', 'verdant', 'frostpeak', 'sunken_sands', 'emerald_canopy', 'red_wolf_swamp', 'stoneback_mesas', 'volcanic_depths', 'crystal_cavern'];
 
 // Local dungeons per settlement — add new dungeon ids here as towns grow
 const TOWN_DUNGEONS = {
@@ -7580,6 +7685,8 @@ const DUNGEON_HOME_TOWN = {
     ashwood: 'wolfhaven',
     ironwood_deep: 'ironwood',
     sunstone_steppe: 'windmane',
+    volcanic_depths: 'town',
+    crystal_cavern: 'town',
 };
 
 const TOWN_DISPLAY_NAMES = {
