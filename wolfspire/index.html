@@ -9580,8 +9580,26 @@ function fishingResolveCatch() {
         castBtn.setAttribute('aria-label', 'Cast your fishing line again');
     }
 
+    // XP reward for fishing
+    const fishXP = 10;
+    character.xp += fishXP;
+    let fishLevelsGained = 0;
+    while (character.xp >= character.xpNext) {
+        character.xp -= character.xpNext;
+        character.level++;
+        character.xpNext = xpToNextLevel(character.level);
+        character.unspentPoints = (character.unspentPoints || 0) + 4;
+        character.maxHp += 10;
+        character.hp = Math.min(character.hp + 10, character.maxHp);
+        fishLevelsGained++;
+    }
+    msg += ` +${fishXP} XP.`;
+    if (fishLevelsGained > 0) msg += ` Level Up! Now Level ${character.level}!`;
+
     document.getElementById('sunport-fishing-gold').textContent = character.gold;
+    populateUI();
     saveGame();
+    showToast(fishLevelsGained > 0 ? `+${fishXP} XP · Level Up!` : `+${fishXP} XP`);
     showToast(toastMsg);
     announce(msg);
     fishingState.phase = 'idle';
@@ -9827,14 +9845,31 @@ function memoryWin() {
     if (memoryState.moves <= 16) gold += 12;
     else if (memoryState.moves <= 22) gold += 5;
     character.gold += gold;
+
+    let memXP = 15;
+    if (memoryState.moves <= 16) memXP += 10;
+    else if (memoryState.moves <= 22) memXP += 5;
+    character.xp += memXP;
+    let memLevelsGained = 0;
+    while (character.xp >= character.xpNext) {
+        character.xp -= character.xpNext;
+        character.level++;
+        character.xpNext = xpToNextLevel(character.level);
+        character.unspentPoints = (character.unspentPoints || 0) + 4;
+        character.maxHp += 10;
+        character.hp = Math.min(character.hp + 10, character.maxHp);
+        memLevelsGained++;
+    }
+    populateUI();
     saveGame();
 
+    const lvlMsg = memLevelsGained > 0 ? ` Level Up! Now Level ${character.level}!` : '';
     const status = document.getElementById('memory-status');
     status.className = 'game-status win';
-    status.textContent = `Board cleared in ${memoryState.moves} moves! +${gold} gold.`;
+    status.textContent = `Board cleared in ${memoryState.moves} moves! +${gold} gold, +${memXP} XP.${lvlMsg}`;
     renderMemoryBoard();
-    showToast(`+${gold} gold`);
-    announce(`Wolf Cards complete in ${memoryState.moves} moves. You earned ${gold} gold. New Game to play again.`);
+    showToast(`+${gold} gold · +${memXP} XP`);
+    announce(`Wolf Cards complete in ${memoryState.moves} moves. You earned ${gold} gold and ${memXP} XP.${lvlMsg} New Game to play again.`);
     document.getElementById('memory-new-btn').focus();
 }
 
@@ -10025,15 +10060,32 @@ function mastermindWin(guessNum) {
     if (guessNum <= 6) gold += 15;
     else if (guessNum <= 8) gold += 8;
     character.gold += gold;
+
+    let mmXP = 15;
+    if (guessNum <= 6) mmXP += 10;
+    else if (guessNum <= 8) mmXP += 5;
+    character.xp += mmXP;
+    let mmLevelsGained = 0;
+    while (character.xp >= character.xpNext) {
+        character.xp -= character.xpNext;
+        character.level++;
+        character.xpNext = xpToNextLevel(character.level);
+        character.unspentPoints = (character.unspentPoints || 0) + 4;
+        character.maxHp += 10;
+        character.hp = Math.min(character.hp + 10, character.maxHp);
+        mmLevelsGained++;
+    }
+    populateUI();
     saveGame();
 
     const secretNames = mastermindState.secret.map(id => getRuneById(id).name).join(', ');
+    const lvlMsg = mmLevelsGained > 0 ? ` Level Up! Now Level ${character.level}!` : '';
     const status = document.getElementById('mastermind-status');
     status.className = 'game-status win';
-    status.textContent = `Code cracked in ${guessNum} guesses! The code was ${secretNames}. +${gold} gold.`;
+    status.textContent = `Code cracked in ${guessNum} guesses! The code was ${secretNames}. +${gold} gold, +${mmXP} XP.${lvlMsg}`;
     renderMastermindUI();
-    showToast(`+${gold} gold`);
-    announce(`Rune Code solved in ${guessNum} guesses. Secret code: ${secretNames}. You earned ${gold} gold. New Code to play again.`);
+    showToast(`+${gold} gold · +${mmXP} XP`);
+    announce(`Rune Code solved in ${guessNum} guesses. Secret code: ${secretNames}. You earned ${gold} gold and ${mmXP} XP.${lvlMsg} New Code to play again.`);
 }
 
 function mastermindLose() {
