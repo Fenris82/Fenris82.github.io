@@ -2309,6 +2309,94 @@
     <button class="leave-shop-btn" onclick="goToScreen('windmane')" aria-label="Leave the trading post">Leave Post</button>
 </div>
 
+<!-- -- VARG'S SHADOW REALM -- -->
+<div id="screen-shadow-realm" class="screen" role="main" aria-label="Varg's Shadow Realm">
+    <p class="screen-header" style="color:#a040a0">You have entered</p>
+    <h2 class="screen-title" style="color:#c060c0">Varg's Shadow Realm</h2>
+
+    <div class="shopkeeper-banner" aria-label="Shadow Realm atmosphere" style="background:rgba(80,0,80,0.18);border-color:#5a205a">
+        <span class="shopkeeper-icon" aria-hidden="true">☠</span>
+        <div>
+            <div class="shopkeeper-name" style="color:#c060c0">The Shadow Realm</div>
+            <div class="shopkeeper-quote" id="shadow-realm-quote">"Varg's corruption runs deep here. Turn back while you still can."</div>
+        </div>
+    </div>
+
+    <div class="town-vitals" aria-label="Your vitals">
+        <div class="vital-pill" aria-label="Hit points">
+            <span aria-hidden="true">❤</span>
+            <span id="shadow-realm-hp">100</span>
+        </div>
+        <div class="vital-pill" aria-label="Magic points">
+            <span aria-hidden="true">💙</span>
+            <span id="shadow-realm-mp">50</span>
+        </div>
+        <div class="vital-pill" aria-label="Gold">
+            <span aria-hidden="true">💰</span>
+            <span id="shadow-realm-gold">200</span>
+        </div>
+    </div>
+
+    <div class="town-menu" role="group" aria-label="Shadow Realm locations">
+        <button class="menu-btn" onclick="openTownDungeonSelect('shadow_realm')" aria-label="Choose a dungeon in the Shadow Realm"
+            style="border-color:#5a205a">
+            <span class="btn-icon" aria-hidden="true">☠</span>
+            <span class="btn-label">Dungeons</span>
+            <span class="btn-sub" id="shadow-realm-dungeon-sub">Enter the darkness</span>
+        </button>
+        <button class="menu-btn" onclick="travelTo('town')" aria-label="Flee back to Greatwolf City"
+            style="border-color:#3a2a3a">
+            <span class="btn-icon" aria-hidden="true">🏰</span>
+            <span class="btn-label">Flee to Safety</span>
+            <span class="btn-sub">Back to Greatwolf City</span>
+        </button>
+    </div>
+</div>
+
+<!-- -- FENNYX'S REALM OF LIGHT -- -->
+<div id="screen-light-realm" class="screen" role="main" aria-label="Fennyx's Realm of Light">
+    <p class="screen-header" style="color:#e8c840">You have entered</p>
+    <h2 class="screen-title" style="color:#f0d860">Fennyx's Realm of Light</h2>
+
+    <div class="shopkeeper-banner" aria-label="Realm of Light atmosphere" style="background:rgba(255,220,50,0.08);border-color:#b08820">
+        <span class="shopkeeper-icon" aria-hidden="true">☀</span>
+        <div>
+            <div class="shopkeeper-name" style="color:#f0d060">The Realm of Light</div>
+            <div class="shopkeeper-quote" id="light-realm-quote">"Fennyx's light burns away all shadow here. Walk carefully — even radiance can blind."</div>
+        </div>
+    </div>
+
+    <div class="town-vitals" aria-label="Your vitals">
+        <div class="vital-pill" aria-label="Hit points">
+            <span aria-hidden="true">❤</span>
+            <span id="light-realm-hp">100</span>
+        </div>
+        <div class="vital-pill" aria-label="Magic points">
+            <span aria-hidden="true">💙</span>
+            <span id="light-realm-mp">50</span>
+        </div>
+        <div class="vital-pill" aria-label="Gold">
+            <span aria-hidden="true">💰</span>
+            <span id="light-realm-gold">200</span>
+        </div>
+    </div>
+
+    <div class="town-menu" role="group" aria-label="Realm of Light locations">
+        <button class="menu-btn" onclick="openTownDungeonSelect('light_realm')" aria-label="Choose a dungeon in the Realm of Light"
+            style="border-color:#b08820">
+            <span class="btn-icon" aria-hidden="true">☀</span>
+            <span class="btn-label">Dungeons</span>
+            <span class="btn-sub" id="light-realm-dungeon-sub">Enter the radiance</span>
+        </button>
+        <button class="menu-btn" onclick="travelTo('town')" aria-label="Return to Greatwolf City"
+            style="border-color:#6a5810">
+            <span class="btn-icon" aria-hidden="true">🏰</span>
+            <span class="btn-label">Return Home</span>
+            <span class="btn-sub">Back to Greatwolf City</span>
+        </button>
+    </div>
+</div>
+
 <!-- -- FORGE -- -->
 <div id="screen-forge" class="screen" role="main" aria-label="The Forge">
     <p class="screen-header">Welcome to</p>
@@ -2890,6 +2978,40 @@
                     </div>
                 </div>
                 <div style="font-size:0.9em;color:var(--text-dim);line-height:1.6">A centaur settlement on the open steppe. Swift hunters, open sky, and canyons that swallow the unwary.</div>
+            </div>
+
+            <div style="background:rgba(60,50,0,0.6);border:1px solid #8a6a10;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s"
+                 onclick="travelTo('light_realm')"
+                 onmouseenter="this.style.borderColor='#e8c840'"
+                 onmouseleave="this.style.borderColor='#8a6a10'"
+                 role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter')travelTo('light_realm')"
+                 aria-label="Travel to Fennyx's Realm of Light, a radiant celestial domain">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                    <span style="font-size:2em" aria-hidden="true">☀</span>
+                    <div>
+                        <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:#f0d060">Fennyx's Realm of Light</div>
+                        <div style="font-size:0.75em;color:#c0a840;font-style:italic">Celestial domain — The Radiant Beyond</div>
+                    </div>
+                </div>
+                <div style="font-size:0.9em;color:#c0a840;line-height:1.6">Fennyx's radiant domain. Solar spires, blazing plains, and celestial sanctums guarded by divine champions. Beautiful. Deadly.</div>
+            </div>
+
+            <div style="background:rgba(40,0,40,0.6);border:1px solid #5a205a;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s"
+                 onclick="travelTo('shadow_realm')"
+                 onmouseenter="this.style.borderColor='#a040a0'"
+                 onmouseleave="this.style.borderColor='#5a205a'"
+                 role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter')travelTo('shadow_realm')"
+                 aria-label="Travel to Varg's Shadow Realm, a corrupted dark domain">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                    <span style="font-size:2em" aria-hidden="true">☠</span>
+                    <div>
+                        <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:#c060c0">Varg's Shadow Realm</div>
+                        <div style="font-size:0.75em;color:#a060a0;font-style:italic">Corrupted domain — The Dark Beyond</div>
+                    </div>
+                </div>
+                <div style="font-size:0.9em;color:#a080a0;line-height:1.6">Varg's corrupted domain. Wastes, shadow sanctums, and beasts that have never seen sunlight. Enter at your own peril.</div>
             </div>
 
         </div>
@@ -3537,7 +3659,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -4879,6 +5001,10 @@ function travelTo(destination) {
         travelToIronwood();
     } else if (destination === 'windmane') {
         travelToWindmane();
+    } else if (destination === 'shadow_realm') {
+        travelToShadowRealm();
+    } else if (destination === 'light_realm') {
+        travelToLightRealm();
     } else if (destination === 'town') {
         goToScreen('town');
         announce('You return to Greatwolf City.');
@@ -5011,6 +5137,8 @@ function updateTownDungeonSub(townId) {
         wolfhaven: 'wolfhaven-dungeon-sub',
         ironwood: 'ironwood-dungeon-sub',
         windmane: 'windmane-dungeon-sub',
+        shadow_realm: 'shadow-realm-dungeon-sub',
+        light_realm: 'light-realm-dungeon-sub',
     };
     const subEl = document.getElementById(subIds[townId]);
     const dungeonIds = TOWN_DUNGEONS[townId];
@@ -7734,6 +7862,319 @@ const DUNGEONS = {
             { id:'wolfsteel_ore',        icon:'⚙',  name:'Wolfsteel Ore',        desc:'A rough ore of Wolfsteel found in a deep vein. Rare beyond measure.',   stat:'Material', slot:'item', tags:['Material'], stackable:true },
         ],
     },
+    summerwood: {
+        id: 'summerwood',
+        name: 'Summerwood Forest',
+        icon: '🌳',
+        desc: 'A lush ancient forest near Wolfhaven, vibrant and alive — but wild, dangerous, and answering to no one.',
+        flavor: 'Where the living forest bites back',
+        color: '#40c060',
+        enemies: [
+            { name:'Thornwalker',        icon:'🌿', level:1, hp:26,  atk:7,  xp:14, gold:[3,8],   floors:[1,5]   },
+            { name:'Summer Wolf',        icon:'🐺', level:1, hp:34,  atk:9,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Grove Ranger',       icon:'🏹', level:2, hp:48,  atk:11, xp:26, gold:[6,14],  floors:[4,18]  },
+            { name:'Forest Mage',        icon:'🔮', level:2, hp:40,  atk:13, xp:28, gold:[5,13],  floors:[5,20]  },
+            { name:'Druid of the Grove', icon:'🌿', level:2, hp:55,  atk:12, xp:30, gold:[8,16],  floors:[6,22]  },
+            { name:'Sunwood Sprite',     icon:'🧚', level:2, hp:36,  atk:13, xp:28, gold:[6,14],  floors:[6,22]  },
+            { name:'Ancient Treant',     icon:'🌲', level:3, hp:90,  atk:13, xp:48, gold:[14,26], floors:[10,30] },
+            { name:'Summer Fae',         icon:'🦋', level:3, hp:58,  atk:15, xp:46, gold:[11,22], floors:[10,28] },
+            { name:'Grove Guardian',     icon:'🛡', level:3, hp:80,  atk:14, xp:50, gold:[13,25], floors:[12,32] },
+            { name:'Thornweaver',        icon:'🌹', level:3, hp:65,  atk:16, xp:52, gold:[12,24], floors:[14,34] },
+            { name:'Elder Druid',        icon:'🧙', level:4, hp:105, atk:17, xp:66, gold:[20,38], floors:[18,99] },
+            { name:'Ironbark Treant',    icon:'🌳', level:4, hp:128, atk:18, xp:74, gold:[24,44], floors:[22,99] },
+            { name:'Stormcaller Fae',    icon:'⚡', level:4, hp:98,  atk:20, xp:78, gold:[24,44], floors:[26,99] },
+            { name:'Forest Colossus',    icon:'🌲', level:5, hp:152, atk:23, xp:92, gold:[32,54], floors:[32,99] },
+        ],
+        bosses: {
+            10: { name:'Briarwrath the Thornwalker',  icon:'🌿', level:4, hp:220, atk:19, xp:162, gold:[46,76],   desc:'A thornwalker elder so ancient its body has fused with the roots beneath the forest floor' },
+            20: { name:'Sylvara the Grove Warden',    icon:'🌳', level:5, hp:385, atk:24, xp:298, gold:[86,140],  desc:'The oldest grove guardian in the Summerwood, sworn to destroy all who disturb the deep forest' },
+            30: { name:'The Ironbark King',           icon:'🌲', level:6, hp:548, atk:31, xp:475, gold:[162,244], desc:'An ancient treant of immense size whose bark has hardened to iron over millennia' },
+            40: { name:'Fennara the Summer Sovereign',icon:'🦋', level:7, hp:805, atk:38, xp:738, gold:[262,376], desc:'The sovereign of the Summer Fae — an entity of pure wild magic that answers to no mortal power' },
+        },
+        loot: [
+            { id:'summerwood_sword',   icon:'⚔',  name:'Summerwood Blade',     desc:'A blade carved from living summerwood. Light as air, sharp as summer lightning.',   stat:'DEX +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[12,19] },
+            { id:'thorn_spear',        icon:'🔱', name:'Thorn Spear',          desc:'A spear tipped with a razor thornwood head. Grows sharper in sunlight.',            stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[12,18] },
+            { id:'druid_staff',        icon:'🪄', name:'Druid\'s Staff',       desc:'A twisted staff of living wood. Hums with grove magic.',                           stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[9,15] },
+            { id:'grove_bow',          icon:'🏹', name:'Grove Longbow',        desc:'Carved from summerwood by the grove rangers. Silent and deadly.',                  stat:'DEX +6', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[13,20] },
+            { id:'fae_dagger',         icon:'🗡',  name:'Fae Dagger',           desc:'A blade left by summer fae. Impossibly light, impossibly sharp.',                  stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
+            { id:'bark_plate',         icon:'🧥', name:'Ironbark Plate',       desc:'Armor of hardened ironbark. Tough as iron, light as wood.',                        stat:'ARM +7, STR +4', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'grove_vest',         icon:'🥋', name:'Grove Vest',           desc:'Supple druidic leather woven with thornvine. Flexible and strong.',                stat:'ARM +5, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'fae_robes',          icon:'👘', name:'Fae Robes',            desc:'Robes woven from summer fae silk. Shimmer in sunlight and amplify grove magic.',  stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'grove_greaves',      icon:'🦾', name:'Grove Greaves',        desc:'Leg armor of layered ironbark and thornvine. Durable and quiet.',                 stat:'ARM +6, STR +4', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'druid_boots',        icon:'🥾', name:'Druid Boots',          desc:'Boots of summerwood bark. Move silently through any forest.',                     stat:'ARM +3, DEX +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'grove_helm',         icon:'🌿', name:'Grove Helm',           desc:'A helm wrapped in living thornvine. The thorns turn blades aside.',               stat:'ARM +5, DEX +3', slot:'head', tags:['Medium','Head'], stackable:false, type:'medium' },
+            { id:'fae_mantle',         icon:'🧥', name:'Fae Mantle',           desc:'A cloak woven from summer fae wings. Light, silent, and strangely warm.',        stat:'ARM +3, INT +4', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
+            { id:'grove_medallion',    icon:'📿', name:'Grove Medallion',      desc:'A medallion of polished summerwood worn by grove wardens.',                       stat:'RES +4, DEX +3', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'summerwood_ring',    icon:'💍', name:'Summerwood Ring',      desc:'A ring of living summerwood, warm to the touch and full of wild energy.',        stat:'DEX +3, INT +3', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'thornwood_shard',    icon:'🌿', name:'Thornwood Shard',      desc:'A shard of thornwood from the deep forest. Prized by druids and fletchers.',     stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    varg_wastes: {
+        id: 'varg_wastes',
+        name: 'The Varg Wastes',
+        icon: '💀',
+        desc: 'A blasted ashland in the heart of Varg\'s domain. Corrupted soldiers and shadow-touched creatures roam what was once a battlefield.',
+        flavor: 'Where Varg\'s armies fell and rose again',
+        color: '#8a3a3a',
+        enemies: [
+            { name:'Ash Revenant',       icon:'💀', level:1, hp:28,  atk:8,  xp:15, gold:[3,9],   floors:[1,5]   },
+            { name:'Waste Crawler',      icon:'🦂', level:1, hp:32,  atk:9,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Corrupted Soldier',  icon:'⚔',  level:2, hp:52,  atk:11, xp:28, gold:[6,15],  floors:[4,18]  },
+            { name:'Shadow Hound',       icon:'🐺', level:2, hp:44,  atk:12, xp:26, gold:[5,13],  floors:[5,20]  },
+            { name:'Varg Shade',         icon:'👤', level:2, hp:48,  atk:13, xp:30, gold:[7,15],  floors:[6,22]  },
+            { name:'Bone Stalker',       icon:'🦴', level:3, hp:68,  atk:13, xp:44, gold:[11,22], floors:[8,28]  },
+            { name:'Corrupted Knight',   icon:'🛡', level:3, hp:88,  atk:15, xp:50, gold:[14,26], floors:[10,30] },
+            { name:'Waste Wraith',       icon:'👻', level:3, hp:72,  atk:16, xp:52, gold:[13,25], floors:[14,34] },
+            { name:'Varg Berserker',     icon:'😡', level:3, hp:80,  atk:17, xp:54, gold:[14,26], floors:[16,36] },
+            { name:'Shadow Colossus',    icon:'🌑', level:4, hp:120, atk:19, xp:72, gold:[22,42], floors:[20,99] },
+            { name:'Ash Titan',          icon:'💀', level:4, hp:135, atk:20, xp:80, gold:[26,46], floors:[26,99] },
+            { name:'Varg Blood Guard',   icon:'🩸', level:4, hp:145, atk:22, xp:84, gold:[28,50], floors:[30,99] },
+            { name:'Waste Behemoth',     icon:'👹', level:5, hp:162, atk:25, xp:96, gold:[34,56], floors:[36,99] },
+        ],
+        bosses: {
+            10: { name:'The Ash Marshal',            icon:'💀', level:4, hp:222, atk:20, xp:164, gold:[46,78],   desc:'A corrupted general of Varg\'s armies, dead but still commanding the wastes with iron will' },
+            20: { name:'Shadowmaw the Hound King',   icon:'🐺', level:5, hp:390, atk:25, xp:300, gold:[88,142],  desc:'A shadow hound of enormous size who has claimed the blasted wastes as his hunting ground' },
+            30: { name:'The Varg Executioner',       icon:'⚔',  level:6, hp:552, atk:32, xp:478, gold:[164,248], desc:'A corrupted knight who carries out Varg\'s judgments across the wastes with no mercy and no end' },
+            40: { name:'The Waste Titan',            icon:'👹', level:7, hp:812, atk:39, xp:742, gold:[264,380], desc:'A colossal creature of ash and shadow, born from the battlefield where Varg\'s war began' },
+        },
+        loot: [
+            { id:'waste_blade',          icon:'⚔',  name:'Waste Blade',          desc:'A corrupted sword salvaged from the ashen battlefield. Dark energy clings to its edge.',  stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
+            { id:'shadow_axe',           icon:'🪓', name:'Shadow Axe',           desc:'A war axe forged in shadow. Strikes leave a lingering darkness.',                       stat:'STR +5', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[14,21] },
+            { id:'bone_lance',           icon:'🔱', name:'Bone Lance',           desc:'A lance of fused monster bone. The wastes made this weapon.',                           stat:'STR +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,19] },
+            { id:'varg_scepter',         icon:'🪄', name:'Varg Scepter',         desc:'A scepter channeling Varg\'s corrupted magic. Dangerous in the wrong hands.',          stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
+            { id:'shade_dagger',         icon:'🗡',  name:'Shade Dagger',         desc:'A dagger that passes through armor like shadow through fog.',                           stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
+            { id:'ash_plate',            icon:'🧥', name:'Ash Plate',            desc:'Heavy armor of corrupted iron from the battlefield. Dense and foreboding.',             stat:'ARM +7, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'shadow_mail',          icon:'🥋', name:'Shadow Mail',          desc:'Chainmail woven with shadow essence. Absorbs light and blades alike.',                 stat:'ARM +5, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'varg_vestments',       icon:'👘', name:'Varg Vestments',       desc:'Dark robes of Varg\'s inner circle. Power at a terrible cost.',                        stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'waste_greaves',        icon:'🦾', name:'Waste Greaves',        desc:'Leg armor salvaged from corrupted knights. Heavy with old blood.',                     stat:'ARM +7, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'shadow_boots',         icon:'🥾', name:'Shadow Boots',         desc:'Boots of shadow-treated leather. Silent on any surface.',                             stat:'ARM +3, DEX +5', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'varg_helm',            icon:'⛑',  name:'Varg War Helm',        desc:'A helm of Varg\'s corrupted iron. The visor is shaped like a screaming skull.',       stat:'ARM +6, STR +5', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'shadow_cloak',         icon:'🧥', name:'Shadow Cloak',         desc:'A cloak woven from shadow essence. Near-invisible in darkness.',                      stat:'ARM +3, DEX +5', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
+            { id:'varg_sigil_ring',      icon:'💍', name:'Varg Sigil Ring',      desc:'A ring bearing Varg\'s sigil. Radiates corrupted power.',                            stat:'STR +4, INT +3', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'ash_fragment',         icon:'💀', name:'Ash Fragment',         desc:'A fragment of corrupted bone from the Varg Wastes. Unsettling to hold.',             stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    basalt_flats: {
+        id: 'basalt_flats',
+        name: 'The Basalt Flats',
+        icon: '🪨',
+        desc: 'An endless expanse of dark volcanic rock in Varg\'s domain. Primal beasts that have never seen sunlight hunt here.',
+        flavor: 'Dark stone and primal hunger',
+        color: '#606060',
+        enemies: [
+            { name:'Flatland Stalker',   icon:'🐆', level:1, hp:30,  atk:9,  xp:16, gold:[3,9],   floors:[1,5]   },
+            { name:'Basalt Crawler',     icon:'🦎', level:1, hp:36,  atk:9,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Stone Lurker',       icon:'🗿', level:2, hp:54,  atk:11, xp:28, gold:[7,15],  floors:[4,18]  },
+            { name:'Dark Raptor',        icon:'🦅', level:2, hp:46,  atk:13, xp:28, gold:[6,13],  floors:[5,20]  },
+            { name:'Obsidian Hound',     icon:'🐕', level:2, hp:50,  atk:12, xp:28, gold:[7,14],  floors:[6,22]  },
+            { name:'Flatland Beast',     icon:'🦣', level:3, hp:78,  atk:14, xp:46, gold:[12,24], floors:[8,28]  },
+            { name:'Basalt Golem',       icon:'🗿', level:3, hp:95,  atk:14, xp:50, gold:[14,26], floors:[10,32] },
+            { name:'Shadow Drake',       icon:'🐉', level:3, hp:82,  atk:16, xp:52, gold:[14,26], floors:[14,34] },
+            { name:'Obsidian Colossus',  icon:'🪨', level:4, hp:122, atk:19, xp:72, gold:[22,42], floors:[20,99] },
+            { name:'Void Crawler',       icon:'⚫', level:3, hp:70,  atk:17, xp:54, gold:[13,25], floors:[18,36] },
+            { name:'Flat Terror',        icon:'👹', level:4, hp:138, atk:21, xp:80, gold:[26,46], floors:[26,99] },
+            { name:'Basalt Titan',       icon:'🗿', level:4, hp:148, atk:22, xp:84, gold:[28,50], floors:[30,99] },
+            { name:'Deep Predator',      icon:'🐆', level:5, hp:165, atk:26, xp:96, gold:[34,58], floors:[36,99] },
+        ],
+        bosses: {
+            10: { name:'Razorfang the Dark Raptor',  icon:'🦅', level:4, hp:224, atk:20, xp:166, gold:[46,78],   desc:'A dark raptor of enormous wingspan, born in the permanent shadow of the Basalt Flats' },
+            20: { name:'Graverock the Basalt Golem', icon:'🗿', level:5, hp:392, atk:25, xp:302, gold:[88,144],  desc:'A basalt golem of staggering size, shaped by volcanic force over uncounted centuries' },
+            30: { name:'Voidscale the Shadow Drake', icon:'🐉', level:6, hp:555, atk:32, xp:480, gold:[165,250], desc:'A shadow drake who has claimed the flatlands as his territory, answering to nothing alive' },
+            40: { name:'The Obsidian Colossus',      icon:'🪨', level:7, hp:818, atk:40, xp:745, gold:[266,382], desc:'A colossus of pure obsidian that emerged from the basalt long before Varg ever walked the realm' },
+        },
+        loot: [
+            { id:'basalt_blade',         icon:'⚔',  name:'Basalt Blade',         desc:'A sword forged from basalt volcanic rock. Heavy, dark, and unyielding.',            stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
+            { id:'obsidian_axe',         icon:'🪓', name:'Obsidian Axe',         desc:'An axe head of pure obsidian. Razor-sharp and absolutely brutal.',                  stat:'STR +6', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,22] },
+            { id:'dark_raptor_lance',    icon:'🔱', name:'Dark Raptor Lance',    desc:'A lance tipped with a dark raptor talon. Swift and piercing.',                      stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[12,18] },
+            { id:'void_staff',           icon:'🪄', name:'Void Staff',           desc:'A staff of basalt and void crystal. Channels primal dark energy.',                  stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
+            { id:'obsidian_dagger',      icon:'🗡',  name:'Obsidian Dagger',      desc:'A dagger of pure obsidian. The edge lasts forever.',                               stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
+            { id:'basalt_plate',         icon:'🧥', name:'Basalt Plate',         desc:'Armor of volcanic basalt stone-plate. Nearly impenetrable.',                        stat:'ARM +8, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'dark_raptor_vest',     icon:'🥋', name:'Dark Raptor Vest',     desc:'Armor of dark raptor hide. Tough, silent, and slightly terrifying.',                stat:'ARM +5, DEX +5', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'void_shroud',          icon:'👘', name:'Void Shroud',          desc:'A robe of void-touched basalt fiber. Amplifies primal dark magic.',                 stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'basalt_greaves',       icon:'🦾', name:'Basalt Greaves',       desc:'Leg plates of volcanic basalt. Heavier than iron, stronger than stone.',           stat:'ARM +8, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'flat_stalker_boots',   icon:'🥾', name:'Stalker Boots',        desc:'Boots of flatland stalker hide. Built for silence on stone.',                      stat:'ARM +3, DEX +5', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'basalt_helm',          icon:'⛑',  name:'Basalt Helm',          desc:'A helm of volcanic basalt. Dense enough to stop a war hammer.',                    stat:'ARM +7, STR +4', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'obsidian_ring',        icon:'💍', name:'Obsidian Ring',        desc:'A ring of pure obsidian, cold and heavy with void resonance.',                     stat:'STR +3, DEX +3', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'basalt_shard',         icon:'🪨', name:'Basalt Shard',         desc:'A shard of basalt from the dark flats. Still resonates with void energy.',        stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    shadow_sanctum: {
+        id: 'shadow_sanctum',
+        name: 'The Shadow Sanctum',
+        icon: '🌑',
+        desc: 'Varg\'s inner sanctum. The deepest, darkest, most arcane corner of the Shadow Realm. Void cultists, ancient shadows, and things that should not exist guard it.',
+        flavor: 'Varg\'s innermost darkness',
+        color: '#6020a0',
+        enemies: [
+            { name:'Void Acolyte',       icon:'🧟', level:1, hp:28,  atk:9,  xp:16, gold:[4,10],  floors:[1,5]   },
+            { name:'Shadow Spawn',       icon:'👤', level:1, hp:34,  atk:9,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Dark Cultist',       icon:'🧙', level:2, hp:46,  atk:12, xp:28, gold:[6,14],  floors:[4,18]  },
+            { name:'Void Wraith',        icon:'👻', level:2, hp:44,  atk:14, xp:30, gold:[6,14],  floors:[5,20]  },
+            { name:'Sanctum Guard',      icon:'🛡', level:2, hp:58,  atk:12, xp:30, gold:[8,16],  floors:[6,22]  },
+            { name:'Shadow Priest',      icon:'☠',  level:3, hp:62,  atk:14, xp:46, gold:[11,22], floors:[8,28]  },
+            { name:'Void Stalker',       icon:'🌑', level:3, hp:70,  atk:16, xp:52, gold:[13,25], floors:[12,32] },
+            { name:'Sanctum Wraith',     icon:'💀', level:3, hp:68,  atk:17, xp:54, gold:[13,26], floors:[14,34] },
+            { name:'High Shadow Priest', icon:'☠',  level:4, hp:100, atk:18, xp:70, gold:[20,40], floors:[18,99] },
+            { name:'Void Colossus',      icon:'⚫', level:4, hp:128, atk:20, xp:80, gold:[26,46], floors:[24,99] },
+            { name:'Sanctum Devourer',   icon:'🌑', level:4, hp:140, atk:22, xp:84, gold:[28,50], floors:[28,99] },
+            { name:'Varg\'s Chosen',     icon:'😈', level:4, hp:148, atk:23, xp:88, gold:[30,52], floors:[32,99] },
+            { name:'Void Titan',         icon:'⚫', level:5, hp:168, atk:27, xp:98, gold:[36,60], floors:[38,99] },
+        ],
+        bosses: {
+            10: { name:'High Priest Malachar',       icon:'☠',  level:4, hp:226, atk:21, xp:168, gold:[48,80],   desc:'A dark cultist who gave his soul to Varg in exchange for power beyond mortal reckoning' },
+            20: { name:'The Sanctum Devourer',       icon:'🌑', level:5, hp:395, atk:26, xp:305, gold:[90,146],  desc:'An ancient entity of pure void energy that has been sealed in the sanctum since before Varg\'s rise' },
+            30: { name:'Varg\'s Shadow Hand',        icon:'😈', level:6, hp:558, atk:33, xp:482, gold:[166,252], desc:'Varg\'s closest lieutenant — a being of shadow and corrupted will given terrible physical form' },
+            40: { name:'The Void Eternal',           icon:'⚫', level:7, hp:825, atk:41, xp:750, gold:[268,385], desc:'An entity of pure void that has existed since before the realm had a name — Varg merely unleashed it' },
+        },
+        loot: [
+            { id:'sanctum_blade',        icon:'⚔',  name:'Sanctum Blade',        desc:'A sword of void-forged dark iron. Hums with Varg\'s corrupted power.',            stat:'STR +6', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[14,22] },
+            { id:'void_axe',             icon:'🪓', name:'Void Axe',             desc:'An axe infused with void energy. Each swing leaves a tear in the air.',           stat:'STR +6', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,23] },
+            { id:'shadow_lance',         icon:'🔱', name:'Shadow Lance',         desc:'A lance of pure shadow given physical form. Passes through resistance.',          stat:'STR +6', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,20] },
+            { id:'void_scepter',         icon:'🪄', name:'Void Scepter',         desc:'Varg\'s own scepter design. Channels void energy with terrifying efficiency.',    stat:'INT +7', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[11,17] },
+            { id:'shadow_fang',          icon:'🗡',  name:'Shadow Fang',          desc:'A dagger of crystallized shadow. Strikes leave wounds that resist healing.',      stat:'DEX +6', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
+            { id:'void_plate',           icon:'🧥', name:'Void Plate',           desc:'Armor forged in the void itself. Darkness made solid and impenetrable.',          stat:'ARM +9, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'sanctum_mail',         icon:'🥋', name:'Sanctum Mail',         desc:'Mail of void-tempered shadow iron. Absorbs arcane force.',                        stat:'ARM +6, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'void_robes',           icon:'👘', name:'Void Robes',           desc:'Robes of pure void essence. Amplifies shadow and arcane magic beyond measure.',   stat:'ARM +3, INT +8, MP +16', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'void_greaves',         icon:'🦾', name:'Void Greaves',         desc:'Leg armor of void-forged dark iron. Heavy with shadow energy.',                   stat:'ARM +9, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'shadow_treads',        icon:'🥾', name:'Shadow Treads',        desc:'Boots of crystallized shadow. Move silently through void and darkness.',          stat:'ARM +4, DEX +5', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'void_helm',            icon:'⛑',  name:'Void Helm',            desc:'A helm of void iron. The visor shows nothing — not even darkness.',              stat:'ARM +8, STR +5', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'shadow_mantle',        icon:'🧥', name:'Shadow Mantle',        desc:'A mantle of pure shadow. Absorbs light and projectiles alike.',                   stat:'ARM +4, INT +4', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
+            { id:'void_medallion',       icon:'📿', name:'Void Medallion',       desc:'A medallion of void crystal worn by Varg\'s Chosen. Radiates ancient dark power.', stat:'RES +5, INT +4', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'void_sigil_ring',      icon:'💍', name:'Void Sigil Ring',      desc:'A ring of void iron etched with Varg\'s sigil. Power absolute.',                 stat:'STR +4, INT +4', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'void_essence_pure',    icon:'🌑', name:'Pure Void Essence',    desc:'Crystallized pure void energy from the sanctum. The rarest material in existence.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    sunspire: {
+        id: 'sunspire',
+        name: 'The Sunspire',
+        icon: '🌟',
+        desc: 'A towering celestial structure of blinding white stone rising from the Realm of Light. Ancient divine sentinels have guarded it since before memory.',
+        flavor: 'Where light was first given form',
+        color: '#e8c840',
+        enemies: [
+            { name:'Solar Sprite',       icon:'✨', level:1, hp:26,  atk:8,  xp:15, gold:[3,9],   floors:[1,5]   },
+            { name:'Sunstone Sentinel',  icon:'🗿', level:1, hp:36,  atk:8,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Radiant Hound',      icon:'🐕', level:2, hp:48,  atk:11, xp:26, gold:[6,14],  floors:[4,18]  },
+            { name:'Spire Guardian',     icon:'🛡', level:2, hp:58,  atk:12, xp:30, gold:[8,16],  floors:[5,20]  },
+            { name:'Sunfire Mage',       icon:'🔮', level:2, hp:44,  atk:14, xp:30, gold:[6,14],  floors:[6,22]  },
+            { name:'Celestial Knight',   icon:'⚔',  level:3, hp:82,  atk:14, xp:48, gold:[13,25], floors:[8,28]  },
+            { name:'Solar Construct',    icon:'🌟', level:3, hp:90,  atk:14, xp:50, gold:[14,26], floors:[10,30] },
+            { name:'Radiant Wraith',     icon:'👻', level:3, hp:68,  atk:16, xp:52, gold:[13,25], floors:[14,34] },
+            { name:'Sunfire Colossus',   icon:'🔥', level:4, hp:120, atk:19, xp:72, gold:[22,42], floors:[20,99] },
+            { name:'Light Sentinel',     icon:'☀',  level:3, hp:75,  atk:17, xp:54, gold:[13,26], floors:[18,36] },
+            { name:'Solar Titan',        icon:'🌟', level:4, hp:138, atk:21, xp:80, gold:[26,46], floors:[26,99] },
+            { name:'Spire Colossus',     icon:'🗿', level:4, hp:148, atk:22, xp:84, gold:[28,50], floors:[30,99] },
+            { name:'Celestial Devourer', icon:'✨', level:5, hp:162, atk:25, xp:94, gold:[34,56], floors:[36,99] },
+        ],
+        bosses: {
+            10: { name:'The Sunstone Warden',      icon:'🗿', level:4, hp:222, atk:20, xp:164, gold:[46,78],   desc:'An ancient sunstone construct assigned to guard the Sunspire before the first mortal ever drew breath' },
+            20: { name:'Solara the Celestial Knight', icon:'⚔', level:5, hp:388, atk:25, xp:300, gold:[88,142], desc:'A celestial knight of immense radiant power who has never once allowed a trespasser to pass' },
+            30: { name:'The Solar Titan',          icon:'🌟', level:6, hp:550, atk:31, xp:475, gold:[162,245], desc:'A titan of pure solar energy given form — blazing, ancient, and completely without mercy' },
+            40: { name:'The Spire Eternal',        icon:'☀',  level:7, hp:808, atk:38, xp:740, gold:[262,376], desc:'The original guardian of the Sunspire — a being of concentrated solar power that predates the realm itself' },
+        },
+        loot: [
+            { id:'sunspire_blade',       icon:'⚔',  name:'Sunspire Blade',       desc:'A sword forged in the light of the Sunspire itself. The edge never dulls.',         stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
+            { id:'solar_axe',            icon:'🪓', name:'Solar Axe',            desc:'A war axe channeling solar energy. Strikes leave burning radiance.',               stat:'STR +6', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,22] },
+            { id:'celestial_spear',      icon:'🔱', name:'Celestial Spear',      desc:'A spear of pure light given physical form. Blinding and lethal.',                  stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[12,19] },
+            { id:'sunfire_staff',        icon:'🪄', name:'Sunfire Staff',        desc:'A staff of concentrated solar magic. Channels Fennyx\'s radiant power.',           stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
+            { id:'solar_dagger',         icon:'🗡',  name:'Solar Dagger',         desc:'A dagger of crystallized sunlight. Swift, bright, and merciless.',                 stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
+            { id:'sunspire_plate',       icon:'🧥', name:'Sunspire Plate',       desc:'Armor forged from sunstone. Gleams like the sun and turns blades like iron.',      stat:'ARM +7, STR +4', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'radiant_mail',         icon:'🥋', name:'Radiant Mail',         desc:'Chainmail of light-tempered solar iron. Blazes in the dark.',                      stat:'ARM +5, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'sunfire_robes',        icon:'👘', name:'Sunfire Robes',        desc:'Robes woven from concentrated sunfire. Amplifies all radiant and fire magic.',     stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'sunspire_greaves',     icon:'🦾', name:'Sunspire Greaves',     desc:'Leg plates of sunstone. Heavy with solar energy, impossible to crack.',            stat:'ARM +7, STR +4', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'solar_boots',          icon:'🥾', name:'Solar Boots',          desc:'Boots of radiant sunstone crystal. Warm and unyielding on any surface.',           stat:'ARM +3, DEX +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'sunspire_helm',        icon:'⛑',  name:'Sunspire Helm',        desc:'A helm of sunstone. The visor refracts light and blinds those who face you.',      stat:'ARM +6, STR +4', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'solar_shard',          icon:'🌟', name:'Solar Shard',          desc:'A shard of crystallized solar energy from the Sunspire. Warm to the touch always.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    radiant_plains: {
+        id: 'radiant_plains',
+        name: 'The Radiant Plains',
+        icon: '🌅',
+        desc: 'A vast expanse of blazing golden light in the Realm of Light. Solar creatures and celestial beasts roam an endless horizon of brilliance.',
+        flavor: 'An endless golden horizon',
+        color: '#e09020',
+        enemies: [
+            { name:'Plains Stalker',     icon:'🐆', level:1, hp:28,  atk:8,  xp:15, gold:[3,9],   floors:[1,5]   },
+            { name:'Solar Hare',         icon:'🐇', level:1, hp:24,  atk:9,  xp:14, gold:[3,8],   floors:[1,6]   },
+            { name:'Radiant Raptor',     icon:'🦅', level:2, hp:48,  atk:12, xp:26, gold:[6,14],  floors:[4,18]  },
+            { name:'Sunblaze Hound',     icon:'🐕', level:2, hp:52,  atk:12, xp:28, gold:[7,15],  floors:[5,20]  },
+            { name:'Light Crawler',      icon:'🦀', level:2, hp:44,  atk:13, xp:28, gold:[6,13],  floors:[6,22]  },
+            { name:'Celestial Beast',    icon:'🦁', level:3, hp:80,  atk:14, xp:48, gold:[13,25], floors:[8,28]  },
+            { name:'Solar Drake',        icon:'🐉', level:3, hp:88,  atk:15, xp:52, gold:[14,26], floors:[12,32] },
+            { name:'Radiant Colossus',   icon:'🌅', level:3, hp:95,  atk:15, xp:52, gold:[15,28], floors:[14,34] },
+            { name:'Sunfire Beast',      icon:'🔥', level:4, hp:122, atk:19, xp:72, gold:[22,42], floors:[20,99] },
+            { name:'Plains Titan',       icon:'🦣', level:4, hp:135, atk:21, xp:80, gold:[26,46], floors:[26,99] },
+            { name:'Solar Leviathan',    icon:'🐉', level:4, hp:148, atk:22, xp:84, gold:[28,50], floors:[30,99] },
+            { name:'Radiant Predator',   icon:'🐆', level:5, hp:162, atk:25, xp:94, gold:[34,56], floors:[36,99] },
+        ],
+        bosses: {
+            10: { name:'Auros the Radiant Raptor',   icon:'🦅', level:4, hp:220, atk:20, xp:162, gold:[46,78],   desc:'A radiant raptor of immense size whose wingspan blots out even the light of the plains' },
+            20: { name:'Solmane the Celestial Beast',icon:'🦁', level:5, hp:390, atk:25, xp:302, gold:[88,144],  desc:'A lion of pure solar energy, ancient and absolute, who has hunted these plains since the realm began' },
+            30: { name:'The Solar Drake King',       icon:'🐉', level:6, hp:552, atk:32, xp:478, gold:[164,248], desc:'A solar drake of legendary size who rules the Radiant Plains with fire, light, and total dominance' },
+            40: { name:'The Plains Eternal',         icon:'🌅', level:7, hp:815, atk:39, xp:742, gold:[264,380], desc:'A colossus of pure radiant energy that emerged from the plains at the dawn of the realm' },
+        },
+        loot: [
+            { id:'plains_blade',         icon:'⚔',  name:'Plains Blade',         desc:'A sword of golden solar steel, forged in the heat of the Radiant Plains.',         stat:'STR +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
+            { id:'radiant_axe',          icon:'🪓', name:'Radiant Axe',          desc:'An axe of radiant solar iron. Each swing trails golden light.',                    stat:'STR +6', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,22] },
+            { id:'solar_lance',          icon:'🔱', name:'Solar Lance',          desc:'A lance of sunfire crystal, balanced for the open plains.',                        stat:'DEX +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[12,18] },
+            { id:'plains_staff',         icon:'🪄', name:'Plains Staff',         desc:'A staff of golden celestial wood that channels the light of open sky.',            stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
+            { id:'radiant_dagger',       icon:'🗡',  name:'Radiant Dagger',       desc:'A dagger of crystallized solar light. Warm to the touch and blindingly fast.',    stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
+            { id:'plains_plate',         icon:'🧥', name:'Plains Plate',         desc:'Armor of solar-forged radiant iron. Blazes gold in any light.',                   stat:'ARM +7, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'sunblaze_vest',        icon:'🥋', name:'Sunblaze Vest',        desc:'Vest of radiant raptor hide. Lightweight and sun-hardened.',                      stat:'ARM +5, DEX +5', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'plains_robes',         icon:'👘', name:'Plains Robes',         desc:'Robes of woven solar light. Warm as the sun, light as air.',                      stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'radiant_greaves',      icon:'🦾', name:'Radiant Greaves',      desc:'Leg plates of solar-forged radiant iron. Impossibly bright.',                     stat:'ARM +7, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'plains_boots',         icon:'🥾', name:'Plains Boots',         desc:'Boots of celestial beast hide. Swift and sure on open ground.',                   stat:'ARM +3, DEX +5', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'radiant_ring',         icon:'💍', name:'Radiant Ring',         desc:'A ring of solar crystal, warm and glowing with Fennyx\'s blessing.',              stat:'STR +3, DEX +3', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'plains_shard',         icon:'🌅', name:'Plains Shard',         desc:'A shard of radiant crystal from the endless plains. Perpetually warm.',           stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    fennyx_sanctum: {
+        id: 'fennyx_sanctum',
+        name: "Fennyx's Sanctum",
+        icon: '✨',
+        desc: "The innermost sacred chamber of Fennyx's Realm of Light. Guarded by the most powerful celestial champions in existence. The deepest, most holy place in the realm.",
+        flavor: "Fennyx's innermost radiance",
+        color: '#f0e060',
+        enemies: [
+            { name:'Sanctum Acolyte',    icon:'✨', level:1, hp:28,  atk:9,  xp:16, gold:[4,10],  floors:[1,5]   },
+            { name:'Light Spawn',        icon:'☀',  level:1, hp:32,  atk:9,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Divine Initiate',    icon:'🧙', level:2, hp:46,  atk:12, xp:28, gold:[6,14],  floors:[4,18]  },
+            { name:'Celestial Wraith',   icon:'👻', level:2, hp:44,  atk:14, xp:30, gold:[6,14],  floors:[5,20]  },
+            { name:'Sanctum Protector',  icon:'🛡', level:2, hp:60,  atk:12, xp:30, gold:[8,16],  floors:[6,22]  },
+            { name:'Solar Priest',       icon:'☀',  level:3, hp:62,  atk:14, xp:46, gold:[11,22], floors:[8,28]  },
+            { name:'Light Stalker',      icon:'🌟', level:3, hp:70,  atk:16, xp:52, gold:[13,25], floors:[12,32] },
+            { name:'Sanctum Champion',   icon:'⚔',  level:3, hp:82,  atk:16, xp:54, gold:[14,26], floors:[14,34] },
+            { name:'High Solar Priest',  icon:'✨', level:4, hp:102, atk:18, xp:70, gold:[20,40], floors:[18,99] },
+            { name:'Celestial Colossus', icon:'☀',  level:4, hp:130, atk:20, xp:80, gold:[26,46], floors:[24,99] },
+            { name:'Sanctum Eternal',    icon:'🌟', level:4, hp:142, atk:22, xp:84, gold:[28,50], floors:[28,99] },
+            { name:"Fennyx's Chosen",    icon:'✨', level:4, hp:150, atk:23, xp:88, gold:[30,52], floors:[32,99] },
+            { name:'Solar Titan',        icon:'☀',  level:5, hp:170, atk:27, xp:98, gold:[36,60], floors:[38,99] },
+        ],
+        bosses: {
+            10: { name:'High Priest Aurelian',        icon:'☀',  level:4, hp:226, atk:21, xp:168, gold:[48,80],   desc:'A solar priest who dedicated his entire existence to Fennyx, granted power and eternal purpose in return' },
+            20: { name:'The Sanctum Colossus',        icon:'🌟', level:5, hp:395, atk:26, xp:305, gold:[90,146],  desc:'A colossus of pure celestial light, shaped by Fennyx and set to guard the sanctum\'s inner threshold' },
+            30: { name:"Fennyx's Light Hand",         icon:'✨', level:6, hp:560, atk:33, xp:483, gold:[166,252], desc:"Fennyx's most trusted champion — a being of radiant will and absolute divine power given physical form" },
+            40: { name:'The Light Eternal',           icon:'☀',  level:7, hp:828, atk:41, xp:752, gold:[270,388], desc:'A being of pure solar energy that has existed since before the realm had a name — Fennyx merely gave it purpose' },
+        },
+        loot: [
+            { id:'fennyx_blade',         icon:'⚔',  name:"Fennyx's Blade",        desc:"A sword blessed by Fennyx herself. Radiates warmth and strikes with divine certainty.", stat:'STR +6', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[14,22] },
+            { id:'celestial_axe',        icon:'🪓', name:'Celestial Axe',         desc:'An axe of divine solar iron, forged in the heart of the sanctum.',               stat:'STR +7', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[16,24] },
+            { id:'divine_lance',         icon:'🔱', name:'Divine Lance',          desc:'A lance of pure divine light. Passes through shadow like it does not exist.',    stat:'STR +6', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[14,21] },
+            { id:'fennyx_staff',         icon:'🪄', name:"Fennyx's Staff",        desc:"Fennyx's own staff design. Channels divine radiant energy with perfect clarity.", stat:'INT +8', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[12,18] },
+            { id:'light_fang',           icon:'🗡',  name:'Light Fang',            desc:'A dagger of crystallized divine light. Strikes leave wounds that glow with holy fire.', stat:'DEX +6', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
+            { id:'divine_plate',         icon:'🧥', name:'Divine Plate',          desc:'Armor forged in the heart of the sanctum. Blazes with Fennyx\'s blessing.',      stat:'ARM +9, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'sanctum_mail',         icon:'🥋', name:'Celestial Mail',        desc:'Mail of divine solar iron. Channels radiant energy into every strike.',          stat:'ARM +6, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'divine_robes',         icon:'👘', name:'Divine Robes',          desc:'Robes of pure divine radiance. The most powerful light-aspected garment in existence.', stat:'ARM +3, INT +9, MP +18', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'divine_greaves',       icon:'🦾', name:'Divine Greaves',        desc:'Leg armor of divine solar iron, forged in Fennyx\'s sanctum.',                   stat:'ARM +9, STR +5', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'celestial_treads',     icon:'🥾', name:'Celestial Treads',      desc:'Boots of divine solar crystal. Walk on light as easily as stone.',               stat:'ARM +4, DEX +5', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'divine_helm',          icon:'⛑',  name:'Divine Helm',           desc:'A helm of divine solar iron. Blazes so brightly enemies struggle to look at you.', stat:'ARM +8, STR +5', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'fennyx_mantle',        icon:'🧥', name:"Fennyx's Mantle",       desc:"A mantle of Fennyx's own blessing. Radiates warmth and repels shadow.",          stat:'ARM +4, INT +5', slot:'mantle', tags:['Light','Mantle'], stackable:false, type:'light' },
+            { id:'solar_medallion',      icon:'📿', name:'Solar Medallion',       desc:"A medallion of divine solar crystal worn by Fennyx's Chosen.",                   stat:'RES +5, INT +4', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'fennyx_sigil_ring',    icon:'💍', name:"Fennyx's Sigil Ring",   desc:"A ring bearing Fennyx's sigil. Radiates warmth and ancient divine power.",       stat:'STR +4, INT +4', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'solar_essence',        icon:'✨', name:'Pure Solar Essence',    desc:"Crystallized pure solar energy from Fennyx's sanctum. The rarest light material in existence.", stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
 };
 
 
@@ -7745,19 +8186,28 @@ const TOWN_DUNGEONS = {
     town: CITY_DUNGEONS,
     ironhold: ['iron_depths'],
     sunport: ['sunken_mariner'],
-    wolfhaven: ['ashwood'],
+    wolfhaven: ['ashwood', 'summerwood'],
     ironwood: ['ironwood_deep'],
     windmane: ['sunstone_steppe'],
+    shadow_realm: ['varg_wastes', 'basalt_flats', 'shadow_sanctum'],
+    light_realm: ['sunspire', 'radiant_plains', 'fennyx_sanctum'],
 };
 
 const DUNGEON_HOME_TOWN = {
     iron_depths: 'ironhold',
     sunken_mariner: 'sunport',
     ashwood: 'wolfhaven',
+    summerwood: 'wolfhaven',
     ironwood_deep: 'ironwood',
     sunstone_steppe: 'windmane',
     volcanic_depths: 'town',
     crystal_cavern: 'town',
+    varg_wastes: 'shadow_realm',
+    basalt_flats: 'shadow_realm',
+    shadow_sanctum: 'shadow_realm',
+    sunspire: 'light_realm',
+    radiant_plains: 'light_realm',
+    fennyx_sanctum: 'light_realm',
 };
 
 const TOWN_DISPLAY_NAMES = {
@@ -7767,6 +8217,8 @@ const TOWN_DISPLAY_NAMES = {
     wolfhaven: 'Wolfhaven',
     ironwood: 'Ironwood',
     windmane: 'Windmane',
+    shadow_realm: "Varg's Shadow Realm",
+    light_realm: "Fennyx's Realm of Light",
 };
 
 function getHomeTownForDungeon(dungeonId) {
@@ -8535,6 +8987,48 @@ function travelToWindmane() {
         KETHRA_TOWN_QUOTES[Math.floor(Math.random() * KETHRA_TOWN_QUOTES.length)];
     goToScreen('windmane');
     announce('Windmane. Centaur village on the open steppe. Chieftess Kethra greets you.');
+}
+
+// -- SHADOW REALM FUNCTIONS -----------------------------------
+const SHADOW_REALM_QUOTES = [
+    '"Varg\'s corruption runs deep here. Turn back while you still can."',
+    '"The darkness here is not natural. It watches."',
+    '"Every shadow in this realm has teeth."',
+    '"You feel Varg\'s presence pressing against your mind."',
+    '"The air tastes of ash and old blood."',
+];
+
+function travelToShadowRealm() {
+    if (!character) return;
+    document.getElementById('shadow-realm-hp').textContent = character.hp + ' / ' + character.maxHp;
+    document.getElementById('shadow-realm-mp').textContent = character.mp + ' / ' + character.maxMp;
+    document.getElementById('shadow-realm-gold').textContent = character.gold;
+    updateTownDungeonSub('shadow_realm');
+    document.getElementById('shadow-realm-quote').textContent =
+        SHADOW_REALM_QUOTES[Math.floor(Math.random() * SHADOW_REALM_QUOTES.length)];
+    goToScreen('shadow-realm');
+    announce("Varg's Shadow Realm. A corrupted dark domain. Two options: Dungeons or Flee to Safety.");
+}
+
+// -- REALM OF LIGHT FUNCTIONS -----------------------------------
+const LIGHT_REALM_QUOTES = [
+    '"Fennyx\'s light burns away all shadow here. Walk carefully — even radiance can blind."',
+    '"The light here is alive. It watches. It judges."',
+    '"No darkness survives in this realm. Not even in the corners of your heart."',
+    '"Fennyx built this place as an answer to Varg\'s corruption. It has never once faltered."',
+    '"The warmth here is real. But so is the danger."',
+];
+
+function travelToLightRealm() {
+    if (!character) return;
+    document.getElementById('light-realm-hp').textContent = character.hp + ' / ' + character.maxHp;
+    document.getElementById('light-realm-mp').textContent = character.mp + ' / ' + character.maxMp;
+    document.getElementById('light-realm-gold').textContent = character.gold;
+    updateTownDungeonSub('light_realm');
+    document.getElementById('light-realm-quote').textContent =
+        LIGHT_REALM_QUOTES[Math.floor(Math.random() * LIGHT_REALM_QUOTES.length)];
+    goToScreen('light-realm');
+    announce("Fennyx's Realm of Light. A radiant celestial domain. Two options: Dungeons or Return Home.");
 }
 
 function openWindmaneShop() {
