@@ -586,7 +586,129 @@
         .game-action-btn.primary { background: linear-gradient(135deg, #3a2a10, #6a5020); color: var(--gold-light); }
         .game-action-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
 
-        /* -- CHARACTER SHEET -- */
+        /* -- WOLF DICE -- */
+        .dice-tray {
+            display: flex; gap: 12px; justify-content: center;
+            flex-wrap: wrap; margin: 20px 0;
+        }
+        .die-btn {
+            width: 72px; height: 72px;
+            background: var(--bg-card); border: 2px solid #2a2a44;
+            border-radius: 14px; font-size: 2em; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s; position: relative;
+            flex-direction: column; gap: 2px;
+        }
+        .die-btn:hover:not(:disabled) { border-color: var(--gold-dim); transform: translateY(-2px); }
+        .die-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .die-btn.held {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.12);
+            box-shadow: 0 0 12px rgba(201,168,76,0.3);
+        }
+        .die-btn.held::after {
+            content: 'HELD';
+            position: absolute; bottom: 4px;
+            font-family: 'Cinzel', serif; font-size: 0.28em;
+            color: var(--gold); letter-spacing: 0.1em;
+        }
+        .die-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .die-face { font-size: 1em; line-height: 1; }
+        .dice-score-display {
+            background: var(--bg-card); border: 1px solid #2a2a44;
+            border-radius: 10px; padding: 14px 20px;
+            text-align: center; margin-bottom: 16px;
+        }
+        .dice-score-label {
+            font-family: 'Cinzel', serif; font-size: 0.7em;
+            color: var(--text-dim); letter-spacing: 0.12em;
+            text-transform: uppercase; margin-bottom: 4px;
+        }
+        .dice-score-value {
+            font-family: 'Cinzel', serif; font-size: 1.6em;
+            font-weight: 700; color: var(--gold);
+        }
+        .dice-combo-label {
+            font-size: 0.85em; color: var(--text-dim);
+            font-style: italic; margin-top: 4px;
+        }
+        .dice-rolls-left {
+            font-family: 'Cinzel', serif; font-size: 0.75em;
+            color: var(--gold-dim); letter-spacing: 0.1em;
+            text-align: center; margin-bottom: 16px;
+        }
+
+        /* -- WOLF TOWER -- */
+        .tower-area {
+            display: flex; gap: 8px; justify-content: center;
+            align-items: flex-end; margin: 16px 0;
+            min-height: 160px;
+        }
+        .tower-col {
+            display: flex; flex-direction: column;
+            align-items: center; flex: 1; gap: 0;
+            cursor: pointer; border-radius: 10px;
+            padding: 8px 4px; transition: background 0.15s;
+            border: 2px solid transparent; min-height: 160px;
+            justify-content: flex-end;
+        }
+        .tower-col:hover { background: rgba(201,168,76,0.06); }
+        .tower-col.selected { border-color: var(--gold); background: rgba(201,168,76,0.10); }
+        .tower-col:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .tower-peg {
+            width: 6px; height: 120px;
+            background: #3a3a55; border-radius: 3px;
+            position: absolute; bottom: 8px;
+            pointer-events: none;
+        }
+        .tower-col-inner {
+            display: flex; flex-direction: column-reverse;
+            align-items: center; gap: 3px;
+            position: relative; width: 100%;
+            min-height: 140px; justify-content: flex-start;
+            padding-bottom: 4px;
+        }
+        .tower-base {
+            width: 90%; height: 6px;
+            background: #3a3a55; border-radius: 3px;
+            margin-top: 4px; flex-shrink: 0;
+        }
+        .tower-label {
+            font-family: 'Cinzel', serif; font-size: 0.65em;
+            color: var(--text-dim); letter-spacing: 0.1em;
+            margin-top: 6px; text-align: center;
+        }
+        .disc {
+            height: 22px; border-radius: 5px;
+            display: flex; align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif; font-size: 0.6em;
+            color: var(--bg); font-weight: 700;
+            transition: all 0.15s; flex-shrink: 0;
+        }
+        .tower-stats {
+            display: flex; justify-content: center;
+            gap: 24px; margin-bottom: 12px;
+        }
+        .tower-stat {
+            font-family: 'Cinzel', serif; font-size: 0.75em;
+            color: var(--text-dim); letter-spacing: 0.08em;
+        }
+        .tower-stat span { color: var(--gold); font-weight: 700; }
+        .tower-difficulty {
+            display: flex; gap: 8px; justify-content: center;
+            flex-wrap: wrap; margin-bottom: 14px;
+        }
+        .tower-diff-btn {
+            font-family: 'Cinzel', serif; font-size: 0.7em;
+            padding: 6px 14px; border-radius: 6px;
+            border: 1px solid #2a2a44; background: var(--bg-card);
+            color: var(--text-dim); cursor: pointer; transition: all 0.15s;
+            letter-spacing: 0.06em;
+        }
+        .tower-diff-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+        .tower-diff-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.1); }
+        .tower-diff-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
         .char-portrait { background: var(--bg-card); border: 2px solid var(--gold-dim); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px; }
         .portrait-icon { font-size: 3.5em; display: block; margin-bottom: 8px; }
         .char-sheet-name { font-family: 'Cinzel', serif; font-size: 1.4em; font-weight: 700; color: var(--gold); }
@@ -1476,6 +1598,16 @@
             <span class="btn-label">Rune Code</span>
             <span class="btn-sub">Mastermind-style puzzle</span>
         </button>
+        <button class="menu-btn" onclick="openWolfDice()" aria-label="Play Wolf Dice, a press-your-luck dice game">
+            <span class="btn-icon" aria-hidden="true">🎲</span>
+            <span class="btn-label">Wolf Dice</span>
+            <span class="btn-sub">Roll, hold, press your luck</span>
+        </button>
+        <button class="menu-btn" onclick="openWolfTower()" aria-label="Play Wolf Tower, a towers of Hanoi puzzle">
+            <span class="btn-icon" aria-hidden="true">🗼</span>
+            <span class="btn-label">Wolf Tower</span>
+            <span class="btn-sub">Move the stack — fewest moves wins</span>
+        </button>
     </div>
 
     <button class="leave-shop-btn" onclick="leaveGameRoom()" aria-label="Leave the game room">
@@ -1511,7 +1643,7 @@
     <p class="screen-header">Game Room</p>
     <h2 class="screen-title">Rune Code</h2>
 
-    <p class="game-status" id="mastermind-status" role="status" aria-live="polite">Crack the four-rune code. Gold peg: right rune, right slot. Pale peg: right rune, wrong slot.</p>
+    <p class="game-status" id="mastermind-status" role="status" aria-live="polite">Crack the four-rune code. Gold marker: right rune, right slot. Pale marker: right rune, wrong slot.</p>
 
     <p class="fishing-hint" id="mastermind-hint">Tap a slot to focus it — tap again to cycle runes, or pick from the list below. Submit when all four are set. Ten tries, no penalty.</p>
 
@@ -1532,7 +1664,104 @@
     </button>
 </div>
 
-<!-- -- COMBAT -- -->
+<!-- -- WOLF DICE -- -->
+<div id="screen-wolf-dice" class="screen" role="main" aria-label="Wolf Dice game">
+    <p class="screen-header">Game Room</p>
+    <h2 class="screen-title">Wolf Dice</h2>
+
+    <p class="game-status" id="wolf-dice-status" role="status" aria-live="polite">Roll four dice. Hold the ones you want. Three rolls per round.</p>
+
+    <div class="dice-score-display" aria-label="Current score">
+        <div class="dice-score-label">Current Score</div>
+        <div class="dice-score-value" id="wolf-dice-score">0</div>
+        <div class="dice-combo-label" id="wolf-dice-combo">Roll to begin</div>
+    </div>
+
+    <div class="dice-rolls-left" id="wolf-dice-rolls-left" aria-live="polite">Rolls remaining: 3</div>
+
+    <div class="dice-tray" id="wolf-dice-tray" role="group" aria-label="Dice — tap to hold or release">
+        <button class="die-btn" id="wolf-die-0" onclick="wolfDiceToggleHold(0)" disabled aria-label="Die 1" aria-pressed="false">
+            <span class="die-face" id="wolf-die-face-0">🎲</span>
+        </button>
+        <button class="die-btn" id="wolf-die-1" onclick="wolfDiceToggleHold(1)" disabled aria-label="Die 2" aria-pressed="false">
+            <span class="die-face" id="wolf-die-face-1">🎲</span>
+        </button>
+        <button class="die-btn" id="wolf-die-2" onclick="wolfDiceToggleHold(2)" disabled aria-label="Die 3" aria-pressed="false">
+            <span class="die-face" id="wolf-die-face-2">🎲</span>
+        </button>
+        <button class="die-btn" id="wolf-die-3" onclick="wolfDiceToggleHold(3)" disabled aria-label="Die 4" aria-pressed="false">
+            <span class="die-face" id="wolf-die-face-3">🎲</span>
+        </button>
+    </div>
+
+    <div class="fishing-hint" id="wolf-dice-hint" aria-live="polite">Tap a die after rolling to hold it. Held dice won't be rerolled.</div>
+
+    <div class="game-actions">
+        <button class="game-action-btn primary" id="wolf-dice-roll-btn" onclick="wolfDiceRoll()" aria-label="Roll the dice">Roll Dice</button>
+        <button class="game-action-btn" id="wolf-dice-new-btn" onclick="requestNewWolfDice()" aria-label="Start a new Wolf Dice round">New Round</button>
+    </div>
+
+    <button class="leave-shop-btn" onclick="leaveWolfDice()" aria-label="Leave Wolf Dice">
+        ← Back to Game Room
+    </button>
+</div>
+
+<!-- -- WOLF TOWER (TOWERS OF HANOI) -- -->
+<div id="screen-wolf-tower" class="screen" role="main" aria-label="Wolf Tower puzzle">
+    <p class="screen-header">Game Room</p>
+    <h2 class="screen-title">Wolf Tower</h2>
+
+    <p class="game-status" id="wolf-tower-status" role="status" aria-live="polite">Move all discs to Tower B or C. Never place a larger disc on a smaller one.</p>
+
+    <div class="tower-stats" aria-label="Game stats">
+        <div class="tower-stat">Moves: <span id="wolf-tower-moves">0</span></div>
+        <div class="tower-stat">Best: <span id="wolf-tower-best">—</span></div>
+        <div class="tower-stat">Discs: <span id="wolf-tower-disc-count">4</span></div>
+    </div>
+
+    <div class="tower-difficulty" role="group" aria-label="Choose difficulty">
+        <button class="tower-diff-btn" onclick="wolfTowerSetDiscs(3)" id="tower-diff-3" aria-label="3 discs, easy">3 Discs</button>
+        <button class="tower-diff-btn active" onclick="wolfTowerSetDiscs(4)" id="tower-diff-4" aria-label="4 discs, default">4 Discs</button>
+        <button class="tower-diff-btn" onclick="wolfTowerSetDiscs(5)" id="tower-diff-5" aria-label="5 discs, hard">5 Discs</button>
+        <button class="tower-diff-btn" onclick="wolfTowerSetDiscs(6)" id="tower-diff-6" aria-label="6 discs, very hard">6 Discs</button>
+        <button class="tower-diff-btn" onclick="wolfTowerSetDiscs(7)" id="tower-diff-7" aria-label="7 discs, extreme">7 Discs</button>
+        <button class="tower-diff-btn" onclick="wolfTowerSetDiscs(8)" id="tower-diff-8" aria-label="8 discs, legendary">8 Discs</button>
+    </div>
+
+    <div class="tower-area" id="wolf-tower-area" role="group" aria-label="Tower columns — tap a tower to select or move">
+        <div class="tower-col" id="wolf-tower-col-0" onclick="wolfTowerTap(0)" tabindex="0"
+             onkeydown="if(event.key==='Enter'||event.key===' ')wolfTowerTap(0)"
+             aria-label="Tower A" role="button">
+            <div class="tower-col-inner" id="wolf-tower-inner-0"></div>
+            <div class="tower-base"></div>
+            <div class="tower-label">Tower A</div>
+        </div>
+        <div class="tower-col" id="wolf-tower-col-1" onclick="wolfTowerTap(1)" tabindex="0"
+             onkeydown="if(event.key==='Enter'||event.key===' ')wolfTowerTap(1)"
+             aria-label="Tower B" role="button">
+            <div class="tower-col-inner" id="wolf-tower-inner-1"></div>
+            <div class="tower-base"></div>
+            <div class="tower-label">Tower B</div>
+        </div>
+        <div class="tower-col" id="wolf-tower-col-2" onclick="wolfTowerTap(2)" tabindex="0"
+             onkeydown="if(event.key==='Enter'||event.key===' ')wolfTowerTap(2)"
+             aria-label="Tower C" role="button">
+            <div class="tower-col-inner" id="wolf-tower-inner-2"></div>
+            <div class="tower-base"></div>
+            <div class="tower-label">Tower C</div>
+        </div>
+    </div>
+
+    <div class="fishing-hint" id="wolf-tower-hint" aria-live="polite">Tap a tower to pick up its top disc. Tap another to place it. Never place a larger disc on a smaller one.</div>
+
+    <div class="game-actions">
+        <button class="game-action-btn" id="wolf-tower-new-btn" onclick="requestNewWolfTower()" aria-label="Start a new Wolf Tower puzzle">New Puzzle</button>
+    </div>
+
+    <button class="leave-shop-btn" onclick="leaveWolfTower()" aria-label="Leave Wolf Tower">
+        ← Back to Game Room
+    </button>
+</div>
 <!-- -- SETTINGS -- -->
 <div id="screen-settings" class="screen" role="main" aria-label="Settings">
     <p class="screen-header">Game</p>
@@ -3659,7 +3888,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -10556,12 +10785,12 @@ const MEMORY_SYMBOLS = [
 ];
 
 const MASTERMIND_RUNES = [
-    { id: 'flame', sym: '🔥', name: 'Flame' },
-    { id: 'tide',  sym: '💧', name: 'Tide' },
-    { id: 'stone', sym: '🪨', name: 'Stone' },
-    { id: 'gale',  sym: '💨', name: 'Gale' },
-    { id: 'void',  sym: '🌑', name: 'Void' },
-    { id: 'life',  sym: '🌿', name: 'Life' },
+    { id: 'flame',  sym: '🔥', name: 'Flame' },
+    { id: 'life',   sym: '🌿', name: 'Life' },
+    { id: 'light',  sym: '☀',  name: 'Light' },
+    { id: 'druid',  sym: '🌙', name: 'Druid' },
+    { id: 'shadow', sym: '🌑', name: 'Shadow' },
+    { id: 'wolf',   sym: '🐺', name: 'Wolf' },
 ];
 
 const MASTERMIND_MAX_GUESSES = 10;
@@ -10582,6 +10811,11 @@ function runeCodeInProgress() {
         || mastermindState.current.some(id => id !== null);
 }
 
+function wolfDiceInProgress() {
+    if (!wolfDiceState || wolfDiceState.done) return false;
+    return wolfDiceState.rolled;
+}
+
 function showGameRestartConfirm(gameName, onForfeit) {
     document.getElementById('game-restart-title').textContent = `Start New ${gameName}?`;
     document.getElementById('game-restart-body').textContent =
@@ -10599,6 +10833,10 @@ function closeGameRestartConfirm() {
         document.getElementById('memory-new-btn')?.focus();
     } else if (document.getElementById('screen-rune-mastermind')?.classList.contains('active')) {
         document.getElementById('mastermind-new-btn')?.focus();
+    } else if (document.getElementById('screen-wolf-dice')?.classList.contains('active')) {
+        document.getElementById('wolf-dice-new-btn')?.focus();
+    } else if (document.getElementById('screen-wolf-tower')?.classList.contains('active')) {
+        document.getElementById('wolf-tower-new-btn')?.focus();
     }
     announce('Kept your current game.');
 }
@@ -10626,6 +10864,14 @@ function requestNewRuneMastermind() {
     initRuneMastermind();
 }
 
+function requestNewWolfDice() {
+    if (wolfDiceInProgress()) {
+        showGameRestartConfirm('Wolf Dice', wolfDiceNewGame);
+        return;
+    }
+    wolfDiceNewGame();
+}
+
 function shuffleArray(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -10647,7 +10893,7 @@ function openGameRoom() {
     document.getElementById('game-room-status').textContent =
         'Play for fun. Small gold prizes, no penalties.';
     goToScreen('game-room');
-    announce('Greatwolf Game Room. Wolf Cards is a matching card game. Rune Code is a mastermind-style puzzle. No timers and no penalties.');
+    announce('Greatwolf Game Room. Wolf Cards is a matching card game. Rune Code is a mastermind-style puzzle. Wolf Dice is a press-your-luck dice game. Wolf Tower is a towers of Hanoi puzzle. No timers and no penalties.');
 }
 
 function leaveGameRoom() {
@@ -10841,7 +11087,7 @@ function initRuneMastermind() {
     document.getElementById('mastermind-history').innerHTML = '';
     document.getElementById('mastermind-status').className = 'game-status';
     document.getElementById('mastermind-status').textContent =
-        'Crack the four-rune code. Gold peg: right rune, right slot. Pale peg: right rune, wrong slot.';
+        'Crack the four-rune code. Gold marker: right rune, right slot. Pale marker: right rune, wrong slot.';
     renderMastermindUI();
     announce('New Rune Code puzzle. Four hidden runes, six colors, ten guesses. Tap a slot to focus it, tap again to cycle runes, or pick from the rune list. Submit when all four slots are filled.');
     document.getElementById('mastermind-slots').querySelector('button')?.focus();
@@ -10856,6 +11102,437 @@ function openRuneMastermind() {
 function leaveRuneMastermind() {
     mastermindState = null;
     openGameRoom();
+}
+
+// -- WOLF DICE ------------------------------------------------
+
+const WOLF_DICE_FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+const WOLF_DICE_COMBOS = [
+    {
+        name: 'Wolfpack',
+        desc: 'Four of a kind',
+        goldMin: 80, goldMax: 120,
+        xp: 40,
+        check: (v) => Object.values(freq(v)).some(c => c === 4),
+    },
+    {
+        name: 'Full Den',
+        desc: 'Three of a kind + a pair',
+        goldMin: 50, goldMax: 75,
+        xp: 28,
+        check: (v) => { const f = Object.values(freq(v)); return f.includes(3) && f.includes(1) === false && f.length === 2; },
+    },
+    {
+        name: 'Wolf Straight',
+        desc: 'Four consecutive numbers',
+        goldMin: 45, goldMax: 65,
+        xp: 25,
+        check: (v) => {
+            const s = [...new Set(v)].sort((a,b)=>a-b);
+            if (s.length < 4) return false;
+            for (let i = 0; i <= s.length - 4; i++) {
+                if (s[i+3] - s[i] === 3 && s[i+1] - s[i] === 1 && s[i+2] - s[i+1] === 1) return true;
+            }
+            return false;
+        },
+    },
+    {
+        name: 'The Pack',
+        desc: 'Three of a kind',
+        goldMin: 28, goldMax: 45,
+        xp: 18,
+        check: (v) => Object.values(freq(v)).some(c => c === 3),
+    },
+    {
+        name: 'Two Pair',
+        desc: 'Two pairs',
+        goldMin: 16, goldMax: 28,
+        xp: 12,
+        check: (v) => Object.values(freq(v)).filter(c => c >= 2).length >= 2,
+    },
+    {
+        name: 'High Wolf',
+        desc: 'No combination — sum of dice',
+        goldMin: 4, goldMax: 12,
+        xp: 5,
+        check: () => true,
+    },
+];
+
+function freq(vals) {
+    return vals.reduce((acc, v) => { acc[v] = (acc[v] || 0) + 1; return acc; }, {});
+}
+
+function wolfDiceGetCombo(vals) {
+    return WOLF_DICE_COMBOS.find(c => c.check(vals)) || WOLF_DICE_COMBOS[WOLF_DICE_COMBOS.length - 1];
+}
+
+function wolfDiceCalcGold(combo, vals) {
+    if (combo.name === 'High Wolf') {
+        return vals.reduce((a, b) => a + b, 0);
+    }
+    return roll(combo.goldMin, combo.goldMax);
+}
+
+let wolfDiceState = null;
+
+function wolfDiceNewGame() {
+    wolfDiceState = {
+        dice: [0, 0, 0, 0],
+        held: [false, false, false, false],
+        rollsLeft: 3,
+        rolled: false,
+        done: false,
+    };
+    document.getElementById('wolf-dice-score').textContent = '0';
+    document.getElementById('wolf-dice-combo').textContent = 'Roll to begin';
+    document.getElementById('wolf-dice-rolls-left').textContent = 'Rolls remaining: 3';
+    document.getElementById('wolf-dice-status').textContent = 'Roll four dice. Hold the ones you want. Three rolls per round.';
+    document.getElementById('wolf-dice-status').className = 'game-status';
+    document.getElementById('wolf-dice-hint').textContent = 'Tap a die after rolling to hold it. Held dice won\'t be rerolled.';
+    document.getElementById('wolf-dice-roll-btn').disabled = false;
+    document.getElementById('wolf-dice-roll-btn').hidden = false;
+    document.getElementById('wolf-dice-roll-btn').textContent = 'Roll Dice';
+
+    for (let i = 0; i < 4; i++) {
+        const dieBtn = document.getElementById(`wolf-die-${i}`);
+        const dieFace = document.getElementById(`wolf-die-face-${i}`);
+        dieBtn.disabled = true;
+        dieBtn.classList.remove('held');
+        dieBtn.setAttribute('aria-pressed', 'false');
+        dieBtn.setAttribute('aria-label', `Die ${i + 1}`);
+        dieFace.textContent = '🎲';
+    }
+    announce('New Wolf Dice round. Three rolls. Roll the dice then tap any die to hold it before rerolling.');
+    document.getElementById('wolf-dice-roll-btn').focus();
+}
+
+function openWolfDice() {
+    if (!character) return;
+    goToScreen('wolf-dice');
+    wolfDiceNewGame();
+}
+
+function leaveWolfDice() {
+    wolfDiceState = null;
+    openGameRoom();
+}
+
+function wolfDiceToggleHold(i) {
+    if (!wolfDiceState || !wolfDiceState.rolled || wolfDiceState.done) return;
+    wolfDiceState.held[i] = !wolfDiceState.held[i];
+    const dieBtn = document.getElementById(`wolf-die-${i}`);
+    dieBtn.classList.toggle('held', wolfDiceState.held[i]);
+    dieBtn.setAttribute('aria-pressed', wolfDiceState.held[i] ? 'true' : 'false');
+    announce(`Die ${i + 1} — ${wolfDiceState.dice[i]} — ${wolfDiceState.held[i] ? 'held' : 'released'}.`);
+}
+
+function wolfDiceRoll() {
+    if (!wolfDiceState || wolfDiceState.rollsLeft <= 0 || wolfDiceState.done) return;
+
+    wolfDiceState.rollsLeft--;
+    wolfDiceState.rolled = true;
+
+    for (let i = 0; i < 4; i++) {
+        if (!wolfDiceState.held[i]) {
+            wolfDiceState.dice[i] = Math.floor(Math.random() * 6) + 1;
+        }
+        const dieFace = document.getElementById(`wolf-die-face-${i}`);
+        const dieBtn  = document.getElementById(`wolf-die-${i}`);
+        dieFace.textContent = WOLF_DICE_FACES[wolfDiceState.dice[i] - 1];
+        dieBtn.disabled = false;
+        dieBtn.setAttribute('aria-label', `Die ${i + 1}, showing ${wolfDiceState.dice[i]}${wolfDiceState.held[i] ? ', held' : ''}`);
+    }
+
+    const combo = wolfDiceGetCombo(wolfDiceState.dice);
+    const gold  = wolfDiceCalcGold(combo, wolfDiceState.dice);
+    document.getElementById('wolf-dice-score').textContent = gold;
+    document.getElementById('wolf-dice-combo').textContent = `${combo.name} — ${combo.desc}`;
+
+    const rollsLeft = wolfDiceState.rollsLeft;
+    document.getElementById('wolf-dice-rolls-left').textContent =
+        rollsLeft > 0 ? `Rolls remaining: ${rollsLeft}` : 'No rolls remaining — round over!';
+
+    const diceAnnounce = wolfDiceState.dice.map((v, i) => `Die ${i+1}: ${v}${wolfDiceState.held[i] ? ' (held)' : ''}`).join(', ');
+    announce(`${diceAnnounce}. ${combo.name}. Current score: ${gold} gold.${rollsLeft > 0 ? ` ${rollsLeft} roll${rollsLeft !== 1 ? 's' : ''} remaining.` : ' Round over.'}`);
+
+    if (rollsLeft <= 0) {
+        wolfDiceFinish(combo, gold);
+    } else {
+        document.getElementById('wolf-dice-roll-btn').textContent = `Reroll (${rollsLeft} left)`;
+        document.getElementById('wolf-dice-hint').textContent = `Tap dice to hold them, then reroll. ${rollsLeft} roll${rollsLeft !== 1 ? 's' : ''} left.`;
+    }
+}
+
+function wolfDiceFinish(combo, gold) {
+    wolfDiceState.done = true;
+    character.gold += gold;
+
+    let diceXP = combo.xp;
+    character.xp += diceXP;
+    let levelsGained = 0;
+    while (character.xp >= character.xpNext) {
+        character.xp -= character.xpNext;
+        character.level++;
+        character.xpNext = xpToNextLevel(character.level);
+        character.unspentPoints = (character.unspentPoints || 0) + 4;
+        character.maxHp += 10;
+        character.hp = Math.min(character.hp + 10, character.maxHp);
+        levelsGained++;
+    }
+    populateUI();
+    saveGame();
+
+    const lvlMsg = levelsGained > 0 ? ` Level Up! Now Level ${character.level}!` : '';
+    const statusEl = document.getElementById('wolf-dice-status');
+    statusEl.className = 'game-status win';
+    statusEl.textContent = `${combo.name}! +${gold} gold, +${diceXP} XP.${lvlMsg}`;
+    const rollBtn = document.getElementById('wolf-dice-roll-btn');
+    rollBtn.disabled = true;
+    rollBtn.hidden = true;
+    document.getElementById('wolf-dice-hint').textContent = 'Round complete. Start a new round or head back.';
+
+    showToast(`${combo.name}! +${gold} gold`);
+    showToast(levelsGained > 0 ? `+${diceXP} XP · Level Up!` : `+${diceXP} XP`);
+    announce(`Round complete. ${combo.name}. You earned ${gold} gold and ${diceXP} XP.${lvlMsg} New Round to play again.`);
+
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`wolf-die-${i}`).disabled = true;
+    }
+    document.getElementById('wolf-dice-new-btn').focus();
+}
+
+// -- WOLF TOWER (TOWERS OF HANOI) --------------------------
+
+const WOLF_TOWER_DISC_COLORS = [
+    '#c9a84c','#e05020','#3a6ea8','#40a060','#a040a0','#e0a020','#20a0a0','#c04060'
+];
+
+let wolfTowerState = null;
+
+function wolfTowerInProgress() {
+    if (!wolfTowerState || wolfTowerState.done) return false;
+    return wolfTowerState.moves > 0;
+}
+
+function wolfTowerMinMoves(n) { return Math.pow(2, n) - 1; }
+
+function wolfTowerGoldReward(discs, moves) {
+    const min = wolfTowerMinMoves(discs);
+    const base = discs * 18;
+    if (moves <= min)          return base + 40;
+    if (moves <= min * 1.5)    return base + 20;
+    if (moves <= min * 2)      return base + 8;
+    return base;
+}
+
+function wolfTowerXPReward(discs, moves) {
+    const min = wolfTowerMinMoves(discs);
+    const base = discs * 6;
+    if (moves <= min)          return base + 20;
+    if (moves <= min * 1.5)    return base + 10;
+    return base;
+}
+
+function wolfTowerBestKey() {
+    return `wolfTowerBest_${wolfTowerState.discs}`;
+}
+
+function wolfTowerGetBest() {
+    if (!character.gameData) return null;
+    return character.gameData[`wolfTowerBest_${wolfTowerState?.discs}`] || null;
+}
+
+function wolfTowerSaveBest(moves) {
+    if (!character.gameData) character.gameData = {};
+    const key = `wolfTowerBest_${wolfTowerState.discs}`;
+    const current = character.gameData[key];
+    if (!current || moves < current) {
+        character.gameData[key] = moves;
+        return true;
+    }
+    return false;
+}
+
+function wolfTowerInit(discs) {
+    wolfTowerState = {
+        discs,
+        towers: [
+            Array.from({ length: discs }, (_, i) => discs - i),
+            [],
+            [],
+        ],
+        selected: null,
+        moves: 0,
+        done: false,
+    };
+    document.getElementById('wolf-tower-moves').textContent = '0';
+    document.getElementById('wolf-tower-disc-count').textContent = discs;
+    const best = wolfTowerGetBest();
+    document.getElementById('wolf-tower-best').textContent = best ? best : '—';
+    document.getElementById('wolf-tower-status').className = 'game-status';
+    document.getElementById('wolf-tower-status').textContent = 'Move all discs to Tower B or C. Never place a larger disc on a smaller one.';
+    document.getElementById('wolf-tower-hint').textContent = 'Tap a tower to pick up its top disc. Tap another to place it. Move the full stack to Tower B or C.';
+    wolfTowerRender();
+    announce(`New Wolf Tower puzzle. ${discs} discs. Minimum possible moves: ${wolfTowerMinMoves(discs)}. Move all discs to Tower B or C. Tap Tower A to begin.`);
+    document.getElementById('wolf-tower-col-0').focus();
+}
+
+function wolfTowerSetDiscs(n) {
+    if (wolfTowerInProgress()) {
+        showGameRestartConfirm('Wolf Tower', () => {
+            wolfTowerApplyDiscs(n);
+        });
+        return;
+    }
+    wolfTowerApplyDiscs(n);
+}
+
+function wolfTowerApplyDiscs(n) {
+    [3,4,5,6,7,8].forEach(d => {
+        const btn = document.getElementById(`tower-diff-${d}`);
+        if (btn) btn.classList.toggle('active', d === n);
+    });
+    wolfTowerInit(n);
+}
+
+function wolfTowerRender() {
+    for (let t = 0; t < 3; t++) {
+        const inner = document.getElementById(`wolf-tower-inner-${t}`);
+        const col   = document.getElementById(`wolf-tower-col-${t}`);
+        if (!inner || !col) continue;
+        inner.innerHTML = '';
+        const tower = wolfTowerState.towers[t];
+        const maxDisc = wolfTowerState.discs;
+        const minW = 28, maxW = 92;
+
+        tower.forEach(size => {
+            const disc = document.createElement('div');
+            disc.className = 'disc';
+            const pct = (size - 1) / (maxDisc - 1 || 1);
+            const w = Math.round(minW + pct * (maxW - minW));
+            disc.style.width = `${w}%`;
+            disc.style.background = WOLF_TOWER_DISC_COLORS[(size - 1) % WOLF_TOWER_DISC_COLORS.length];
+            disc.textContent = size;
+            disc.setAttribute('aria-hidden', 'true');
+            inner.appendChild(disc);
+        });
+
+        col.classList.toggle('selected', wolfTowerState.selected === t);
+        const names = ['A','B','C'];
+        const topDisc = tower.length > 0 ? tower[tower.length - 1] : null;
+        const isSelected = wolfTowerState.selected === t;
+        col.setAttribute('aria-label',
+            `Tower ${names[t]}: ${tower.length === 0 ? 'empty' : `${tower.length} disc${tower.length !== 1 ? 's' : ''}, top disc size ${topDisc}`}${isSelected ? ', selected — tap another tower to place' : ', tap to select top disc'}`
+        );
+    }
+}
+
+function wolfTowerTap(t) {
+    if (!wolfTowerState || wolfTowerState.done) return;
+    const names = ['A','B','C'];
+    const { towers, selected } = wolfTowerState;
+
+    if (selected === null) {
+        if (towers[t].length === 0) {
+            announce(`Tower ${names[t]} is empty. Pick a tower with discs.`);
+            return;
+        }
+        wolfTowerState.selected = t;
+        wolfTowerRender();
+        const top = towers[t][towers[t].length - 1];
+        announce(`Picked up disc ${top} from Tower ${names[t]}. Now tap a tower to place it.`);
+        return;
+    }
+
+    if (selected === t) {
+        wolfTowerState.selected = null;
+        wolfTowerRender();
+        announce(`Deselected Tower ${names[t]}.`);
+        return;
+    }
+
+    const movingDisc = towers[selected][towers[selected].length - 1];
+    const targetTop  = towers[t].length > 0 ? towers[t][towers[t].length - 1] : null;
+
+    if (targetTop !== null && movingDisc > targetTop) {
+        announce(`Can't place disc ${movingDisc} on disc ${targetTop}. Larger disc cannot go on a smaller one.`);
+        return;
+    }
+
+    towers[t].push(towers[selected].pop());
+    wolfTowerState.selected = null;
+    wolfTowerState.moves++;
+    document.getElementById('wolf-tower-moves').textContent = wolfTowerState.moves;
+    wolfTowerRender();
+    announce(`Moved disc ${movingDisc} to Tower ${names[t]}. Moves: ${wolfTowerState.moves}.`);
+
+    if (towers[1].length === wolfTowerState.discs || towers[2].length === wolfTowerState.discs) {
+        wolfTowerFinish();
+    }
+}
+
+function wolfTowerFinish() {
+    wolfTowerState.done = true;
+    const { discs, moves } = wolfTowerState;
+    const min = wolfTowerMinMoves(discs);
+    const gold = wolfTowerGoldReward(discs, moves);
+    const xp   = wolfTowerXPReward(discs, moves);
+    const isNewBest = wolfTowerSaveBest(moves);
+
+    character.gold += gold;
+    character.xp   += xp;
+    let levelsGained = 0;
+    while (character.xp >= character.xpNext) {
+        character.xp -= character.xpNext;
+        character.level++;
+        character.xpNext = xpToNextLevel(character.level);
+        character.unspentPoints = (character.unspentPoints || 0) + 4;
+        character.maxHp += 10;
+        character.hp = Math.min(character.hp + 10, character.maxHp);
+        levelsGained++;
+    }
+    populateUI();
+    saveGame();
+
+    document.getElementById('wolf-tower-best').textContent = character.gameData[`wolfTowerBest_${discs}`];
+
+    const perfect = moves === min;
+    const bestMsg = isNewBest ? ' New best!' : '';
+    const perfMsg = perfect ? ' Perfect solution!' : '';
+    const lvlMsg  = levelsGained > 0 ? ` Level Up! Now Level ${character.level}!` : '';
+
+    const statusEl = document.getElementById('wolf-tower-status');
+    statusEl.className = 'game-status win';
+    statusEl.textContent = `Tower complete in ${moves} move${moves !== 1 ? 's' : ''}!${perfMsg}${bestMsg} +${gold} gold, +${xp} XP.${lvlMsg}`;
+    document.getElementById('wolf-tower-hint').textContent = `Minimum possible: ${min} moves. You used ${moves}.${perfect ? ' Perfect!' : ''}`;
+
+    showToast(`+${gold} gold · +${xp} XP`);
+    if (perfect) showToast('Perfect solution! 🐺');
+    else if (isNewBest) showToast('New best!');
+    announce(`Wolf Tower complete in ${moves} moves. Minimum was ${min}.${perfMsg}${bestMsg} You earned ${gold} gold and ${xp} XP.${lvlMsg} New Puzzle to play again.`);
+    document.getElementById('wolf-tower-new-btn').focus();
+}
+
+function openWolfTower() {
+    if (!character) return;
+    if (!character.gameData) character.gameData = {};
+    goToScreen('wolf-tower');
+    wolfTowerApplyDiscs(4);
+}
+
+function leaveWolfTower() {
+    wolfTowerState = null;
+    openGameRoom();
+}
+
+function requestNewWolfTower() {
+    if (wolfTowerInProgress()) {
+        showGameRestartConfirm('Wolf Tower', () => wolfTowerInit(wolfTowerState?.discs || 4));
+        return;
+    }
+    wolfTowerInit(wolfTowerState?.discs || 4);
 }
 
 function mastermindAllFilled() {
@@ -10955,7 +11632,7 @@ function mastermindSubmitGuess() {
     const score = scoreMastermindGuess(mastermindState.secret, guess);
     const guessNum = mastermindState.guesses.length + 1;
     const runeNames = guess.map(id => getRuneById(id).name).join(', ');
-    const feedback = `${score.gold} gold peg${score.gold !== 1 ? 's' : ''}, ${score.pale} pale peg${score.pale !== 1 ? 's' : ''}, ${score.miss} miss${score.miss !== 1 ? 'es' : ''}`;
+    const feedback = `${score.gold} gold marker${score.gold !== 1 ? 's' : ''}, ${score.pale} pale marker${score.pale !== 1 ? 's' : ''}, ${score.miss} miss${score.miss !== 1 ? 'es' : ''}`;
 
     mastermindState.guesses.push({ guess, score });
 
