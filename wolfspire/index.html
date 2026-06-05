@@ -3656,7 +3656,7 @@ function goToScreen(id) {
         document.getElementById('bottomNav').classList.remove('visible');
     }
     // Track current town
-    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane'].includes(id)) currentTown = id;
+    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm'].includes(id)) currentTown = id;
 
     // Music routing
     if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
@@ -4576,6 +4576,12 @@ function returnToTown() {
     } else if (home === 'windmane') {
         travelToWindmane();
         announce('You return to Windmane.');
+    } else if (home === 'shadow_realm') {
+        travelToShadowRealm();
+        announce("You return to Varg's Shadow Realm.");
+    } else if (home === 'light_realm') {
+        travelToLightRealm();
+        announce("You return to Fennyx's Realm of Light.");
     } else {
         goToScreen('town');
         announce('You return to Greatwolf City.');
@@ -9247,7 +9253,14 @@ function addJournalEntry(entry) {
 }
 
 function returnToCurrentTown() {
-    goToScreen(currentTown || 'town');
+    const t = currentTown || 'town';
+    if (t === 'shadow-realm') {
+        travelToShadowRealm();
+    } else if (t === 'light-realm') {
+        travelToLightRealm();
+    } else {
+        goToScreen(t);
+    }
     setActiveNav('nav-town');
 }
 
