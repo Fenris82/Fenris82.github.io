@@ -1401,7 +1401,7 @@
 <!-- -- NEW GAME CONFIRM OVERLAY -- -->
 <div class="confirm-overlay" id="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="confirm-title">Start New Game?</div>
+        <h2 class="confirm-title" id="confirm-title">Start New Game?</h2>
         <div class="confirm-body">This will replace your existing character. Your current progress will be lost.</div>
         <div class="confirm-buttons">
             <button class="confirm-btn danger" onclick="confirmNewGame()" aria-label="Yes, start a new game and delete current save">Yes, Start Over</button>
@@ -1413,7 +1413,7 @@
 <!-- -- ABOUT OVERLAY -- -->
 <div class="confirm-overlay" id="about-overlay" role="dialog" aria-modal="true" aria-labelledby="about-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="about-title">About Wolfspire</div>
+        <h2 class="confirm-title" id="about-title">About Wolfspire</h2>
         <div class="confirm-body" style="text-align:left;line-height:1.7">
             Wolfspire is a free, accessible RPG built on the belief that players deserve freedom -- no encumbrance, no forced builds, no pay-to-win.<br><br>
             Built with love by one developer.<br><br>
@@ -1896,6 +1896,7 @@
     <p class="combat-header" id="combat-floor-label">⚔ Floor 1  -  Encounter</p>
 
     <div class="enemy-card" aria-label="Enemy status">
+        <h3 class="sheet-section-label" style="margin-bottom:8px">Enemy</h3>
         <div class="enemy-header">
             <span class="enemy-icon" id="enemy-icon" aria-hidden="true">👺</span>
             <div>
@@ -1910,6 +1911,7 @@
     </div>
 
     <div class="player-status" aria-label="Your status">
+        <h3 class="sheet-section-label" style="margin-bottom:8px">Your Status</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
             <div class="player-status-name" id="combat-player-name">Hero</div>
             <div style="font-family:'Cinzel',serif;font-size:0.8em;color:var(--gold)" id="combat-gold" aria-label="Gold">💰 200</div>
@@ -1939,8 +1941,10 @@
         </div>
     </div>
 
+    <h3 class="sheet-section-label">Combat Log</h3>
     <div class="combat-log" id="combat-log" role="log" aria-label="Combat log" aria-live="polite"></div>
 
+    <h3 class="sheet-section-label">Actions</h3>
     <div class="combat-actions" role="group" aria-label="Combat actions">
         <div class="attack-row" id="attack-row">
             <button class="action-btn attack-btn" id="btn-attack" onclick="playerAttack('mainHand')" aria-label="Attack the enemy">
@@ -2754,7 +2758,7 @@
         </div>
     </div>
 
-    <p class="sheet-section-label">Primary Stats <span id="cs-unspent-badge" style="display:none;float:right;color:var(--gold);font-size:0.85em"></span></p>
+    <h3 class="sheet-section-label">Primary Stats <span id="cs-unspent-badge" style="display:none;float:right;color:var(--gold);font-size:0.85em"></span></h3>
     <div class="stats-grid" role="group" aria-label="Primary stats">
         <div class="stat-card" id="sc-str">
             <div class="stat-card-name">Strength</div>
@@ -2798,7 +2802,7 @@
         </div>
     </div>
 
-    <p class="sheet-section-label">Secondary Stats</p>
+    <h3 class="sheet-section-label">Secondary Stats</h3>
     <div class="stats-grid" role="group" aria-label="Secondary stats">
         <div class="stat-card secondary" id="sc-per">
             <div class="stat-card-name">Perception</div>
@@ -2832,7 +2836,7 @@
 
     <!-- Abilities -->
     <div style="margin-top:24px">
-        <div style="font-family:'Cinzel',serif;font-size:0.75em;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px">Known Abilities</div>
+        <h3 style="font-family:'Cinzel',serif;font-size:0.75em;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px">Known Abilities</h3>
         <div id="cs-abilities-list" style="display:flex;flex-direction:column;gap:8px"></div>
         <div id="cs-abilities-empty" style="display:none;font-size:0.95em;color:var(--text-dim);font-style:italic;padding:12px 0">No abilities learned yet. Visit Fennyx's Training Grounds.</div>
     </div>
@@ -2842,7 +2846,7 @@
     <h2 class="screen-title">Inventory</h2>
 
     <!-- Equipment slots -->
-    <p class="sheet-section-label">Equipped Gear</p>
+    <h3 class="sheet-section-label">Equipped Gear</h3>
     <div class="equip-grid" role="group" aria-label="Equipment slots">
         <div class="equip-slot" id="slot-head"     onclick="slotClick('head')"     aria-label="Head slot, empty" tabindex="0">
             <span class="slot-icon" aria-hidden="true">🪖</span><span class="slot-label">Head</span>
@@ -2896,7 +2900,7 @@
 
     <!-- Inventory bag -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px">
-        <p class="sheet-section-label" style="margin:0">Bag</p>
+        <h3 class="sheet-section-label" style="margin:0">Bag</h3>
         <button class="rename-btn" onclick="openInventoryFilter()" aria-label="Filter and sort your bag">Filter / Sort</button>
     </div>
     <div id="inv-bag" aria-label="Items in your bag">
@@ -2907,7 +2911,7 @@
 <!-- -- ACTION SHEET OVERLAY -- -->
 <div class="confirm-overlay" id="action-sheet-overlay" role="dialog" aria-modal="true" aria-labelledby="action-sheet-title" style="align-items:flex-end;padding:0">
     <div style="background:var(--bg-card);border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:500px">
-        <div class="confirm-title" id="action-sheet-title" style="margin-bottom:16px;font-size:1em">Filter & Sort</div>
+        <h2 class="confirm-title" id="action-sheet-title" style="margin-bottom:16px;font-size:1em">Filter & Sort</h2>
         <div id="action-sheet-options" style="display:flex;flex-direction:column;gap:8px"></div>
         <button class="reset-stats-btn" onclick="closeActionSheet()" aria-label="Cancel" style="margin-top:12px;color:var(--text-dim);border-color:#2a2a44">
             Cancel
@@ -2940,7 +2944,7 @@
 <!-- -- LOCK ITEM OVERLAY -- -->
 <div class="confirm-overlay" id="lock-item-overlay" role="dialog" aria-modal="true" aria-labelledby="lock-item-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="lock-item-title">Lock Item?</div>
+        <h2 class="confirm-title" id="lock-item-title">Lock Item?</h2>
         <div class="confirm-body" id="lock-item-body">Locked items cannot be sold or sacrificed at the Forge.</div>
         <div class="confirm-buttons">
             <button class="confirm-btn primary" onclick="confirmLockItem()" aria-label="Confirm lock item">Yes, Lock It</button>
@@ -2952,7 +2956,7 @@
 <!-- -- EQUIP SLOT OVERLAY -- -->
 <div class="confirm-overlay" id="equip-slot-overlay" role="dialog" aria-modal="true" aria-labelledby="equip-slot-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="equip-slot-title">Which hand?</div>
+        <h2 class="confirm-title" id="equip-slot-title">Which hand?</h2>
         <div class="confirm-body" id="equip-slot-body">Both hands are full. Choose which slot to replace.</div>
         <div class="confirm-buttons">
             <button class="confirm-btn primary" id="equip-slot-main-btn" onclick="confirmEquipToSlot('mainHand')" aria-label="Equip to main hand">Equip to Main Hand</button>
@@ -3033,7 +3037,7 @@
 <!-- -- LEVEL UP OVERLAY -- -->
 <div class="combat-result" id="levelup-overlay" role="dialog" aria-modal="true" aria-labelledby="levelup-title" style="background:rgba(0,0,0,0.92)">
     <span class="result-icon" aria-hidden="true">⬆</span>
-    <div class="result-title win" id="levelup-title">Level Up!</div>
+    <h2 class="result-title win" id="levelup-title">Level Up!</h2>
     <div class="result-body" id="levelup-body">You reached Level 2!</div>
 
     <div class="levelup-stats" id="levelup-stats" aria-label="Distribute stat points">
@@ -3104,7 +3108,7 @@
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
             <span style="font-size:2.5em" aria-hidden="true">✨</span>
             <div>
-                <div class="confirm-title" id="luminous-title" style="margin-bottom:2px">Luminous</div>
+                <h2 class="confirm-title" id="luminous-title" style="margin-bottom:2px">Luminous</h2>
                 <div style="font-family:'Cinzel',serif;font-size:0.7em;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase">High Priest of Fennyx</div>
             </div>
         </div>
@@ -3120,7 +3124,7 @@
 <!-- -- TRAVEL MENU -- -->
 <div class="combat-result" id="travel-overlay" role="dialog" aria-modal="true" aria-labelledby="travel-title" style="background:rgba(0,0,0,0.95)">
     <div class="overlay-panel">
-        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="travel-title">Where to?</div>
+        <h2 style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="travel-title">Where to?</h2>
         <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:16px">The road awaits beyond Greatwolf City.</div>
 
         <div class="overlay-panel-scroll">
@@ -3254,7 +3258,7 @@
 <!-- -- UNEQUIPPED WARNING -- -->
 <div class="confirm-overlay" id="unequipped-overlay" role="dialog" aria-modal="true" aria-labelledby="unequipped-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="unequipped-title">No Weapon Equipped</div>
+        <h2 class="confirm-title" id="unequipped-title">No Weapon Equipped</h2>
         <div class="confirm-body">You have no weapon equipped. Fighting barehanded is dangerous. Are you sure you want to enter?</div>
         <div class="confirm-buttons">
             <button class="confirm-btn danger" onclick="confirmEnterUnequipped()" aria-label="Enter anyway">Enter Anyway</button>
@@ -3266,7 +3270,7 @@
 <!-- -- DUNGEON SELECT OVERLAY -- -->
 <div class="combat-result" id="dungeon-select-overlay" role="dialog" aria-modal="true" aria-labelledby="dungeon-select-title" style="background:rgba(0,0,0,0.95)">
     <div class="overlay-panel">
-        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="dungeon-select-title">Choose Your Dungeon</div>
+        <h2 style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="dungeon-select-title">Choose Your Dungeon</h2>
         <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:16px">The path appears when you choose it. Where it leads, few ask.</div>
 
         <div id="dungeon-card-list" class="overlay-panel-scroll" role="list" aria-label="Available dungeons"></div>
@@ -3280,7 +3284,7 @@
 <!-- -- FLOOR SELECT OVERLAY -- -->
 <div class="confirm-overlay" id="floor-select-overlay" role="dialog" aria-modal="true" aria-labelledby="floor-select-title">
     <div class="confirm-card" style="max-width:400px">
-        <div class="confirm-title" id="floor-select-title">Enter the Dungeon</div>
+        <h2 class="confirm-title" id="floor-select-title">Enter the Dungeon</h2>
         <div class="confirm-body" id="floor-select-body">Choose a floor to start on.</div>
 
         <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0">
@@ -3310,7 +3314,7 @@
 <!-- -- RENAME OVERLAY -- -->
 <div class="confirm-overlay" id="rename-overlay" role="dialog" aria-modal="true" aria-labelledby="rename-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="rename-title">Rename Character</div>
+        <h2 class="confirm-title" id="rename-title">Rename Character</h2>
         <div class="confirm-body">Enter a new name for your character.</div>
         <input class="name-input" type="text" id="rename-input" placeholder="New name" maxlength="24" style="margin:12px 0 4px">
         <div id="rename-error" style="color:#ff6b6b;font-size:0.85em;min-height:20px;margin-bottom:8px"></div>
@@ -3324,7 +3328,7 @@
 <!-- -- RESET STATS OVERLAY -- -->
 <div class="confirm-overlay" id="reset-stats-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-stats-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="reset-stats-title">Reset Stat Points?</div>
+        <h2 class="confirm-title" id="reset-stats-title">Reset Stat Points?</h2>
         <div class="confirm-body">All stats will return to their minimums and you will receive all your points back. Your level, gold, and inventory are unaffected.</div>
         <div class="confirm-buttons">
             <button class="confirm-btn danger" onclick="confirmResetStats()" aria-label="Confirm stat reset">Yes, Reset Stats</button>
@@ -3336,7 +3340,7 @@
 <!-- -- DELETE CHARACTER OVERLAY -- -->
 <div class="confirm-overlay" id="delete-char-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-char-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="delete-char-title">Delete Character?</div>
+        <h2 class="confirm-title" id="delete-char-title">Delete Character?</h2>
         <div class="confirm-body" id="delete-char-body">This cannot be undone. All progress for this character will be lost.</div>
         <div class="confirm-buttons">
             <button class="confirm-btn danger" onclick="confirmDeleteChar()" aria-label="Confirm delete character">Yes, Delete</button>
@@ -3348,7 +3352,7 @@
 <!-- -- GAME ROOM RESTART CONFIRM -- -->
 <div class="confirm-overlay" id="game-restart-overlay" role="dialog" aria-modal="true" aria-labelledby="game-restart-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="game-restart-title">Start Over?</div>
+        <h2 class="confirm-title" id="game-restart-title">Start Over?</h2>
         <div class="confirm-body" id="game-restart-body">Your progress will be lost and you'll have to start over. Are you sure?</div>
         <div class="confirm-buttons">
             <button class="confirm-btn danger" id="game-restart-forfeit-btn" onclick="confirmGameRestart()" aria-label="Yes, forfeit current game and start over">Yes, Forfeit</button>
@@ -3360,7 +3364,7 @@
 <!-- -- FORGET ABILITY OVERLAY -- -->
 <div class="confirm-overlay" id="forget-ability-overlay" role="dialog" aria-modal="true" aria-labelledby="forget-ability-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="forget-ability-title">Forget Ability?</div>
+        <h2 class="confirm-title" id="forget-ability-title">Forget Ability?</h2>
         <div class="confirm-body" id="forget-ability-body">You will lose this skill and receive 30 gold. You can relearn it later at full price.</div>
         <div class="confirm-buttons">
             <button class="confirm-btn danger" onclick="confirmForgetAbility()" aria-label="Confirm forget ability">Forget (+30g)</button>
@@ -3372,7 +3376,7 @@
 <!-- -- CHARACTER ROSTER OVERLAY -- -->
 <div class="combat-result" id="roster-overlay" role="dialog" aria-modal="true" aria-labelledby="roster-title" style="background:rgba(0,0,0,0.95)">
     <div class="overlay-panel" onclick="event.stopPropagation()">
-        <div style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="roster-title">Your Characters</div>
+        <h2 style="font-family:'Cinzel',serif;font-size:1.6em;font-weight:700;color:var(--gold);margin-bottom:4px" id="roster-title">Your Characters</h2>
         <div style="font-style:italic;color:var(--text-dim);font-size:0.85em;margin-bottom:16px" id="roster-sub">Choose a character to play.</div>
 
         <div class="overlay-panel-scroll roster-list" id="roster-list" role="list" aria-label="Saved characters"></div>
@@ -3389,7 +3393,7 @@
 <!-- -- SELL CONFIRM OVERLAY -- -->
 <div class="confirm-overlay" id="sell-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="sell-confirm-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="sell-confirm-title">Sell Item?</div>
+        <h2 class="confirm-title" id="sell-confirm-title">Sell Item?</h2>
         <div class="confirm-body" id="sell-confirm-body">How many would you like to sell?</div>
 
         <!-- Quantity selector -- only shown for stackable items -->
@@ -3424,7 +3428,7 @@
 <!-- -- BUY CONFIRM OVERLAY -- -->
 <div class="confirm-overlay" id="buy-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="buy-confirm-title">
     <div class="confirm-card">
-        <div class="confirm-title" id="buy-confirm-title">Buy Item?</div>
+        <h2 class="confirm-title" id="buy-confirm-title">Buy Item?</h2>
         <div class="confirm-body" id="buy-confirm-body">How many would you like to buy?</div>
 
         <div id="buy-qty-row" style="margin:14px 0">
@@ -3459,7 +3463,7 @@
 <!-- -- FLOOR CLEAR OVERLAY -- -->
 <div class="combat-result" id="floor-clear-overlay" role="dialog" aria-modal="true" aria-labelledby="floor-clear-floor">
     <span class="result-icon" aria-hidden="true">🏰</span>
-    <div class="result-title win" id="floor-clear-floor">Floor 1 Cleared!</div>
+    <h2 class="result-title win" id="floor-clear-floor">Floor 1 Cleared!</h2>
     <div class="result-body" id="floor-clear-sub">You defeated all enemies on this floor.</div>
     <div class="result-buttons">
         <button class="result-btn primary" onclick="floorDescend()" aria-label="Descend to the next floor">
@@ -3477,7 +3481,7 @@
 <!-- -- COMBAT RESULT OVERLAY -- -->
 <div class="combat-result" id="combat-result" role="dialog" aria-modal="true" aria-labelledby="result-title">
     <span class="result-icon" id="result-icon" aria-hidden="true">🏆</span>
-    <div class="result-title" id="result-title">Victory!</div>
+    <h2 class="result-title" id="result-title">Victory!</h2>
     <div class="result-body" id="result-body">You defeated the enemy.</div>
     <div class="result-rewards" id="result-rewards" aria-label="Rewards earned"></div>
     <div class="result-buttons">
