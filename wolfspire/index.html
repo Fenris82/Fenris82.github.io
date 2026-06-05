@@ -10250,8 +10250,12 @@ function wolfhavenFishingCast() {
 
     if (line)    line.classList.add('casting');
     if (bobber)  bobber.classList.add('casting');
-    if (status)  status.textContent = 'Line in the water… watch the bobber.';
-    if (castBtn) castBtn.hidden = true;
+    if (status)  status.textContent = 'Line cast… waiting for a bite…';
+    if (castBtn) {
+        castBtn.disabled = true;
+        castBtn.textContent = 'Waiting…';
+        castBtn.setAttribute('aria-label', 'Waiting for a bite. Line is cast.');
+    }
     if (reelBtn) reelBtn.hidden = true;
 
     announce('Line cast. Watch the bobber and reel in when prompted.');
@@ -10264,23 +10268,18 @@ function wolfhavenFishingCast() {
         wolfhavenFishingState.phase = 'bite';
         if (line)    line.classList.add('bite');
         if (bobber)  { bobber.classList.add('bite'); bobber.textContent = '🟡'; }
-        if (status)  { status.textContent = '⚡ Bite! Reel it in!'; status.className = 'fishing-status bite'; }
-        if (reelBtn) { reelBtn.hidden = false; reelBtn.focus(); }
+        if (status)  { status.textContent = 'Something on the line! Reel when ready.'; status.className = 'fishing-status bite'; }
+        if (castBtn) castBtn.hidden = true;
+        if (reelBtn) {
+            reelBtn.hidden = false;
+            reelBtn.setAttribute('aria-label', 'Reel in your catch. Take your time.');
+        }
 
-        announce('Bite! Reel it in now!');
-
-        wolfhavenFishingState.waitTimer = setTimeout(() => {
-            wolfhavenFishingState.waitTimer = null;
-            if (wolfhavenFishingState.phase === 'bite') {
-                wolfhavenFishingState.phase = 'idle';
-                if (bobber)  bobber.textContent = '🔴';
-                if (status)  { status.textContent = 'It got away. Cast again when ready.'; status.className = 'fishing-status'; }
-                if (reelBtn) reelBtn.hidden = true;
-                resetWolfhavenFishingUI();
-                wolfhavenFishingFocusCastSoon();
-                announce('The fish got away. Cast again.');
-            }
-        }, 2400);
+        announce('Bite! Reel In when you are ready. No time limit.');
+        setTimeout(() => {
+            const btn = document.getElementById('wolfhaven-fishing-reel-btn');
+            if (btn && !btn.hidden && wolfhavenFishingState.phase === 'bite') btn.focus();
+        }, 120);
     }, waitMs);
 }
 
