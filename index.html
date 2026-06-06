@@ -499,6 +499,57 @@
         .discord-btn:hover { background: #4752c4; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(88,101,242,0.45); }
         .discord-btn:focus { outline: 3px solid #8891f5; outline-offset: 3px; }
 
+        /* ── SOCIAL ICONS ── */
+        .social-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            border: 1px solid #2a2a3a;
+            background: transparent;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 1em;
+            transition: all 0.2s;
+        }
+        .social-link:hover { border-color: var(--gold-dim); color: var(--gold); background: rgba(201,168,76,0.08); transform: translateY(-2px); }
+        .social-link:focus { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+        .social-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .social-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #2a2a3a;
+            background: rgba(255,255,255,0.02);
+            color: var(--text-dim);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75em;
+            letter-spacing: 0.06em;
+            transition: all 0.2s;
+        }
+        .social-pill:hover { border-color: var(--gold-dim); color: var(--gold); background: rgba(201,168,76,0.06); transform: translateY(-2px); }
+        .social-pill:focus { outline: 3px solid var(--gold); outline-offset: 3px; }
+        .social-pill-icon { font-size: 1.1em; }
+
         /* ── FOOTER ── */
         footer {
             border-top: 1px solid rgba(201,168,76,0.1);
@@ -528,10 +579,134 @@
         .fade-in-3 { animation-delay: 0.4s; }
         .fade-in-4 { animation-delay: 0.55s; }
 
+        /* ── HAMBURGER BUTTON ── */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 38px;
+            height: 38px;
+            background: transparent;
+            border: 1px solid #2a2a3a;
+            border-radius: 7px;
+            cursor: pointer;
+            padding: 8px;
+            transition: border-color 0.2s;
+            z-index: 200;
+            flex-shrink: 0;
+        }
+        .hamburger:hover { border-color: var(--gold-dim); }
+        .hamburger:focus { outline: 3px solid var(--gold); outline-offset: 3px; }
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 1.5px;
+            background: var(--text-dim);
+            border-radius: 2px;
+            transition: all 0.25s ease;
+            transform-origin: center;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: var(--gold); }
+        .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--gold); }
+
+        /* ── MOBILE DRAWER ── */
+        .mobile-drawer {
+            display: none;
+            position: fixed;
+            top: 0; right: 0;
+            width: min(320px, 85vw);
+            height: 100vh;
+            background: #13131c;
+            border-left: 1px solid rgba(201,168,76,0.12);
+            z-index: 150;
+            padding: 80px 32px 40px;
+            flex-direction: column;
+            gap: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        .mobile-drawer.open { transform: translateX(0); }
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 140;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .drawer-overlay.open { opacity: 1; }
+
+        .drawer-section-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6em;
+            letter-spacing: 0.25em;
+            color: var(--gold-dim);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            margin-top: 32px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(201,168,76,0.1);
+        }
+        .drawer-section-label:first-child { margin-top: 0; }
+
+        .drawer-nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .drawer-nav-links a {
+            display: block;
+            padding: 12px 0;
+            font-family: 'Cinzel', serif;
+            font-size: 1em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .drawer-nav-links a:hover { color: var(--gold); }
+        .drawer-nav-links a:focus { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 2px; }
+
+        .drawer-social-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .drawer-social-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid #2a2a3a;
+            background: rgba(255,255,255,0.02);
+            color: var(--text-dim);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 0.78em;
+            letter-spacing: 0.06em;
+            transition: all 0.2s;
+        }
+        .drawer-social-link:hover { border-color: var(--gold-dim); color: var(--gold); background: rgba(201,168,76,0.06); }
+        .drawer-social-link:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .drawer-social-link svg { flex-shrink: 0; }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
             nav { padding: 14px 20px; }
             .nav-links { display: none; }
+            .social-links { display: none; }
+            .hamburger { display: flex; }
+            .mobile-drawer { display: flex; }
+            .drawer-overlay { display: block; }
             .about-grid { grid-template-columns: 1fr; gap: 32px; }
             .discord-card { padding: 32px 24px; }
             section { padding: 60px 20px; }
@@ -552,9 +727,95 @@
         <li><a href="#about">About</a></li>
         <li><a href="#community">Discord</a></li>
     </ul>
+    <div class="social-links" aria-label="Social media links">
+        <a href="https://www.facebook.com/share/17uLGJxg7x/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Greatwolf Games on Facebook" title="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://x.com/gamesgreat38683" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Greatwolf Games on X (Twitter)" title="X / Twitter">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://youtube.com/@greatwolfgames-official" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Greatwolf Games on YouTube" title="YouTube">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.96-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--bg)"/></svg>
+        </a>
+        <a href="https://discord.gg/yPhTvK9Eq" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Greatwolf Games Discord" title="Discord">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.031.054a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        </a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
 </nav>
 
-<!-- HERO -->
+<!-- MOBILE DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+<nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile navigation" aria-hidden="true">
+    <p class="drawer-section-label">Navigate</p>
+    <ul class="drawer-nav-links" role="list">
+        <li><a href="#" onclick="closeDrawer()">🐺 Home</a></li>
+        <li><a href="#games" onclick="closeDrawer()">🎮 Our Games</a></li>
+        <li><a href="#about" onclick="closeDrawer()">📖 About Us</a></li>
+        <li><a href="#community" onclick="closeDrawer()">💬 Community</a></li>
+    </ul>
+
+    <p class="drawer-section-label">Connect With Us</p>
+    <div class="drawer-social-links">
+        <a href="https://discord.gg/yPhTvK9Eq" target="_blank" rel="noopener noreferrer" class="drawer-social-link" onclick="closeDrawer()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.031.054a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Discord
+        </a>
+        <a href="https://www.facebook.com/share/17uLGJxg7x/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="drawer-social-link" onclick="closeDrawer()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Facebook
+        </a>
+        <a href="https://x.com/gamesgreat38683" target="_blank" rel="noopener noreferrer" class="drawer-social-link" onclick="closeDrawer()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X / Twitter
+        </a>
+        <a href="https://youtube.com/@greatwolfgames-official" target="_blank" rel="noopener noreferrer" class="drawer-social-link" onclick="closeDrawer()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.96-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#13131c"/></svg>
+            YouTube
+        </a>
+        <!-- TODO: Add Facebook Group link when available -->
+    </div>
+</nav>
+
+<script>
+    const hamburger = document.getElementById('hamburger');
+    const drawer = document.getElementById('mobile-drawer');
+    const overlay = document.getElementById('drawer-overlay');
+
+    function openDrawer() {
+        hamburger.classList.add('open');
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        drawer.setAttribute('aria-hidden', 'false');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        hamburger.classList.remove('open');
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        drawer.setAttribute('aria-hidden', 'true');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.contains('open') ? closeDrawer() : openDrawer();
+    });
+
+    overlay.addEventListener('click', closeDrawer);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+    });
+</script>
 <header class="hero" id="main" role="banner">
     <span class="hero-wolf fade-in fade-in-1" aria-hidden="true">🐺</span>
     <p class="hero-studio fade-in fade-in-1">Greatwolf Games</p>
@@ -591,7 +852,10 @@
                 </div>
             </div>
             <p class="game-desc">
-                A free, accessible RPG dungeon crawler. Build your character freely, choose from multiple dungeons to explore, discover powerful loot, and face legendary bosses. No paywalls. No energy timers. Just adventure.
+                A free, browser-based RPG dungeon crawler with no paywalls, no energy timers, and no compromises. Build your character across six attributes, then set out from Greatwolf City into a growing world of towns, dungeons, and secrets.<br><br>
+                Explore over 20 dungeons — volcanic depths, crystal caverns, frozen wastes, shadow realms, and more — each with their own enemies, unique loot, and boss encounters every ten floors. Level up, unlock skills and spells, forge your gear to ever-greater power, and equip across a full inventory system.<br><br>
+                When you're not fighting: fish at Sunport Harbor, play Wolf Cards, Rune Code, Wolf Dice, or Wolf Tower in the Game Room, or piece together the world's story through an in-game journal. Full screen reader and VoiceOver support built in from day one. Runs in any browser, on any device, no download required.<br><br>
+                <em>Wolfspire is actively in development — more dungeons, lore, music, sound effects, and ambience are on the way.</em>
             </p>
             <div class="game-tags" aria-label="Game tags">
                 <span class="game-tag">RPG</span>
@@ -677,12 +941,39 @@
         <a href="https://discord.gg/yPhTvK9Eq" target="_blank" rel="noopener noreferrer" class="discord-btn" aria-label="Join the Greatwolf Games Discord server">
             💬 Join the Discord
         </a>
+
+        <div class="social-row" aria-label="Follow us on social media">
+            <a href="https://www.facebook.com/share/17uLGJxg7x/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="Greatwolf Games on Facebook">
+                <span class="social-pill-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </span>
+                Facebook Page
+            </a>
+            <a href="https://www.facebook.com/share/g/18jYWUfhAt/" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="Greatwolf Games Facebook Group">
+                <span class="social-pill-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                </span>
+                Facebook Group
+            </a>
+            <a href="https://x.com/gamesgreat38683" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="Greatwolf Games on X">
+                <span class="social-pill-icon" aria-hidden="true">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </span>
+                X / Twitter
+            </a>
+            <a href="https://youtube.com/@greatwolfgames-official" target="_blank" rel="noopener noreferrer" class="social-pill" aria-label="Greatwolf Games on YouTube">
+                <span class="social-pill-icon" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.96-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#111118"/></svg>
+                </span>
+                YouTube
+            </a>
+        </div>
     </div>
 </section>
 
 <!-- FOOTER -->
 <footer role="contentinfo">
-    <p>© 2026 Greatwolf Games &nbsp;·&nbsp; <a href="wolfspire/" target="_blank">Play Wolfspire</a> &nbsp;·&nbsp; <a href="https://discord.gg/yPhTvK9Eq" target="_blank">Discord</a></p>
+    <p>© 2026 Greatwolf Games &nbsp;·&nbsp; <a href="wolfspire/" target="_blank">Play Wolfspire</a> &nbsp;·&nbsp; <a href="https://discord.gg/yPhTvK9Eq" target="_blank">Discord</a> &nbsp;·&nbsp; <a href="https://www.facebook.com/share/17uLGJxg7x/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer">Facebook</a> &nbsp;·&nbsp; <a href="https://www.facebook.com/share/g/18jYWUfhAt/" target="_blank" rel="noopener noreferrer">FB Group</a> &nbsp;·&nbsp; <a href="https://x.com/gamesgreat38683" target="_blank" rel="noopener noreferrer">X / Twitter</a> &nbsp;·&nbsp; <a href="https://youtube.com/@greatwolfgames-official" target="_blank" rel="noopener noreferrer">YouTube</a></p>
     <p style="margin-top:8px;color:#2a2a3a">greatwolfgames.com</p>
 </footer>
 
