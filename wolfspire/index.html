@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Wolfspire</title>
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#111118">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wolfspire">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="A free, accessible RPG dungeon crawler. No paywalls. No energy timers. Just adventure.">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- PWA icons for iOS (Apple requires linked PNGs — swap these paths for real icons when ready) -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
@@ -114,10 +130,52 @@
         .toggle-btn:focus { outline: 3px solid var(--gold); outline-offset: 3px; }
         .settings-slider {
             flex: 1;
-            height: 4px;
-            border-radius: 2px;
+            height: 6px;
+            border-radius: 3px;
             accent-color: var(--gold);
             cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #2a2a44;
+            outline: none;
+            touch-action: manipulation;
+            min-height: 44px;
+            padding: 19px 0;
+            box-sizing: border-box;
+        }
+        .settings-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            border: 2px solid var(--bg);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .settings-slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gold);
+            cursor: pointer;
+            border: 2px solid var(--bg);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .settings-slider::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 3px;
+            background: #2a2a44;
+        }
+        .settings-slider::-moz-range-track {
+            height: 6px;
+            border-radius: 3px;
+            background: #2a2a44;
+        }
+        .settings-slider:focus {
+            outline: 3px solid var(--gold);
+            outline-offset: 4px;
         }
         .slider-val {
             font-family: 'Cinzel', serif;
@@ -11734,6 +11792,23 @@ let currentTrackKey = null;
 const musicPlayer = new Audio();
 musicPlayer.loop = true;
 
+const ambPlayer = new Audio();
+ambPlayer.loop = true;
+
+function setVolume(type, value) {
+    const vol = parseFloat(value) / 100;
+    audioState[type].volume = vol;
+    const val = document.getElementById('val-' + type);
+    if (val) val.textContent = Math.round(vol * 100);
+    if (type === 'music' && audioState.music.enabled) {
+        musicPlayer.volume = vol;
+    }
+    if (type === 'amb' && audioState.amb.enabled) {
+        ambPlayer.volume = vol;
+    }
+    saveAudioPrefs();
+}
+
 function loadAudioPrefs() {
     try {
         const saved = localStorage.getItem('wolfspire_audio');
@@ -11793,16 +11868,6 @@ function toggleAudio(type) {
     announce(type + ' turned ' + (enabled ? 'on' : 'off') + '.');
 }
 
-function setVolume(type, value) {
-    const vol = parseFloat(value) / 100;
-    audioState[type].volume = vol;
-    const val = document.getElementById('val-' + type);
-    if (val) val.textContent = Math.round(vol * 100);
-    if (type === 'music' && audioState.music.enabled) {
-        musicPlayer.volume = vol;
-    }
-    saveAudioPrefs();
-}
 
 function playMusic(trackKey) {
     if (currentTrackKey === trackKey) return;
@@ -12120,6 +12185,15 @@ const navObserver = new MutationObserver(() => {
     if (btn) btn.style.display = navVisible ? 'flex' : 'none';
 });
 navObserver.observe(document.getElementById('bottomNav'), { attributes: true, attributeFilter: ['class'] });
+
+// -- PWA SERVICE WORKER REGISTRATION --
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Wolfspire SW registered:', reg.scope))
+            .catch(err => console.log('SW registration failed:', err));
+    });
+}
 </script>
 </body>
 </html>
