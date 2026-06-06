@@ -2063,6 +2063,11 @@
             <span class="btn-label">Grove Sanctum</span>
             <span class="btn-sub">Aelindra's wares</span>
         </button>
+        <button class="menu-btn" onclick="openWolfhavenFishing()" aria-label="Fish at the Still Pond">
+            <span class="btn-icon" aria-hidden="true">🎣</span>
+            <span class="btn-label">The Still Pond</span>
+            <span class="btn-sub">A quiet place to fish</span>
+        </button>
         <button class="menu-btn" onclick="openTownDungeonSelect('wolfhaven')" aria-label="Choose a dungeon near Wolfhaven">
             <span class="btn-icon" aria-hidden="true">🏚</span>
             <span class="btn-label">Dungeons</span>
@@ -2074,6 +2079,52 @@
             <span class="btn-sub">Back to Greatwolf City</span>
         </button>
     </div>
+</div>
+
+<!-- -- WOLFHAVEN FISHING -- -->
+<div id="screen-wolfhaven-fishing" class="screen" role="main" aria-label="Wolfhaven Still Pond">
+    <p class="screen-header">Wolfhaven</p>
+    <h2 class="screen-title">The Still Pond</h2>
+
+    <div class="shopkeeper-banner" aria-label="Pond atmosphere">
+        <span class="shopkeeper-icon" aria-hidden="true">🌿</span>
+        <div>
+            <div class="shopkeeper-name">The Still Pond</div>
+            <div class="shopkeeper-quote" id="wolfhaven-fishing-quote">"The water here has never seen the sea."</div>
+        </div>
+    </div>
+
+    <div class="town-vitals" aria-label="Your vitals">
+        <div class="vital-pill" aria-label="Hit points">
+            <span aria-hidden="true">❤</span>
+            <span id="wolfhaven-fishing-hp">100</span>
+        </div>
+        <div class="vital-pill" aria-label="Gold">
+            <span aria-hidden="true">💰</span>
+            <span id="wolfhaven-fishing-gold">200</span>
+        </div>
+    </div>
+
+    <div class="fishing-scene" id="wolfhaven-fishing-scene" aria-hidden="true">
+        <div class="fishing-pier"></div>
+        <div class="fishing-line" id="wolfhaven-fishing-line"></div>
+        <div class="fishing-bobber" id="wolfhaven-fishing-bobber">🔴</div>
+    </div>
+
+    <p class="fishing-status" id="wolfhaven-fishing-status" role="status" aria-live="polite">Line ready. Cast when you like.</p>
+
+    <div class="fishing-actions" role="group" aria-label="Fishing actions">
+        <button class="fishing-action-btn primary" id="wolfhaven-fishing-cast-btn" onclick="wolfhavenFishingCast()"
+            aria-label="Cast your fishing line">Cast Line</button>
+        <button class="fishing-action-btn accent" id="wolfhaven-fishing-reel-btn" onclick="wolfhavenFishingReel()" hidden
+            aria-label="Reel in your catch">Reel In</button>
+    </div>
+
+    <p class="fishing-hint" id="wolfhaven-fishing-hint" aria-live="polite">Most casts land something. PER helps. Misses cost nothing.</p>
+
+    <button class="leave-shop-btn" onclick="leaveWolfhavenFishing()" aria-label="Leave the Still Pond">
+        ← Leave Pond
+    </button>
 </div>
 
 <!-- -- WOLFHAVEN SHOP -- -->
@@ -3486,7 +3537,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','ironwood','windmane','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','game-room','memory-match','rune-mastermind','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -4626,11 +4677,11 @@ const LOOT_POOL = [
     { id:'dragon_scale',      icon:'🐉', name:'Dragon Scale',          desc:'A scale from a dragon spawn. Extremely tough.',         stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
     { id:'void_essence',      icon:'🌑', name:'Void Essence',          desc:'Crystallised void energy. Rare and powerful.',          stat:'Material',slot:'item',     tags:['Material'],                  stackable:true  },
     // -- FISHING (Sunport Pier) --
-    { id:'tide_minnow',       icon:'🐟', name:'Tide Minnow',           desc:'A common pier fish. Coastal cooks buy these by the basket.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
-    { id:'silver_sprat',      icon:'🐠', name:'Silver Sprat',          desc:'Shimmers like coin in the harbor light.',               stat:'Material', slot:'item', tags:['Material'], stackable:true },
-    { id:'brine_carp',        icon:'🎣', name:'Brine Carp',            desc:'A sturdy coastal carp. Good eating or good trade.',      stat:'Material', slot:'item', tags:['Material'], stackable:true },
-    { id:'moonscale',         icon:'🌙', name:'Moonscale',             desc:'A rare scale that gleams under moonlight. Artisans pay well.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
-    { id:'abyss_pearl',       icon:'🦪', name:'Abyss Pearl',           desc:'A pale pearl dredged from Sunport depths. Extremely rare.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+    { id:'tide_minnow',       icon:'🐟', name:'Tide Minnow',           desc:'A common pier fish. Restores a small amount of HP.',        stat:'HP +8%',   slot:'item', tags:['Consumable','Fish'], stackable:true },
+    { id:'silver_sprat',      icon:'🐠', name:'Silver Sprat',          desc:'Shimmers like coin in the harbor light. Restores a little HP.', stat:'HP +10%', slot:'item', tags:['Consumable','Fish'], stackable:true },
+    { id:'brine_carp',        icon:'🎣', name:'Brine Carp',            desc:'A sturdy coastal carp. Good eating — restores HP.',          stat:'HP +15%',  slot:'item', tags:['Consumable','Fish'], stackable:true },
+    { id:'moonscale',         icon:'🌙', name:'Moonscale',             desc:'A rare fish that gleams under moonlight. Restores HP.',      stat:'HP +20%',  slot:'item', tags:['Consumable','Fish'], stackable:true },
+    { id:'abyss_pearl',       icon:'🦪', name:'Abyss Pearl',           desc:'A pale pearl from Sunport depths. Restores a significant amount of HP.', stat:'HP +30%', slot:'item', tags:['Consumable','Fish'], stackable:true },
     { id:'salted_mackerel',   icon:'🥩', name:'Salted Mackerel',       desc:'Sun-dried pier catch. Restores 20% HP.',                stat:'HP +20%', slot:'item', tags:['Consumable'], stackable:true },
     { id:'grilled_brine_carp',icon:'🍖', name:'Grilled Brine Carp',    desc:'Hot off the dockside grill. Restores 25% HP.',            stat:'HP +25%', slot:'item', tags:['Consumable'], stackable:true },
     { id:'fishermans_broth',  icon:'🍲', name:"Fisherman's Broth",     desc:'A hearty coastal stew. Restores 30% MP.',               stat:'MP +30%', slot:'item', tags:['Consumable'], stackable:true },
@@ -4715,8 +4766,8 @@ function rollChestLoot() {
         }
     }
 
-    // Otherwise consumables and materials from the main loot pool
-    const chestPool = LOOT_POOL.filter(l => l.stackable || ['rusty_dagger','bone_club','cracked_bow','hunter_crossbow','torn_cloth','hide_scraps','iron_shard'].includes(l.id));
+    // Otherwise consumables and materials from the main loot pool — exclude fishing catches
+    const chestPool = LOOT_POOL.filter(l => !l.tags.includes('Fish') && (l.stackable || ['rusty_dagger','bone_club','cracked_bow','hunter_crossbow','torn_cloth','hide_scraps','iron_shard'].includes(l.id)));
     const idx = Math.max(0, Math.floor(Math.random() * chestPool.length) - Math.floor(perBonus / 5));
     return chestPool[idx] || chestPool[0];
 }
@@ -5577,6 +5628,26 @@ function useFromDetail() {
         const restore = Math.floor(character.maxMp * 0.3);
         character.mp = Math.min(character.maxMp, character.mp + restore);
         resultMsg = `Restored ${restore} MP!`;
+    } else if (item.id === 'tide_minnow') {
+        const restore = Math.floor(character.maxHp * 0.08);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
+    } else if (item.id === 'silver_sprat') {
+        const restore = Math.floor(character.maxHp * 0.10);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
+    } else if (item.id === 'brine_carp') {
+        const restore = Math.floor(character.maxHp * 0.15);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
+    } else if (item.id === 'moonscale') {
+        const restore = Math.floor(character.maxHp * 0.20);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
+    } else if (item.id === 'abyss_pearl') {
+        const restore = Math.floor(character.maxHp * 0.30);
+        character.hp = Math.min(character.maxHp, character.hp + restore);
+        resultMsg = `Restored ${restore} HP!`;
     }
 
     if (!resultMsg) {
@@ -9534,6 +9605,204 @@ function leaveSunportFishing() {
     clearFishingTimers();
     fishingState.phase = 'idle';
     travelToSunport();
+}
+
+// -- WOLFHAVEN POND FISHING ------------------------------------------
+
+const WOLFHAVEN_FISHING_QUOTES = [
+    '"The water here has never seen the sea."',
+    '"Still water. Still mind. Cast when ready."',
+    '"The pond has been here longer than the town."',
+    '"Patience lives here. So do fish."',
+    '"PER helps you land the tricky ones."',
+];
+
+let wolfhavenFishingState = { phase: 'idle', waitTimer: null, luckyCatch: false };
+
+function clearWolfhavenFishingTimers() {
+    if (wolfhavenFishingState.waitTimer) { clearTimeout(wolfhavenFishingState.waitTimer); wolfhavenFishingState.waitTimer = null; }
+}
+
+function resetWolfhavenFishingUI() {
+    const line   = document.getElementById('wolfhaven-fishing-line');
+    const bobber = document.getElementById('wolfhaven-fishing-bobber');
+    const status = document.getElementById('wolfhaven-fishing-status');
+    const castBtn = document.getElementById('wolfhaven-fishing-cast-btn');
+    const reelBtn = document.getElementById('wolfhaven-fishing-reel-btn');
+
+    if (line)   line.className   = 'fishing-line';
+    if (bobber) bobber.className = 'fishing-bobber';
+    if (status) {
+        status.className  = 'fishing-status';
+        status.textContent = 'Line ready. Cast when you like.';
+        status.setAttribute('aria-live', 'polite');
+    }
+    if (castBtn) {
+        castBtn.hidden   = false;
+        castBtn.disabled = false;
+        castBtn.textContent = 'Cast Line';
+        castBtn.setAttribute('aria-label', 'Cast your fishing line');
+    }
+    if (reelBtn) {
+        reelBtn.hidden = true;
+        reelBtn.setAttribute('aria-label', 'Reel in your catch');
+    }
+    const hint = document.getElementById('wolfhaven-fishing-hint');
+    if (hint && character) {
+        const per = character.stats.per || 1;
+        hint.textContent = `About ${formatFishingChancePct()}% land rate (PER ${per}). Misses cost nothing.`;
+    }
+}
+
+function openWolfhavenFishing() {
+    if (!character) return;
+    clearWolfhavenFishingTimers();
+    wolfhavenFishingState.phase = 'idle';
+    document.getElementById('wolfhaven-fishing-hp').textContent   = character.hp + ' / ' + character.maxHp;
+    document.getElementById('wolfhaven-fishing-gold').textContent = character.gold;
+    document.getElementById('wolfhaven-fishing-quote').textContent =
+        WOLFHAVEN_FISHING_QUOTES[Math.floor(Math.random() * WOLFHAVEN_FISHING_QUOTES.length)];
+    resetWolfhavenFishingUI();
+    goToScreen('wolfhaven-fishing');
+    announce(`Wolfhaven still pond. Cast your line, then Reel when you hear a bite. About ${formatFishingChancePct()} percent chance to land a catch. No penalty if you miss.`);
+}
+
+function leaveWolfhavenFishing() {
+    clearWolfhavenFishingTimers();
+    wolfhavenFishingState.phase = 'idle';
+    goToScreen('wolfhaven');
+}
+
+function wolfhavenFishingFocusCastSoon() {
+    setTimeout(() => {
+        const btn = document.getElementById('wolfhaven-fishing-cast-btn');
+        if (btn && !btn.hidden && wolfhavenFishingState.phase === 'idle') btn.focus();
+    }, 120);
+}
+
+function wolfhavenFishingCast() {
+    if (!character || (wolfhavenFishingState.phase !== 'idle' && wolfhavenFishingState.phase !== 'result')) return;
+
+    wolfhavenFishingState.phase     = 'waiting';
+    wolfhavenFishingState.luckyCatch = false;
+
+    const line   = document.getElementById('wolfhaven-fishing-line');
+    const bobber = document.getElementById('wolfhaven-fishing-bobber');
+    const status = document.getElementById('wolfhaven-fishing-status');
+    const castBtn = document.getElementById('wolfhaven-fishing-cast-btn');
+    const reelBtn = document.getElementById('wolfhaven-fishing-reel-btn');
+
+    if (line)    line.classList.add('casting');
+    if (bobber)  bobber.classList.add('casting');
+    if (status)  status.textContent = 'Line in the water… watch the bobber.';
+    if (castBtn) castBtn.hidden = true;
+    if (reelBtn) reelBtn.hidden = true;
+
+    announce('Line cast. Watch the bobber and reel in when prompted.');
+
+    const waitMs = 1800 + Math.random() * 2800;
+    wolfhavenFishingState.waitTimer = setTimeout(() => {
+        wolfhavenFishingState.waitTimer = null;
+        if (wolfhavenFishingState.phase !== 'waiting') return;
+
+        wolfhavenFishingState.phase = 'bite';
+        if (line)    line.classList.add('bite');
+        if (bobber)  { bobber.classList.add('bite'); bobber.textContent = '🟡'; }
+        if (status)  { status.textContent = '⚡ Bite! Reel it in!'; status.className = 'fishing-status bite'; }
+        if (reelBtn) { reelBtn.hidden = false; reelBtn.focus(); }
+
+        announce('Bite! Reel it in now!');
+
+        wolfhavenFishingState.waitTimer = setTimeout(() => {
+            wolfhavenFishingState.waitTimer = null;
+            if (wolfhavenFishingState.phase === 'bite') {
+                wolfhavenFishingState.phase = 'idle';
+                if (bobber)  bobber.textContent = '🔴';
+                if (status)  { status.textContent = 'It got away. Cast again when ready.'; status.className = 'fishing-status'; }
+                if (reelBtn) reelBtn.hidden = true;
+                resetWolfhavenFishingUI();
+                wolfhavenFishingFocusCastSoon();
+                announce('The fish got away. Cast again.');
+            }
+        }, 2400);
+    }, waitMs);
+}
+
+function wolfhavenFishingReel() {
+    if (!character || wolfhavenFishingState.phase !== 'bite') return;
+    clearWolfhavenFishingTimers();
+    wolfhavenFishingState.phase = 'result';
+
+    const line   = document.getElementById('wolfhaven-fishing-line');
+    const bobber = document.getElementById('wolfhaven-fishing-bobber');
+    const reelBtn = document.getElementById('wolfhaven-fishing-reel-btn');
+    if (line)    line.classList.remove('casting','bite');
+    if (bobber)  { bobber.classList.remove('casting','bite'); bobber.textContent = '🔴'; }
+    if (reelBtn) reelBtn.hidden = true;
+
+    const successChance = getFishingSuccessChance();
+    const hit = Math.random() < successChance;
+    const status = document.getElementById('wolfhaven-fishing-status');
+
+    if (!hit) {
+        const missLine = FISHING_MISS_LINES[Math.floor(Math.random() * FISHING_MISS_LINES.length)];
+        if (status) { status.textContent = missLine; status.className = 'fishing-status'; }
+        announce(missLine);
+        wolfhavenFishingState.phase = 'idle';
+        resetWolfhavenFishingUI();
+        wolfhavenFishingFocusCastSoon();
+        return;
+    }
+
+    const catchEntry = rollFishingCatch();
+    let msg = '';
+    let toastMsg = '';
+
+    if (catchEntry.gold) {
+        const g = catchEntry.gold[0] + Math.floor(Math.random() * (catchEntry.gold[1] - catchEntry.gold[0] + 1));
+        character.gold += g;
+        msg      = `You pulled up ${catchEntry.label} worth ${g} gold!`;
+        toastMsg = `+${g} gold`;
+    } else {
+        const template = getFishingItemTemplate(catchEntry.itemId);
+        if (template) {
+            const existing = character.inventory.find(i => i.id === template.id && i.stackable);
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                character.inventory.push({ ...template, quantity: 1, uid: Date.now() + Math.random() });
+            }
+            msg      = `You caught ${aOrAn(template.name)} ${template.name}!`;
+            toastMsg = template.name;
+        }
+    }
+
+    const fishXP = 10;
+    character.xp += fishXP;
+    let fishLevelsGained = 0;
+    while (character.xp >= character.xpNext) {
+        character.xp -= character.xpNext;
+        character.level++;
+        character.xpNext = xpToNextLevel(character.level);
+        character.unspentPoints = (character.unspentPoints || 0) + 4;
+        character.maxHp += 10;
+        character.hp = Math.min(character.hp + 10, character.maxHp);
+        fishLevelsGained++;
+    }
+    msg += ` +${fishXP} XP.`;
+    if (fishLevelsGained > 0) msg += ` Level Up! Now Level ${character.level}!`;
+
+    document.getElementById('wolfhaven-fishing-gold').textContent = character.gold;
+    populateUI();
+    saveGame();
+    showToast(fishLevelsGained > 0 ? `+${fishXP} XP · Level Up!` : `+${fishXP} XP`);
+    showToast(toastMsg);
+    announce(msg);
+
+    if (status) { status.textContent = msg; status.className = 'fishing-status win'; }
+    wolfhavenFishingState.phase = 'idle';
+    resetWolfhavenFishingUI();
+    wolfhavenFishingFocusCastSoon();
 }
 
 function fishingCast() {
