@@ -3833,12 +3833,12 @@ function loadGame() {
 function migrateGlobalHighestFloor() {
     if (!character) return;
     if (!character.dungeonHighest) character.dungeonHighest = {};
-    const allBests = Object.values(character.dungeonHighest);
-    const trueMax = allBests.length > 0 ? Math.max(...allBests) : (character.highestFloor || 1);
-    if (!character.highestFloor || trueMax > character.highestFloor) {
-        character.highestFloor = trueMax;
-        saveGame();
-    }
+    const allBests = Object.values(character.dungeonHighest).filter(v => typeof v === 'number' && v > 0);
+    const dungeonMax = allBests.length > 0 ? Math.max(...allBests) : 0;
+    const currentHighest = character.highestFloor || 0;
+    const trueMax = Math.max(dungeonMax, currentHighest, 1);
+    character.highestFloor = trueMax;
+    saveGame();
 }
 
 // -- POPULATE UI ------------------------------------------
@@ -8600,21 +8600,21 @@ function selectDungeon(dungeonId) {
     document.getElementById('dungeon-select-overlay').classList.remove('show');
 
     if (!character.dungeonHighest) character.dungeonHighest = {};
-    const highest = character.dungeonHighest[dungeonId] || 1;
-    character.highestFloor = highest;
+    const dungeonBest = character.dungeonHighest[dungeonId] || 1;
+    const globalHighest = character.highestFloor || 1;
 
     const dungeon = DUNGEONS[dungeonId];
     document.getElementById('floor-select-title').textContent = `Enter ${dungeon.name}`;
     document.getElementById('floor-btn-highest').textContent =
-        highest > 1 ? `Resume Floor ${highest}` : 'Start from Floor 1';
+        globalHighest > 1 ? `Jump to Floor ${globalHighest}` : 'Start from Floor 1';
     document.getElementById('floor-select-body').textContent =
-        highest > 1
-            ? `Your highest floor in ${dungeon.name} is ${highest}.`
+        globalHighest > 1
+            ? `Global highest floor: ${globalHighest}. ${dungeonBest > 1 ? `You've reached floor ${dungeonBest} here before.` : `You haven't explored ${dungeon.name} yet.`} Start anywhere up to floor ${globalHighest}.`
             : `Choose a floor to enter.`;
 
     document.getElementById('floor-input').value = '';
     document.getElementById('floor-select-overlay').classList.add('show');
-    announce(`${dungeon.name} selected. Floor select open.`);
+    announce(`${dungeon.name} selected. Your global highest floor is ${globalHighest}. Floor select open.`);
 }
 
 // -- DUNGEON ENEMY ROUTING --------------------------------
@@ -8763,11 +8763,10 @@ function loadCharacterFromSlot(slot) {
 
         // Migrate global highest floor for this character
         if (!character.dungeonHighest) character.dungeonHighest = {};
-        const allBests = Object.values(character.dungeonHighest);
-        const trueMax = allBests.length > 0 ? Math.max(...allBests) : (character.highestFloor || 1);
-        if (!character.highestFloor || trueMax > character.highestFloor) {
-            character.highestFloor = trueMax;
-        }
+        const allBests = Object.values(character.dungeonHighest).filter(v => typeof v === 'number' && v > 0);
+        const dungeonMax = allBests.length > 0 ? Math.max(...allBests) : 0;
+        const trueMax = Math.max(dungeonMax, character.highestFloor || 0, 1);
+        character.highestFloor = trueMax;
 
         return true;
     } catch(e) { return false; }
@@ -12217,9 +12216,7 @@ navObserver.observe(document.getElementById('bottomNav'), { attributes: true, at
 // -- PWA SERVICE WORKER REGISTRATION --
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Wolfspire SW registered:', reg.scope))
-            .catch(err => console.log('SW registration failed:', err));
+        navigator.serviceWorker.register('sw.js').catch(() => {});
     });
 }
 </script>
