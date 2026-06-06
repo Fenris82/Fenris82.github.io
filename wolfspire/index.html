@@ -5462,9 +5462,9 @@ function updateTownDungeonSub(townId) {
 
     if (dungeonIds.length === 1) {
         const dungeon = DUNGEONS[dungeonIds[0]];
-        const highest = (character.dungeonHighest || {})[dungeonIds[0]] || 1;
-        subEl.textContent = highest > 1
-            ? 'Highest: Floor ' + highest
+        const globalHighest = character.highestFloor || 1;
+        subEl.textContent = globalHighest > 1
+            ? 'Highest: Floor ' + globalHighest
             : (dungeon ? dungeon.flavor : 'Choose a dungeon');
     } else {
         subEl.textContent = dungeonIds.length + ' dungeons nearby';
@@ -6247,12 +6247,13 @@ function showDungeonSelectScreen() {
     dungeonIds.forEach(id => {
         const dungeon = DUNGEONS[id];
         if (!dungeon) return;
-        const highest = (character.dungeonHighest || {})[dungeon.id] || 1;
+        const dungeonBest = (character.dungeonHighest || {})[dungeon.id] || 0;
+        const globalHighest = character.highestFloor || 1;
         const card = document.createElement('div');
         card.style.cssText = 'background:var(--bg-card);border:1px solid #2a2a44;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s;';
         card.setAttribute('tabindex', '0');
         card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', `${dungeon.name}. ${dungeon.desc}. Highest floor: ${highest}.`);
+        card.setAttribute('aria-label', `${dungeon.name}. ${dungeon.desc}. Global highest floor: ${globalHighest}.${dungeonBest > 0 ? ` You have reached floor ${dungeonBest} here.` : ' Not yet explored.'}`);
         card.innerHTML = `
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
                 <span style="font-size:2em" aria-hidden="true">${dungeon.icon}<\/span>
@@ -6260,7 +6261,7 @@ function showDungeonSelectScreen() {
                     <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:${dungeon.color}">${dungeon.name}<\/div>
                     <div style="font-size:0.75em;color:var(--text-dim);font-style:italic">${dungeon.flavor}<\/div>
                 <\/div>
-                <div style="margin-left:auto;font-family:'Cinzel',serif;font-size:0.7em;color:var(--text-dim)">Floor ${highest}<\/div>
+                <div style="margin-left:auto;font-family:'Cinzel',serif;font-size:0.7em;color:var(--text-dim)">${dungeonBest > 0 ? `Best: ${dungeonBest}` : 'New'}<\/div>
             <\/div>
             <div style="font-size:0.9em;color:var(--text-dim);line-height:1.6">${dungeon.desc}<\/div>
         `;
