@@ -2978,7 +2978,7 @@
         Reset Stats
     </button>
 
-    <button class="reset-stats-btn" onclick="openRoster()" aria-label="Switch to a different character" style="border-color:#2a4a6a;color:#80c0ff;margin-top:8px">
+    <button class="reset-stats-btn" onclick="if(dungeonState){showToast('Return to town before switching characters!');announce('Cannot switch characters while in a dungeon.');}else{openRoster();}" aria-label="Switch to a different character" style="border-color:#2a4a6a;color:#80c0ff;margin-top:8px">
         Switch Character
     </button>
 
@@ -3661,8 +3661,8 @@
 
 <!-- -- BOTTOM NAV -- -->
 <nav class="bottom-nav" id="bottomNav" role="navigation" aria-label="Main navigation">
-    <button class="nav-btn active" id="nav-town" onclick="returnToCurrentTown()" aria-label="Town" aria-current="page">
-        <span class="nav-icon" aria-hidden="true">🏘</span><span class="nav-label">Town</span>
+    <button class="nav-btn active" id="nav-town" onclick="returnToCurrentTown()" aria-label="Adventure" aria-current="page">
+        <span class="nav-icon" aria-hidden="true">⚔</span><span class="nav-label">Adventure</span>
     </button>
     <button class="nav-btn" id="nav-character" onclick="goToScreen('character');setActiveNav('nav-character')" aria-label="Character">
         <span class="nav-icon" aria-hidden="true">🧙</span><span class="nav-label">Character</span>
@@ -4071,9 +4071,12 @@ function goToScreen(id) {
     document.getElementById('screen-'+id).classList.add('active');
     const nb = document.getElementById('nav-'+id);
     if (nb) { nb.classList.add('active'); nb.setAttribute('aria-current','page'); }
-    // Hide nav on title and create screens
+    // Hide nav on title and create screens, combat handles its own nav state
     if (id === 'title' || id === 'create') {
         document.getElementById('bottomNav').classList.remove('visible');
+    } else if (id !== 'combat') {
+        // Show nav on all other in-game screens
+        if (character) document.getElementById('bottomNav').classList.add('visible');
     }
     // Track current town
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold'].includes(id)) currentTown = id;
@@ -5333,10 +5336,10 @@ function openTreasureChest() {
     character.dungeonState = { ...dungeonState };
     saveGame(); populateUI();
 
-    // Build rewards display
+    // Build rewards display with tappable items
     let rewardHTML = '';
-    if (loot1) rewardHTML += `<div class="reward-line">🎁 ${loot1.name}<\/div>`;
-    if (loot2) rewardHTML += `<div class="reward-line">🎁 ${loot2.name}<\/div>`;
+    if (loot1) rewardHTML += `<div class="reward-line" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--gold-dim)" onclick="showItemDetailById('${loot1.id}')" role="button" tabindex="0" aria-label="View details for ${loot1.name}">🎁 ${loot1.name}<\/div>`;
+    if (loot2) rewardHTML += `<div class="reward-line" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--gold-dim)" onclick="showItemDetailById('${loot2.id}')" role="button" tabindex="0" aria-label="View details for ${loot2.name}">🎁 ${loot2.name}<\/div>`;
     if (!loot1) rewardHTML = `<div class="reward-line" style="color:#888">The chest was empty...<\/div>`;
 
     document.getElementById('result-icon').textContent = '📦';
@@ -6156,6 +6159,13 @@ function openDetail(invIndex, equippedSlot) {
     document.getElementById('item-detail-overlay').classList.add('show');
     const detailStat = formatInvStatLine(item);
     announce(`${item.name}${isItemLocked(item) ? ', locked' : ''}. ${item.desc}.${detailStat ? ' ' + detailStat + '.' : ''}`);
+}
+
+function showItemDetailById(itemId) {
+    if (!character) return;
+    const idx = character.inventory.findIndex(i => i.id === itemId);
+    if (idx === -1) return;
+    openDetail(idx, null);
 }
 
 function closeDetail() {
