@@ -795,6 +795,14 @@
 
         .sheet-section-label { font-family: 'Cinzel', serif; font-size: 0.7em; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #2a2a44; }
 
+        /* -- DUAL ENEMY -- */
+        .enemy-cards-row { display: flex; gap: 8px; }
+        .enemy-cards-row .enemy-card { flex: 1; min-width: 0; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+        .enemy-cards-row .enemy-card.focused { border-color: var(--gold); box-shadow: 0 0 10px rgba(201,168,76,0.3); }
+        .enemy-cards-row .enemy-card.defeated { opacity: 0.4; border-color: #2a2a44; pointer-events: none; }
+        .enemy-cards-row .enemy-name { font-size: 0.85em; }
+        .enemy-cards-row .enemy-level-text { font-size: 0.7em; }
+
         /* -- COMBAT -- */
         #screen-combat { padding: 14px 14px calc(var(--nav-height) + 14px); gap: 10px; }
         .combat-header { font-family: 'Cinzel', serif; font-size: 0.7em; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; text-align: center; }
@@ -1956,18 +1964,51 @@
 <div id="screen-combat" class="screen" role="main" aria-label="Combat">
     <p class="combat-header" id="combat-floor-label">⚔ Floor 1  -  Encounter</p>
 
-    <div class="enemy-card" aria-label="Enemy status">
-        <h3 class="sheet-section-label" style="margin-bottom:8px">Enemy</h3>
-        <div class="enemy-header">
-            <span class="enemy-icon" id="enemy-icon" aria-hidden="true">👺</span>
-            <div>
-                <div class="enemy-name" id="enemy-name">Goblin Scout</div>
-                <div class="enemy-level-text" id="enemy-level">Level 1  -  Common</div>
+    <div id="enemy-cards-container">
+        <div class="enemy-cards-row" id="enemy-cards-row" style="display:none">
+            <!-- Enemy 1 -->
+            <div class="enemy-card focused" id="enemy-card-1" onclick="combatSetFocus(0)" aria-label="Enemy 1 - tap to focus" role="button" tabindex="0">
+                <div class="enemy-header">
+                    <span class="enemy-icon" id="enemy-icon-1" aria-hidden="true">👺</span>
+                    <div>
+                        <div class="enemy-name" id="enemy-name-1">Enemy</div>
+                        <div class="enemy-level-text" id="enemy-level-1">Level 1</div>
+                    </div>
+                </div>
+                <div class="enemy-hp-label"><span>HP</span><span id="enemy-hp-label-1">30 / 30</span></div>
+                <div class="enemy-bar-track" role="progressbar" aria-label="Enemy 1 HP" id="enemy-hp-bar-wrap-1">
+                    <div class="enemy-bar-fill" id="enemy-hp-bar-1" style="width:100%"></div>
+                </div>
+            </div>
+            <!-- Enemy 2 -->
+            <div class="enemy-card" id="enemy-card-2" onclick="combatSetFocus(1)" aria-label="Enemy 2 - tap to focus" role="button" tabindex="0">
+                <div class="enemy-header">
+                    <span class="enemy-icon" id="enemy-icon-2" aria-hidden="true">👺</span>
+                    <div>
+                        <div class="enemy-name" id="enemy-name-2">Enemy</div>
+                        <div class="enemy-level-text" id="enemy-level-2">Level 1</div>
+                    </div>
+                </div>
+                <div class="enemy-hp-label"><span>HP</span><span id="enemy-hp-label-2">30 / 30</span></div>
+                <div class="enemy-bar-track" role="progressbar" aria-label="Enemy 2 HP" id="enemy-hp-bar-wrap-2">
+                    <div class="enemy-bar-fill" id="enemy-hp-bar-2" style="width:100%"></div>
+                </div>
             </div>
         </div>
-        <div class="enemy-hp-label"><span>HP</span><span id="enemy-hp-label">30 / 30</span></div>
-        <div class="enemy-bar-track" role="progressbar" aria-label="Enemy HP" id="enemy-hp-bar-wrap" aria-valuenow="30" aria-valuemin="0" aria-valuemax="30">
-            <div class="enemy-bar-fill" id="enemy-hp-bar" style="width:100%"></div>
+        <!-- Solo enemy card (original) -->
+        <div class="enemy-card" id="enemy-card-solo" aria-label="Enemy status">
+            <h3 class="sheet-section-label" style="margin-bottom:8px">Enemy</h3>
+            <div class="enemy-header">
+                <span class="enemy-icon" id="enemy-icon" aria-hidden="true">👺</span>
+                <div>
+                    <div class="enemy-name" id="enemy-name">Goblin Scout</div>
+                    <div class="enemy-level-text" id="enemy-level">Level 1  -  Common</div>
+                </div>
+            </div>
+            <div class="enemy-hp-label"><span>HP</span><span id="enemy-hp-label">30 / 30</span></div>
+            <div class="enemy-bar-track" role="progressbar" aria-label="Enemy HP" id="enemy-hp-bar-wrap" aria-valuenow="30" aria-valuemin="0" aria-valuemax="30">
+                <div class="enemy-bar-fill" id="enemy-hp-bar" style="width:100%"></div>
+            </div>
         </div>
     </div>
 
@@ -4145,50 +4186,97 @@ function startNextEncounter() {
         return;
     }
 
+    // 30% chance of dual encounter (not on boss floors, not on floor 1-4)
+    const dualChance = !isBossFloor && dungeonState.floor >= 5 && Math.random() < 0.30;
+
     const enemy = pickEnemyForDungeon();
 
     combat = {
         enemy,
+        enemy2: null,
+        focusedEnemy: 0, // 0 = enemy, 1 = enemy2
         playerHp: character.hp,
         playerMp: character.mp,
         playerTurn: true,
         over: false,
         defending: false,
         smokeBombActive: false,
-        floor: dungeonState.floor
+        floor: dungeonState.floor,
+        isDual: false,
     };
+
+    if (dualChance) {
+        const enemy2 = pickEnemyForDungeon();
+        // Reduce HP by 25% each for dual encounters
+        enemy.hp = Math.max(1, Math.floor(enemy.hp * 0.75));
+        enemy.maxHp = enemy.hp;
+        enemy2.hp = Math.max(1, Math.floor(enemy2.hp * 0.75));
+        enemy2.maxHp = enemy2.hp;
+        combat.enemy2 = enemy2;
+        combat.isDual = true;
+    }
 
     // Boss floor special UI
     const isBoss = enemy.isBoss;
-    const enemyCard = document.querySelector('.enemy-card');
-    if (isBoss) {
-        enemyCard.style.background = 'linear-gradient(135deg, #1a0a0a, #3a0808)';
-        enemyCard.style.borderColor = '#8a0000';
-        document.getElementById('enemy-name').style.color = '#ff4444';
-        document.getElementById('combat-floor-label').textContent = `💀 FLOOR ${dungeonState.floor}  -  BOSS ENCOUNTER`;
-        document.getElementById('combat-floor-label').style.color = '#ff4444';
-    } else {
-        enemyCard.style.background = '';
-        enemyCard.style.borderColor = '';
-        document.getElementById('enemy-name').style.color = '';
-        document.getElementById('combat-floor-label').style.color = '';
+    const diffLabel = dungeonState.floor >= 31 ? 'Abyssal' : dungeonState.floor >= 16 ? 'Dangerous' : dungeonState.floor >= 6 ? 'Threatening' : 'Common';
+
+    if (combat.isDual) {
+        // Show dual enemy cards
+        document.getElementById('enemy-card-solo').style.display = 'none';
+        document.getElementById('enemy-cards-row').style.display = 'flex';
+
+        document.getElementById('enemy-icon-1').textContent = enemy.icon;
+        document.getElementById('enemy-name-1').textContent = enemy.name;
+        document.getElementById('enemy-level-1').textContent = `Level ${enemy.level} - ${diffLabel}`;
+        setDualEnemyBar(0, enemy.hp, enemy.maxHp);
+
+        document.getElementById('enemy-icon-2').textContent = combat.enemy2.icon;
+        document.getElementById('enemy-name-2').textContent = combat.enemy2.name;
+        document.getElementById('enemy-level-2').textContent = `Level ${combat.enemy2.level} - ${diffLabel}`;
+        setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+
+        combatSetFocus(0);
         document.getElementById('combat-floor-label').textContent = `⚔ Floor ${dungeonState.floor}  -  Encounter ${dungeonState.encountersDone + 1} of ${dungeonState.encountersTotal}`;
+        document.getElementById('combat-floor-label').style.color = '';
+    } else {
+        // Solo enemy — original flow
+        document.getElementById('enemy-card-solo').style.display = '';
+        document.getElementById('enemy-cards-row').style.display = 'none';
+
+        const enemyCard = document.getElementById('enemy-card-solo');
+        if (isBoss) {
+            enemyCard.style.background = 'linear-gradient(135deg, #1a0a0a, #3a0808)';
+            enemyCard.style.borderColor = '#8a0000';
+            document.getElementById('enemy-name').style.color = '#ff4444';
+            document.getElementById('combat-floor-label').textContent = `💀 FLOOR ${dungeonState.floor}  -  BOSS ENCOUNTER`;
+            document.getElementById('combat-floor-label').style.color = '#ff4444';
+        } else {
+            enemyCard.style.background = '';
+            enemyCard.style.borderColor = '';
+            document.getElementById('enemy-name').style.color = '';
+            document.getElementById('combat-floor-label').style.color = '';
+            document.getElementById('combat-floor-label').textContent = `⚔ Floor ${dungeonState.floor}  -  Encounter ${dungeonState.encountersDone + 1} of ${dungeonState.encountersTotal}`;
+        }
+
+        document.getElementById('enemy-icon').textContent = enemy.icon;
+        document.getElementById('enemy-name').textContent = isBoss ? `⚠ ${enemy.name}` : enemy.name;
+        document.getElementById('enemy-level').textContent = isBoss
+            ? `${enemy.desc}`
+            : `Level ${enemy.level}  -  ${diffLabel}`;
+        setEnemyBar(enemy.hp, enemy.maxHp);
     }
 
-    document.getElementById('enemy-icon').textContent = enemy.icon;
-    document.getElementById('enemy-name').textContent = isBoss ? `⚠ ${enemy.name}` : enemy.name;
-    document.getElementById('enemy-level').textContent = isBoss
-        ? `${enemy.desc}`
-        : `Level ${enemy.level}  -  ${dungeonState.floor >= 31 ? 'Abyssal' : dungeonState.floor >= 16 ? 'Dangerous' : dungeonState.floor >= 6 ? 'Threatening' : 'Common'}`;
-
-    setEnemyBar(enemy.hp, enemy.maxHp);
     document.getElementById('combat-player-name').textContent = character.name;
     document.getElementById('combat-gold').textContent = `💰 ${character.gold}`;
     setCombatPlayerBars();
 
     const log = document.getElementById('combat-log');
     log.innerHTML = '';
-    if (isBoss) {
+    if (combat.isDual) {
+        addLog(`${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} and ${aOrAn(combat.enemy2.name)} ${combat.enemy2.name} appear!`, 'system');
+        addLog(`Tap an enemy card to switch your focus. Both will attack each turn!`, 'system');
+        announce(`Dual encounter! ${enemy.name} and ${combat.enemy2.name}. Tap enemy cards to switch focus. Both attack each turn.`);
+    } else if (isBoss) {
         addLog(`⚠ ${enemy.name} emerges from the darkness!`, 'defeat');
         addLog(enemy.desc + '.', 'system');
     } else {
@@ -4200,18 +4288,16 @@ function startNextEncounter() {
     document.getElementById('btn-defend').classList.remove('defending');
     document.getElementById('bottomNav').classList.remove('visible');
     updateAttackButtons();
-    // Show desktop combat log
     const logEntries = document.getElementById('desktop-log-entries');
     if (logEntries) logEntries.innerHTML = '';
     showDesktopCombatLog();
-    // Play boss or dungeon music
     playMusic(isBoss ? 'boss' : 'dungeon');
     goToScreen('combat');
 
-    const announceMsg = isBoss
-        ? `Boss encounter! ${enemy.name} appears. ${enemy.desc}. It has ${enemy.hp} HP. Your turn.`
-        : `Combat begins. ${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} appears with ${enemy.hp} HP. Your turn.`;
-    announce(announceMsg);
+    if (!isBoss && !combat.isDual) {
+        const announceText = `Combat begins. ${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} appears with ${enemy.hp} HP. Your turn.`;
+        announce(announceText);
+    }
 }
 
 function setEnemyBar(hp, maxHp) {
@@ -4220,6 +4306,36 @@ function setEnemyBar(hp, maxHp) {
     document.getElementById('enemy-hp-bar-wrap').setAttribute('aria-valuenow', Math.max(0,hp));
     document.getElementById('enemy-hp-bar-wrap').setAttribute('aria-valuemax', maxHp);
     document.getElementById('enemy-hp-label').textContent = `${Math.max(0,hp)} / ${maxHp}`;
+}
+
+function setDualEnemyBar(idx, hp, maxHp) {
+    const n = idx + 1;
+    const pct = Math.max(0, (hp / maxHp) * 100);
+    document.getElementById(`enemy-hp-bar-${n}`).style.width = pct + '%';
+    document.getElementById(`enemy-hp-label-${n}`).textContent = `${Math.max(0,hp)} / ${maxHp}`;
+}
+
+function combatSetFocus(idx) {
+    if (!combat || !combat.isDual) return;
+    // Don't focus a defeated enemy
+    const targetEnemy = idx === 0 ? combat.enemy : combat.enemy2;
+    if (targetEnemy.hp <= 0) return;
+    combat.focusedEnemy = idx;
+    document.getElementById('enemy-card-1').classList.toggle('focused', idx === 0);
+    document.getElementById('enemy-card-2').classList.toggle('focused', idx === 1);
+    const name = idx === 0 ? combat.enemy.name : combat.enemy2.name;
+    announce(`Focused on ${name}.`);
+}
+
+function getFocusedEnemy() {
+    if (!combat.isDual) return combat.enemy;
+    return combat.focusedEnemy === 1 && combat.enemy2 && combat.enemy2.hp > 0
+        ? combat.enemy2 : combat.enemy;
+}
+
+function getFocusedEnemyIdx() {
+    if (!combat.isDual) return 0;
+    return combat.focusedEnemy === 1 && combat.enemy2 && combat.enemy2.hp > 0 ? 1 : 0;
 }
 
 function setCombatPlayerBars() {
@@ -4550,11 +4666,14 @@ function calcPlayerDamage(hand) {
 }
 
 function calcEnemyDamage() {
+    return calcEnemyDamageFrom(combat.enemy);
+}
+
+function calcEnemyDamageFrom(enemy) {
     const equip = getEquipBonuses();
     const dex = character.stats.dex + equip.dex;
     const arm = equip.arm + Math.floor(character.stats.res / 2);
-    const base = roll(Math.floor(combat.enemy.atk * 0.8), Math.floor(combat.enemy.atk * 1.3));
-    // Vanish gives a flat +40% dodge bonus this turn
+    const base = roll(Math.floor(enemy.atk * 0.8), Math.floor(enemy.atk * 1.3));
     const vanishBonus = combat.vanishDodge ? 40 : 0;
     if (combat.vanishDodge) combat.vanishDodge = false;
     const dodgeChance = (dex * 2) + vanishBonus;
@@ -4573,34 +4692,64 @@ function playerAttack(hand) {
     combat.defending = false;
     document.getElementById('btn-defend').classList.remove('defending');
 
-    const { damage, crit } = calcPlayerDamage(hand);
-    combat.enemy.hp -= damage;
+    const focusedEnemy = getFocusedEnemy();
+    const focusedIdx = getFocusedEnemyIdx();
 
-    const flavorText = getAttackFlavor(hand, combat.enemy.name, crit);
-    if (crit) {
-        addLog(`${flavorText} for ${damage} damage! (Critical!)`, 'player');
-        announce(`Critical hit! ${damage} damage. Enemy has ${Math.max(0,combat.enemy.hp)} HP left.`);
+    const { damage, crit } = calcPlayerDamage(hand);
+    focusedEnemy.hp -= damage;
+
+    // Update the right HP bar
+    if (combat.isDual) {
+        setDualEnemyBar(focusedIdx, focusedEnemy.hp, focusedEnemy.maxHp);
+        if (focusedEnemy.hp <= 0) {
+            document.getElementById(`enemy-card-${focusedIdx + 1}`).classList.add('defeated');
+        }
     } else {
-        addLog(`${flavorText} for ${damage} damage.`, 'player');
-        announce(`You attack for ${damage} damage. Enemy has ${Math.max(0,combat.enemy.hp)} HP left.`);
+        setEnemyBar(focusedEnemy.hp, focusedEnemy.maxHp);
     }
 
-    setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
-    if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+    const flavorText = getAttackFlavor(hand, focusedEnemy.name, crit);
+    if (crit) {
+        addLog(`${flavorText} for ${damage} damage! (Critical!)`, 'player');
+        announce(`Critical hit! ${damage} damage. ${focusedEnemy.name} has ${Math.max(0,focusedEnemy.hp)} HP left.`);
+    } else {
+        addLog(`${flavorText} for ${damage} damage.`, 'player');
+        announce(`You attack for ${damage} damage. ${focusedEnemy.name} has ${Math.max(0,focusedEnemy.hp)} HP left.`);
+    }
 
-    // Check for legendary weapon special effects
+    // Check victory conditions
+    if (combat.isDual) {
+        const both_dead = combat.enemy.hp <= 0 && combat.enemy2.hp <= 0;
+        const one_dead = combat.enemy.hp <= 0 || combat.enemy2.hp <= 0;
+        if (both_dead) { setTimeout(victory, 600); return; }
+        if (one_dead && focusedEnemy.hp <= 0) {
+            // Switch focus to the living enemy
+            const livingIdx = combat.enemy.hp > 0 ? 0 : 1;
+            combatSetFocus(livingIdx);
+            const livingName = livingIdx === 0 ? combat.enemy.name : combat.enemy2.name;
+            addLog(`${focusedEnemy.name} is defeated! ${livingName} still fights!`, 'system');
+            announce(`${focusedEnemy.name} defeated. ${livingName} continues to fight.`);
+        }
+    } else {
+        if (focusedEnemy.hp <= 0) { setTimeout(victory, 600); return; }
+    }
+
+    // Legendary weapon effects
     const weapon = character.equipment[hand];
     if (weapon) {
         const weaponData = LEGENDARY_CHEST_ITEMS.find(w => w.id === weapon.id);
         if (weaponData && weaponData.special) {
             if (weaponData.special === 'justice' && Math.random() < 0.3) {
                 combat.enemyFrozen = true;
-                addLog(`The Maul of Justice rings out with judgment! ${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is stunned and you strike again!`, 'player');
+                addLog(`The Maul of Justice rings out with judgment! ${theName(focusedEnemy.name).charAt(0).toUpperCase() + theName(focusedEnemy.name).slice(1)} is stunned and you strike again!`, 'player');
                 const { damage: bonusDmg } = calcPlayerDamage(hand);
-                combat.enemy.hp -= bonusDmg;
+                focusedEnemy.hp -= bonusDmg;
+                if (combat.isDual) setDualEnemyBar(focusedIdx, focusedEnemy.hp, focusedEnemy.maxHp);
+                else setEnemyBar(focusedEnemy.hp, focusedEnemy.maxHp);
                 addLog(`Bonus strike deals ${bonusDmg} more damage!`, 'player');
-                setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
-                if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+                if (combat.isDual ? (combat.enemy.hp <= 0 && combat.enemy2.hp <= 0) : focusedEnemy.hp <= 0) {
+                    setTimeout(victory, 600); return;
+                }
                 setTimeout(enemyTurn, 800);
                 return;
             }
@@ -4614,7 +4763,7 @@ function playerAttack(hand) {
             if (weaponData.special === 'torch') {
                 combat.enemyPoisoned = 3;
                 combat.poisonDmg = 18;
-                addLog(`Geminus's Torch roars! ${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is set ablaze and will burn for 3 turns!`, 'player');
+                addLog(`Geminus's Torch roars! ${theName(focusedEnemy.name).charAt(0).toUpperCase() + theName(focusedEnemy.name).slice(1)} is set ablaze and will burn for 3 turns!`, 'player');
                 announce(`Enemy is burning. 18 fire damage per turn for 3 turns.`);
             }
             if (weaponData.special === 'holy' && Math.random() < 0.25) {
@@ -4629,7 +4778,7 @@ function playerAttack(hand) {
                 combat.enemyWeakened = true;
                 combat.enemyPoisoned = Math.max(combat.enemyPoisoned || 0, 2);
                 combat.poisonDmg = Math.max(combat.poisonDmg || 0, 15);
-                addLog(`Varg's scythe hisses! The serpent on its handle strikes — ${theName(combat.enemy.name)} is deceived, weakened, and poisoned!`, 'player');
+                addLog(`Varg's scythe hisses! The serpent on its handle strikes — ${theName(focusedEnemy.name)} is deceived, weakened, and poisoned!`, 'player');
                 announce(`Unholy Scythe poisons and weakens the enemy.`);
             }
         }
@@ -4711,72 +4860,98 @@ function enemyTurn() {
         });
     }
 
-    // Apply acid corrosion bonus damage
+    // Apply acid corrosion to focused enemy
     if (combat.enemyAcid) {
+        const focusedEnemy = getFocusedEnemy();
+        const focusedIdx = getFocusedEnemyIdx();
         const acidDmg = combat.enemyAcid;
-        combat.enemy.hp -= acidDmg;
+        focusedEnemy.hp -= acidDmg;
         combat.enemyAcid = 0;
-        addLog(`Acid corrosion deals ${acidDmg} additional damage to ${theName(combat.enemy.name)}!`, 'player');
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
-        if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+        addLog(`Acid corrosion deals ${acidDmg} additional damage to ${theName(focusedEnemy.name)}!`, 'player');
+        if (combat.isDual) setDualEnemyBar(focusedIdx, focusedEnemy.hp, focusedEnemy.maxHp);
+        else setEnemyBar(focusedEnemy.hp, focusedEnemy.maxHp);
+        const allDead = combat.isDual ? combat.enemy.hp <= 0 && combat.enemy2.hp <= 0 : focusedEnemy.hp <= 0;
+        if (allDead) { setTimeout(victory, 600); return; }
     }
 
-    // Apply nettle/thorn poison tick
+    // Apply poison to focused enemy
     if (combat.enemyPoisoned > 0) {
+        const focusedEnemy = getFocusedEnemy();
+        const focusedIdx = getFocusedEnemyIdx();
         const poisonDmg = combat.poisonDmg || 20;
-        combat.enemy.hp -= poisonDmg;
+        focusedEnemy.hp -= poisonDmg;
         combat.enemyPoisoned--;
         if (combat.enemyPoisoned <= 0) combat.poisonDmg = 0;
         const turns = combat.enemyPoisoned;
-        addLog(`Poison deals ${poisonDmg} damage to ${theName(combat.enemy.name)}! (${turns} turn${turns !== 1 ? 's' : ''} remaining)`, 'player');
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
-        if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+        addLog(`Poison deals ${poisonDmg} damage to ${theName(focusedEnemy.name)}! (${turns} turn${turns !== 1 ? 's' : ''} remaining)`, 'player');
+        if (combat.isDual) setDualEnemyBar(focusedIdx, focusedEnemy.hp, focusedEnemy.maxHp);
+        else setEnemyBar(focusedEnemy.hp, focusedEnemy.maxHp);
+        const allDead = combat.isDual ? combat.enemy.hp <= 0 && combat.enemy2.hp <= 0 : focusedEnemy.hp <= 0;
+        if (allDead) { setTimeout(victory, 600); return; }
     }
 
-    // Frost bolt freeze -- enemy skips their turn
+    // Freeze only applies to the primary focused enemy
     if (combat.enemyFrozen) {
         combat.enemyFrozen = false;
-        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is frozen and cannot act!`, 'system');
-        announce(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} is frozen and skips their turn.`);
+        const focusedEnemy = getFocusedEnemy();
+        addLog(`${theName(focusedEnemy.name).charAt(0).toUpperCase() + theName(focusedEnemy.name).slice(1)} is frozen and cannot act!`, 'system');
+        announce(`${focusedEnemy.name} is frozen and skips their turn.`);
+        // In dual combat the other enemy still attacks
+        if (combat.isDual) {
+            const otherEnemy = combat.focusedEnemy === 0 ? combat.enemy2 : combat.enemy;
+            if (otherEnemy && otherEnemy.hp > 0) {
+                enemyAttackPlayer(otherEnemy);
+                if (combat.playerHp <= 0) { setTimeout(defeat, 600); return; }
+            }
+        }
         addLog(`Your turn.`, 'system');
         setActionsEnabled(true);
         return;
     }
 
-    const { damage, dodged } = calcEnemyDamage();
+    // Enemy 1 attacks if alive
+    if (combat.enemy.hp > 0) {
+        enemyAttackPlayer(combat.enemy);
+        if (combat.playerHp <= 0) { setTimeout(defeat, 600); return; }
+    }
 
-    if (dodged) {
-        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} attacks but you dodge!`, 'system');
-        announce(`You dodge ${theName(combat.enemy.name)}'s attack!`);
-    } else if (combat.barkShieldActive) {
-        const reducedDmg = Math.floor(damage * 0.5);
-        combat.playerHp -= reducedDmg;
-        combat.barkShieldActive = false;
-        addLog(`The Bark Shield absorbs half the blow! Only ${reducedDmg} damage gets through!`, 'defend');
-        announce(`Bark Shield blocks half the hit. ${reducedDmg} damage gets through.`);
-    } else if (combat.braceActive) {
-        const bracedDmg = Math.floor(damage * 0.25);
-        combat.playerHp -= bracedDmg;
-        combat.braceActive = false;
-        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} strikes but your brace absorbs most of it! Only ${bracedDmg} damage!`, 'defend');
-        announce(`Brace absorbed the hit! Only ${bracedDmg} damage got through.`);
-    } else if (combat.defending && damage < combat.enemy.atk) {
-        combat.playerHp -= damage;
-        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} strikes but your guard absorbs most of it! ${damage} damage.`, 'defend');
-        announce(`You block most of the hit. ${damage} damage gets through.`);
-    } else {
-        combat.playerHp -= damage;
-        addLog(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} strikes you for ${damage} damage.`, 'enemy');
-        announce(`${theName(combat.enemy.name).charAt(0).toUpperCase() + theName(combat.enemy.name).slice(1)} hits you for ${damage} damage. You have ${Math.max(0,combat.playerHp)} HP.`);
+    // Enemy 2 attacks if alive (dual only)
+    if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+        enemyAttackPlayer(combat.enemy2);
+        if (combat.playerHp <= 0) { setTimeout(defeat, 600); return; }
     }
 
     combat.defending = false;
     document.getElementById('btn-defend').classList.remove('defending');
     setCombatPlayerBars();
-
-    if (combat.playerHp <= 0) { setTimeout(defeat, 600); return; }
     addLog(`Your turn.`, 'system');
     setActionsEnabled(true);
+}
+
+function enemyAttackPlayer(enemy) {
+    const { damage, dodged } = calcEnemyDamageFrom(enemy);
+    if (dodged) {
+        addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} attacks but you dodge!`, 'system');
+        announce(`You dodge ${theName(enemy.name)}'s attack!`);
+    } else if (combat.barkShieldActive) {
+        const reducedDmg = Math.floor(damage * 0.5);
+        combat.playerHp -= reducedDmg;
+        combat.barkShieldActive = false;
+        addLog(`The Bark Shield absorbs half the blow from ${theName(enemy.name)}! Only ${reducedDmg} damage gets through!`, 'defend');
+    } else if (combat.braceActive) {
+        const bracedDmg = Math.floor(damage * 0.25);
+        combat.playerHp -= bracedDmg;
+        combat.braceActive = false;
+        addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} strikes but your brace absorbs most of it! Only ${bracedDmg} damage!`, 'defend');
+    } else if (combat.defending && damage < enemy.atk) {
+        combat.playerHp -= damage;
+        addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} strikes but your guard absorbs most of it! ${damage} damage.`, 'defend');
+    } else {
+        combat.playerHp -= damage;
+        addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} strikes you for ${damage} damage.`, 'enemy');
+        announce(`${theName(enemy.name)} hits you for ${damage} damage. You have ${Math.max(0,combat.playerHp)} HP.`);
+    }
+    setCombatPlayerBars();
 }
 
 function xpToNextLevel(level) {
@@ -4786,22 +4961,27 @@ function xpToNextLevel(level) {
 
 function victory() {
     combat.over = true;
-    const enemy = combat.enemy;
     const floor = dungeonState ? dungeonState.floor : 1;
     dungeonState.encountersDone++;
 
-    // Perception improves gold drops
     const perBonus = Math.floor((character.stats.per || 1) * 0.5);
-    const goldEarned = roll(enemy.gold[0], enemy.gold[1]) + perBonus;
-    character.gold += goldEarned;
-
-    // XP scales with floor depth
     const floorMultiplier = 1 + (floor / 10);
-    const xpEarned = Math.floor(enemy.xp * floorMultiplier);
-    character.xp += xpEarned;
 
-    // Loot drop
-    const loot = rollEnemyLoot(enemy);
+    // Collect rewards from all defeated enemies
+    const enemies = combat.isDual ? [combat.enemy, combat.enemy2] : [combat.enemy];
+    let totalGold = 0;
+    let totalXp = 0;
+    let loot = null;
+
+    enemies.forEach(enemy => {
+        totalGold += roll(enemy.gold[0], enemy.gold[1]) + perBonus;
+        totalXp += Math.floor(enemy.xp * floorMultiplier);
+        if (!loot) loot = rollEnemyLoot(enemy);
+    });
+
+    character.gold += totalGold;
+    character.xp += totalXp;
+    const enemy = combat.enemy; // primary enemy for display
 
     // Level up loop with new curve
     let levelsGained = 0;
@@ -4833,7 +5013,7 @@ function victory() {
     // Save dungeon progress
     character.dungeonState = { ...dungeonState };
     saveGame(); populateUI();
-    addLog(`You defeated ${theName(enemy.name)}!`, 'victory');
+    addLog(`You defeated ${theName(enemy.name)}${combat.isDual ? ` and ${theName(combat.enemy2.name)}` : ''}!`, 'victory');
     if (enemy.isBoss) {
         addLog(`⚠ Boss defeated! The dungeon shudders around you.`, 'victory');
         dungeonState.bossDefeated = true;
@@ -4841,36 +5021,35 @@ function victory() {
 
     // Build reward HTML
     let rewardsHTML = `
-        <div class="reward-line">+ ${xpEarned} XP <span style="color:var(--text-dim);font-size:0.85em">(${character.xp} / ${character.xpNext} to next level)<\/span><\/div>
-        <div class="reward-line">+ ${goldEarned} Gold<\/div>
+        <div class="reward-line">+ ${totalXp} XP <span style="color:var(--text-dim);font-size:0.85em">(${character.xp} / ${character.xpNext} to next level)<\/span><\/div>
+        <div class="reward-line">+ ${totalGold} Gold<\/div>
         ${enemy.isBoss ? `<div class="reward-line" style="color:#ff8080">⚠ Boss Defeated! Floor ${dungeonState.floor}<\/div>` : ''}
         ${loot ? `<div class="reward-line">📦 ${loot.name} dropped!<\/div>` : ''}
         ${levelsGained > 0 ? `<div class="reward-line">⬆ Level Up! Now Level ${character.level}${levelsGained > 1 ? ` (+${levelsGained} levels!)` : ''}<\/div>` : ''}
     `;
 
     const floorDone = dungeonState.encountersDone >= dungeonState.encountersTotal;
+    const victoryDesc = combat.isDual
+        ? `You defeated ${theName(enemy.name)} and ${theName(combat.enemy2.name)}!`
+        : levelsGained > 0 ? `You defeated ${theName(enemy.name)} and reached Level ${character.level}!` : `You defeated ${theName(enemy.name)}.`;
 
     document.getElementById('result-icon').textContent = '🏆';
     document.getElementById('result-title').textContent = 'Victory!';
     document.getElementById('result-title').className = 'result-title win';
-    document.getElementById('result-body').textContent = levelsGained > 0
-        ? `You defeated ${theName(enemy.name)} and reached Level ${character.level}!`
-        : `You defeated ${theName(enemy.name)}.`;
+    document.getElementById('result-body').textContent = victoryDesc;
     document.getElementById('result-rewards').innerHTML = rewardsHTML;
     document.getElementById('result-btn-main').textContent = floorDone ? 'Floor Complete!' : 'Next Encounter';
     document.getElementById('combat-result').classList.add('show');
     document.getElementById('bottomNav').classList.add('visible');
-    // Switch back to dungeon music after combat, play victory sfx
     playMusic('dungeon');
     playSFX(levelsGained > 0 ? 'levelup' : 'victory');
 
     const lootMsg = loot ? ` Found ${loot.name}.` : '';
     const msg = levelsGained > 0
-        ? `Victory! Defeated ${enemy.name}. Earned ${xpEarned} XP and ${goldEarned} gold.${lootMsg} Level up! Now level ${character.level}.`
-        : `Victory! Defeated ${enemy.name}. Earned ${xpEarned} XP and ${goldEarned} gold.${lootMsg}`;
+        ? `Victory! Earned ${totalXp} XP and ${totalGold} gold.${lootMsg} Level up! Now level ${character.level}.`
+        : `Victory! Earned ${totalXp} XP and ${totalGold} gold.${lootMsg}`;
     announce(msg);
 
-    // Show level up overlay after a short delay if leveled up
     if (levelsGained > 0) {
         setTimeout(() => {
             document.getElementById('combat-result').classList.remove('show');
@@ -6896,9 +7075,9 @@ function useAbility(id) {
         combat.playerMp -= ability.mpCost;
     }
 
-    const result = ability.use(character, combat.enemy);
+    const result = ability.use(character, getFocusedEnemy());
 
-    // Apply crit to damaging abilities — same DEX formula as basic attacks
+    // Apply crit to damaging abilities
     if (result.damage > 0) {
         const equip = getEquipBonuses();
         const dex = character.stats.dex + (equip.dex || 0);
@@ -6908,8 +7087,17 @@ function useAbility(id) {
             result.damage = Math.floor(result.damage * 1.5);
             result.log = `⚡ CRITICAL! ` + result.log;
         }
-        combat.enemy.hp -= result.damage;
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+        const focusedEnemy = getFocusedEnemy();
+        const focusedIdx = getFocusedEnemyIdx();
+        focusedEnemy.hp -= result.damage;
+        if (combat.isDual) {
+            setDualEnemyBar(focusedIdx, focusedEnemy.hp, focusedEnemy.maxHp);
+            if (focusedEnemy.hp <= 0) {
+                document.getElementById(`enemy-card-${focusedIdx + 1}`).classList.add('defeated');
+            }
+        } else {
+            setEnemyBar(focusedEnemy.hp, focusedEnemy.maxHp);
+        }
     }
 
     if (!combat.cooldowns) combat.cooldowns = {};
@@ -6919,7 +7107,22 @@ function useAbility(id) {
     announce(result.log);
     setCombatPlayerBars();
 
-    if (result.damage > 0 && combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+    if (result.damage > 0) {
+        const allDead = combat.isDual
+            ? combat.enemy.hp <= 0 && combat.enemy2.hp <= 0
+            : combat.enemy.hp <= 0;
+        if (allDead) { setTimeout(victory, 600); return; }
+        // If one dead in dual, switch focus
+        if (combat.isDual) {
+            const focusedEnemy = getFocusedEnemy();
+            if (focusedEnemy.hp <= 0) {
+                const livingIdx = combat.enemy.hp > 0 ? 0 : 1;
+                combatSetFocus(livingIdx);
+                const livingName = livingIdx === 0 ? combat.enemy.name : combat.enemy2.name;
+                addLog(`${focusedEnemy.name} is defeated! ${livingName} still fights!`, 'system');
+            }
+        }
+    }
     setTimeout(enemyTurn, 800);
 }
 
