@@ -4228,11 +4228,13 @@ function startNextEncounter() {
         document.getElementById('enemy-icon-1').textContent = enemy.icon;
         document.getElementById('enemy-name-1').textContent = enemy.name;
         document.getElementById('enemy-level-1').textContent = `Level ${enemy.level} - ${diffLabel}`;
+        document.getElementById('enemy-card-1').setAttribute('aria-label', `Enemy 1: ${enemy.name}. Tap to focus.`);
         setDualEnemyBar(0, enemy.hp, enemy.maxHp);
 
         document.getElementById('enemy-icon-2').textContent = combat.enemy2.icon;
         document.getElementById('enemy-name-2').textContent = combat.enemy2.name;
         document.getElementById('enemy-level-2').textContent = `Level ${combat.enemy2.level} - ${diffLabel}`;
+        document.getElementById('enemy-card-2').setAttribute('aria-label', `Enemy 2: ${combat.enemy2.name}. Tap to focus.`);
         setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
 
         combatSetFocus(0);
@@ -4324,7 +4326,7 @@ function combatSetFocus(idx) {
     document.getElementById('enemy-card-1').classList.toggle('focused', idx === 0);
     document.getElementById('enemy-card-2').classList.toggle('focused', idx === 1);
     const name = idx === 0 ? combat.enemy.name : combat.enemy2.name;
-    announce(`Focused on ${name}.`);
+    announce(`Now targeting Enemy ${idx + 1}: ${name}.`);
 }
 
 function getFocusedEnemy() {
