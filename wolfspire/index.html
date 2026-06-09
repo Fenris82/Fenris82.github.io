@@ -4,22 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Wolfspire</title>
-
-    <!-- PWA -->
-    <meta name="theme-color" content="#111118">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Wolfspire">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="description" content="A free, accessible RPG dungeon crawler. No paywalls. No energy timers. Just adventure.">
-    <link rel="manifest" href="manifest.json">
-
-    <!-- PWA icons for iOS (Apple requires linked PNGs — swap these paths for real icons when ready) -->
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
@@ -12428,12 +12412,6 @@ const navObserver = new MutationObserver(() => {
 });
 navObserver.observe(document.getElementById('bottomNav'), { attributes: true, attributeFilter: ['class'] });
 
-// -- PWA SERVICE WORKER REGISTRATION --
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
-    });
-}
 </script>
 </body>
 </html>
