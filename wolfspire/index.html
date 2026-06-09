@@ -1602,6 +1602,9 @@
 
         <div class="points-bar">Points Remaining: <span id="pts">0</span></div>
         <button class="begin-btn" id="btn-begin" onclick="createCharacter()" disabled>Begin Your Journey</button>
+        <button class="leave-shop-btn" onclick="cancelCreateCharacter()" aria-label="Cancel and go back to character select" style="margin-top:12px">
+            Cancel
+        </button>
         <div id="formError" class="form-error" role="alert" aria-live="assertive"></div>
     </div>
 </div>
@@ -9452,6 +9455,20 @@ function openRoster() {
     rosterEl.style.display = '';
     rosterEl.classList.add('show');
     announce('Character select. ' + slots + ' characters. ' + (slots === 0 ? 'Create your first.' : 'Choose one or create new.'));
+}
+
+function cancelCreateCharacter() {
+    // If there's an existing character, go back to it
+    // Otherwise open the roster so they can pick one
+    if (character) {
+        goToScreen('town');
+        document.getElementById('bottomNav').classList.add('visible');
+        announce('Character creation cancelled. Returned to ' + character.name + '.');
+    } else {
+        goToScreen('title');
+        openRoster();
+        announce('Character creation cancelled.');
+    }
 }
 
 function closeRosterOverlay() {
