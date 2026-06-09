@@ -799,6 +799,15 @@
         .enemy-cards-row { display: flex; gap: 8px; }
         .enemy-cards-row .enemy-card { flex: 1; min-width: 0; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
         .enemy-cards-row .enemy-card.focused { border-color: var(--gold); box-shadow: 0 0 10px rgba(201,168,76,0.3); }
+        .enemy-cards-row .enemy-card.focused::before {
+            content: '▶ TARGET';
+            display: block;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6em;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
         .enemy-cards-row .enemy-card.defeated { opacity: 0.4; border-color: #2a2a44; pointer-events: none; }
         .enemy-cards-row .enemy-name { font-size: 0.85em; }
         .enemy-cards-row .enemy-level-text { font-size: 0.7em; }
@@ -4187,7 +4196,7 @@ function startNextEncounter() {
     }
 
     // 30% chance of dual encounter (not on boss floors, not on floor 1-4)
-    const dualChance = !isBossFloor && dungeonState.floor >= 5 && Math.random() < 0.30;
+    const dualChance = !isBossFloor && dungeonState.floor >= 5 && Math.random() < 0.50;
 
     const enemy = pickEnemyForDungeon();
 
@@ -4228,13 +4237,13 @@ function startNextEncounter() {
         document.getElementById('enemy-icon-1').textContent = enemy.icon;
         document.getElementById('enemy-name-1').textContent = enemy.name;
         document.getElementById('enemy-level-1').textContent = `Level ${enemy.level} - ${diffLabel}`;
-        document.getElementById('enemy-card-1').setAttribute('aria-label', `Enemy 1: ${enemy.name}. Tap to focus.`);
+        document.getElementById('enemy-card-1').setAttribute('aria-label', `Currently targeted. Enemy 1: ${enemy.name}, ${enemy.hp} of ${enemy.maxHp} HP.`);
         setDualEnemyBar(0, enemy.hp, enemy.maxHp);
 
         document.getElementById('enemy-icon-2').textContent = combat.enemy2.icon;
         document.getElementById('enemy-name-2').textContent = combat.enemy2.name;
         document.getElementById('enemy-level-2').textContent = `Level ${combat.enemy2.level} - ${diffLabel}`;
-        document.getElementById('enemy-card-2').setAttribute('aria-label', `Enemy 2: ${combat.enemy2.name}. Tap to focus.`);
+        document.getElementById('enemy-card-2').setAttribute('aria-label', `Enemy 2: ${combat.enemy2.name}, ${combat.enemy2.hp} of ${combat.enemy2.maxHp} HP. Tap to target.`);
         setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
 
         combatSetFocus(0);
@@ -4325,7 +4334,16 @@ function combatSetFocus(idx) {
     combat.focusedEnemy = idx;
     document.getElementById('enemy-card-1').classList.toggle('focused', idx === 0);
     document.getElementById('enemy-card-2').classList.toggle('focused', idx === 1);
-    const name = idx === 0 ? combat.enemy.name : combat.enemy2.name;
+
+    // Update aria-labels so VoiceOver announces focus state on each card
+    const e1 = combat.enemy;
+    const e2 = combat.enemy2;
+    document.getElementById('enemy-card-1').setAttribute('aria-label',
+        `${idx === 0 ? 'Currently targeted. ' : ''}Enemy 1: ${e1.name}, ${Math.max(0,e1.hp)} of ${e1.maxHp} HP.${idx !== 0 ? ' Tap to target.' : ''}`);
+    document.getElementById('enemy-card-2').setAttribute('aria-label',
+        `${idx === 1 ? 'Currently targeted. ' : ''}Enemy 2: ${e2.name}, ${Math.max(0,e2.hp)} of ${e2.maxHp} HP.${idx !== 1 ? ' Tap to target.' : ''}`);
+
+    const name = idx === 0 ? e1.name : e2.name;
     announce(`Now targeting Enemy ${idx + 1}: ${name}.`);
 }
 
@@ -6632,6 +6650,17 @@ const SKILLS_DATA = [
         tags:['Skill','Physical'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const h1 = Math.floor(roll(str*2, str*4)*0.75);
+                const h2 = Math.floor(roll(str*2, str*4)*0.75);
+                combat.enemy.hp -= h1;
+                combat.enemy2.hp -= h2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`Rapid Strike! ${h1} on ${combat.enemy.name}, ${h2} on ${combat.enemy2.name}! ${h1+h2} total!`, type:'player', dualHandled:true };
+            }
             const h1 = Math.floor(roll(str*2, str*4)*0.75);
             const h2 = Math.floor(roll(str*2, str*4)*0.75);
             return { damage:h1+h2, log:`Rapid Strike! You hit ${theName(enemy.name)} twice -- ${h1} + ${h2} = ${h1+h2} damage!`, type:'player' };
@@ -6686,6 +6715,17 @@ const SKILLS_DATA = [
         tags:['Skill','Ranged'],
         use:(c,enemy) => {
             const dex = c.stats.dex + (getEquipBonuses().dex||0);
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const s1 = roll(dex*2, dex*4);
+                const s2 = roll(dex*2, dex*4);
+                combat.enemy.hp -= s1;
+                combat.enemy2.hp -= s2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`Double Shot! One for each target — ${s1} on ${combat.enemy.name}, ${s2} on ${combat.enemy2.name}!`, type:'player', dualHandled:true };
+            }
             const s1 = roll(dex*2, dex*4);
             const s2 = roll(dex*2, dex*4);
             return { damage:s1+s2, log:`Double Shot! Two projectiles find their mark -- ${s1} + ${s2} = ${s1+s2} damage!`, type:'player' };
@@ -6732,6 +6772,27 @@ const SKILLS_DATA = [
         tags:['Skill','Physical'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                // Split hits between both enemies
+                const hits = [
+                    Math.floor(roll(str*2, str*3) * 0.8),
+                    Math.floor(roll(str*2, str*3) * 0.8),
+                    Math.floor(roll(str*2, str*3) * 0.8),
+                    Math.floor(roll(str*2, str*3) * 0.8),
+                ];
+                const e1hits = [hits[0], hits[2]];
+                const e2hits = [hits[1], hits[3]];
+                const e1total = e1hits[0] + e1hits[1];
+                const e2total = e2hits[0] + e2hits[1];
+                combat.enemy.hp -= e1total;
+                combat.enemy2.hp -= e2total;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                const total = e1total + e2total;
+                return { damage:0, log:`WHIRLWIND! Steel flies in all directions — ${combat.enemy.name} takes ${e1total}, ${combat.enemy2.name} takes ${e2total}! ${total} total damage!`, type:'player', dualHandled:true };
+            }
             const h1 = Math.floor(roll(str*2, str*3) * 0.8);
             const h2 = Math.floor(roll(str*2, str*3) * 0.8);
             const h3 = Math.floor(roll(str*2, str*3) * 0.8);
@@ -6747,6 +6808,18 @@ const SKILLS_DATA = [
         tags:['Skill','Shadow'],
         use:(c,enemy) => {
             const dex = c.stats.dex + (getEquipBonuses().dex||0);
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const b1 = Math.floor(roll(dex*2, dex*3) * 1.5);
+                const b2 = Math.floor(roll(dex*2, dex*3) * 1.5);
+                const b3 = Math.floor(roll(dex*2, dex*3) * 1.5);
+                combat.enemy.hp -= b1 + b3;
+                combat.enemy2.hp -= b2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`Shadow Blades! Darkness lashes out — ${b1}+${b3} on ${combat.enemy.name}, ${b2} on ${combat.enemy2.name}!`, type:'player', dualHandled:true };
+            }
             const b1 = Math.floor(roll(dex*2, dex*3) * 1.5);
             const b2 = Math.floor(roll(dex*2, dex*3) * 1.5);
             const b3 = Math.floor(roll(dex*2, dex*3) * 1.5);
@@ -6828,6 +6901,20 @@ const SPELLS_DATA = [
         }
     },
     {
+        id:'moonbeam', icon:'🌙', name:'Moonbeam', type:'spell',
+        desc:'Call down a pale beam of lunar light — deals damage and restores a portion of your HP as moonlight flows through you.',
+        stat:'INT x 4-6 + HP restore', price:50, cooldown:1, mpCost:28,
+        tags:['Spell','Light','Healing'],
+        use:(c,enemy) => {
+            const int = c.stats.int + getEquipBonuses().int;
+            const dmg = roll(int*4, int*6);
+            const restore = Math.floor(dmg * 0.25);
+            combat.playerHp = Math.min(c.maxHp, combat.playerHp + restore);
+            c.hp = combat.playerHp;
+            return { damage:dmg, log:`Moonbeam! Pale lunar light strikes ${theName(enemy.name)} for ${dmg} damage and restores ${restore} HP as the moonlight flows through you!`, type:'player' };
+        }
+    },
+    {
         id:'solar_flare', icon:'🌟', name:'Solar Flare', type:'spell',
         desc:'Burst the sun\'s radiance in a blinding flare — not as devastating as Solar Beam, but dazzling and a joy to cast.',
         stat:'INT x 4-6', price:50, cooldown:1, mpCost:26,
@@ -6845,6 +6932,18 @@ const SPELLS_DATA = [
         tags:['Spell','Crystal'],
         use:(c,enemy) => {
             const int = c.stats.int + getEquipBonuses().int;
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const hits = Array.from({length:4}, () => roll(int*2, int*3));
+                const e1total = hits[0] + hits[2];
+                const e2total = hits[1] + hits[3];
+                combat.enemy.hp -= e1total;
+                combat.enemy2.hp -= e2total;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`Shard Storm! Crystal flies everywhere — ${e1total} on ${combat.enemy.name}, ${e2total} on ${combat.enemy2.name}! ${e1total+e2total} total!`, type:'player', dualHandled:true };
+            }
             const hits = [];
             let total = 0;
             for (let h = 0; h < 4; h++) {
@@ -7080,7 +7179,7 @@ function useAbility(id) {
     const result = ability.use(character, getFocusedEnemy());
 
     // Apply crit to damaging abilities
-    if (result.damage > 0) {
+    if (result.damage > 0 && !result.dualHandled) {
         const equip = getEquipBonuses();
         const dex = character.stats.dex + (equip.dex || 0);
         const critChance = (dex * 3) + (equip.critBonus || 0);
@@ -7109,13 +7208,12 @@ function useAbility(id) {
     announce(result.log);
     setCombatPlayerBars();
 
-    if (result.damage > 0) {
+    if (result.damage > 0 || result.dualHandled) {
         const allDead = combat.isDual
             ? combat.enemy.hp <= 0 && combat.enemy2.hp <= 0
             : combat.enemy.hp <= 0;
         if (allDead) { setTimeout(victory, 600); return; }
-        // If one dead in dual, switch focus
-        if (combat.isDual) {
+        if (combat.isDual && !result.dualHandled) {
             const focusedEnemy = getFocusedEnemy();
             if (focusedEnemy.hp <= 0) {
                 const livingIdx = combat.enemy.hp > 0 ? 0 : 1;
@@ -7123,6 +7221,10 @@ function useAbility(id) {
                 const livingName = livingIdx === 0 ? combat.enemy.name : combat.enemy2.name;
                 addLog(`${focusedEnemy.name} is defeated! ${livingName} still fights!`, 'system');
             }
+        } else if (combat.isDual && result.dualHandled) {
+            // Check if one died, switch focus to survivor
+            if (combat.enemy.hp <= 0 && combat.enemy2.hp > 0) { combatSetFocus(1); addLog(`${combat.enemy.name} is defeated! ${combat.enemy2.name} still fights!`, 'system'); }
+            else if (combat.enemy2.hp <= 0 && combat.enemy.hp > 0) { combatSetFocus(0); addLog(`${combat.enemy2.name} is defeated! ${combat.enemy.name} still fights!`, 'system'); }
         }
     }
     setTimeout(enemyTurn, 800);
