@@ -795,6 +795,31 @@
 
         .sheet-section-label { font-family: 'Cinzel', serif; font-size: 0.7em; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #2a2a44; }
 
+        /* -- GAME MENU -- */
+        #game-menu-btn {
+            position: fixed; top: 12px; left: 12px; z-index: 90;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(20,20,42,0.9); border: 1px solid #2a2a44;
+            color: var(--text-dim); font-size: 1.1em;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(8px);
+        }
+        #game-menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 400; align-items: flex-start; justify-content: flex-start; }
+        #game-menu-overlay.show { display: flex; }
+        #game-menu-panel {
+            background: var(--bg-panel); border-right: 1px solid #2a2a44;
+            width: min(280px, 80vw); height: 100%;
+            display: flex; flex-direction: column; padding: 48px 0 32px;
+            animation: slideInLeft 0.2s ease;
+        }
+        @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        .game-menu-title { font-family: 'Cinzel', serif; font-size: 0.7em; letter-spacing: 0.2em; color: var(--gold-dim); text-transform: uppercase; padding: 0 20px 12px; border-bottom: 1px solid #2a2a44; margin-bottom: 8px; }
+        .game-menu-item { display: flex; align-items: center; gap: 14px; padding: 16px 20px; font-family: 'Cinzel', serif; font-size: 0.9em; color: var(--text); background: transparent; border: none; cursor: pointer; text-align: left; width: 100%; transition: background 0.15s; }
+        .game-menu-item:hover { background: rgba(201,168,76,0.06); }
+        .game-menu-item:focus { outline: 3px solid var(--gold); outline-offset: -3px; }
+        .game-menu-item span:first-child { font-size: 1.2em; width: 24px; text-align: center; }
+        .game-menu-divider { height: 1px; background: #2a2a44; margin: 8px 20px; }
+
         /* -- DUAL ENEMY -- */
         .enemy-cards-row { display: flex; gap: 8px; }
         .enemy-cards-row .enemy-card { flex: 1; min-width: 0; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
@@ -3678,6 +3703,41 @@
 <div class="purchase-toast" id="purchase-toast"></div>
 
 <!-- Floating settings button -->
+<!-- GAME MENU BUTTON -->
+<button id="game-menu-btn" onclick="openGameMenu()" aria-label="Open game menu" aria-haspopup="dialog">
+    ☰
+</button>
+
+<!-- GAME MENU OVERLAY -->
+<div id="game-menu-overlay" role="dialog" aria-modal="true" aria-labelledby="game-menu-label" onclick="if(event.target===this)closeGameMenu()">
+    <div id="game-menu-panel">
+        <div class="game-menu-title" id="game-menu-label">⚔ Wolfspire</div>
+
+        <button class="game-menu-item" onclick="closeGameMenu();if(dungeonState){showToast('Return to town first!');announce('Cannot switch characters while in a dungeon.');}else{openRoster();}" aria-label="Switch character">
+            <span aria-hidden="true">🧙</span> Switch Character
+        </button>
+
+        <div class="game-menu-divider"></div>
+
+        <button class="game-menu-item" onclick="closeGameMenu();exportSave()" aria-label="Export save data">
+            <span aria-hidden="true">📤</span> Export Save
+        </button>
+        <button class="game-menu-item" onclick="closeGameMenu();triggerImport()" aria-label="Import save data">
+            <span aria-hidden="true">📥</span> Import Save
+        </button>
+
+        <div class="game-menu-divider"></div>
+
+        <button class="game-menu-item" onclick="closeGameMenu();openSettings()" aria-label="Open settings">
+            <span aria-hidden="true">⚙</span> Settings
+        </button>
+
+        <button class="game-menu-item" style="margin-top:auto;color:var(--text-dim)" onclick="closeGameMenu()" aria-label="Close menu">
+            <span aria-hidden="true">✕</span> Close
+        </button>
+    </div>
+</div>
+
 <button id="float-settings-btn"
     onclick="openSettings()"
     aria-label="Open settings"
@@ -12803,10 +12863,21 @@ refreshCreate();
 initTitleScreen();
 
 // Sync floating settings button with bottom nav visibility
+function openGameMenu() {
+    document.getElementById('game-menu-overlay').classList.add('show');
+    announce('Game menu. Switch Character, Export Save, Import Save, Settings.');
+}
+
+function closeGameMenu() {
+    document.getElementById('game-menu-overlay').classList.remove('show');
+}
+
 const navObserver = new MutationObserver(() => {
     const navVisible = document.getElementById('bottomNav').classList.contains('visible');
     const btn = document.getElementById('float-settings-btn');
+    const menuBtn = document.getElementById('game-menu-btn');
     if (btn) btn.style.display = navVisible ? 'flex' : 'none';
+    if (menuBtn) menuBtn.style.display = navVisible ? 'flex' : 'none';
 });
 navObserver.observe(document.getElementById('bottomNav'), { attributes: true, attributeFilter: ['class'] });
 
