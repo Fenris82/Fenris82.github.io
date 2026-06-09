@@ -4232,9 +4232,15 @@ function startNextEncounter() {
     const diffLabel = dungeonState.floor >= 31 ? 'Abyssal' : dungeonState.floor >= 16 ? 'Dangerous' : dungeonState.floor >= 6 ? 'Threatening' : 'Common';
 
     if (combat.isDual) {
-        // Show dual enemy cards
+        // Show dual enemy cards — reset any previous boss styling
         document.getElementById('enemy-card-solo').style.display = 'none';
         document.getElementById('enemy-cards-row').style.display = 'flex';
+        document.getElementById('enemy-card-1').style.background = '';
+        document.getElementById('enemy-card-1').style.borderColor = '';
+        document.getElementById('enemy-card-2').style.background = '';
+        document.getElementById('enemy-card-2').style.borderColor = '';
+        document.getElementById('enemy-card-1').classList.remove('defeated');
+        document.getElementById('enemy-card-2').classList.remove('defeated');
 
         document.getElementById('enemy-icon-1').textContent = enemy.icon;
         document.getElementById('enemy-name-1').textContent = enemy.name;
@@ -4474,37 +4480,54 @@ function useCombatItem(itemId) {
         announceMsg = `Smoke Bomb ready. Your next retreat will succeed.`;
     } else if (itemId === 'iron_grenade') {
         const dmg = roll(character.level * 8, character.level * 12);
-        combat.enemy.hp -= dmg;
-        logMsg = `You hurl an Iron Grenade at ${theName(combat.enemy.name)} for ${dmg} damage!`;
-        announceMsg = `Grenade deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+        const target = getFocusedEnemy(); const tidx = getFocusedEnemyIdx();
+        target.hp -= dmg;
+        combat.isDual ? (setDualEnemyBar(tidx, target.hp, target.maxHp), target.hp <= 0 && document.getElementById(`enemy-card-${tidx+1}`).classList.add('defeated')) : setEnemyBar(target.hp, target.maxHp);
+        logMsg = `You hurl an Iron Grenade at ${theName(target.name)} for ${dmg} damage!`;
+        announceMsg = `Grenade deals ${dmg} damage! ${target.name} has ${Math.max(0, target.hp)} HP left.`;
     } else if (itemId === 'moon_bomb') {
         const dmg = roll(character.level * 8, character.level * 12);
-        combat.enemy.hp -= dmg;
-        logMsg = `You lob a Moon Bomb — pale light erupts around ${theName(combat.enemy.name)} for ${dmg} damage!`;
-        announceMsg = `Moon Bomb deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+        const target = getFocusedEnemy(); const tidx = getFocusedEnemyIdx();
+        target.hp -= dmg;
+        combat.isDual ? (setDualEnemyBar(tidx, target.hp, target.maxHp), target.hp <= 0 && document.getElementById(`enemy-card-${tidx+1}`).classList.add('defeated')) : setEnemyBar(target.hp, target.maxHp);
+        logMsg = `You lob a Moon Bomb — pale light erupts around ${theName(target.name)} for ${dmg} damage!`;
+        announceMsg = `Moon Bomb deals ${dmg} damage! ${target.name} has ${Math.max(0, target.hp)} HP left.`;
     } else if (itemId === 'thrown_axe') {
         const dmg = roll(character.level * 8, character.level * 12);
-        combat.enemy.hp -= dmg;
-        logMsg = `You throw a Throwing Axe at ${theName(combat.enemy.name)} for ${dmg} damage!`;
-        announceMsg = `Throwing Axe deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+        const target = getFocusedEnemy(); const tidx = getFocusedEnemyIdx();
+        target.hp -= dmg;
+        combat.isDual ? (setDualEnemyBar(tidx, target.hp, target.maxHp), target.hp <= 0 && document.getElementById(`enemy-card-${tidx+1}`).classList.add('defeated')) : setEnemyBar(target.hp, target.maxHp);
+        logMsg = `You throw a Throwing Axe at ${theName(target.name)} for ${dmg} damage!`;
+        announceMsg = `Throwing Axe deals ${dmg} damage! ${target.name} has ${Math.max(0, target.hp)} HP left.`;
     } else if (itemId === 'throwing_star') {
         const dmg = roll(character.level * 8, character.level * 12);
-        combat.enemy.hp -= dmg;
-        logMsg = `You fling a Throwing Star at ${theName(combat.enemy.name)} for ${dmg} damage!`;
-        announceMsg = `Throwing Star deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+        const target = getFocusedEnemy(); const tidx = getFocusedEnemyIdx();
+        target.hp -= dmg;
+        combat.isDual ? (setDualEnemyBar(tidx, target.hp, target.maxHp), target.hp <= 0 && document.getElementById(`enemy-card-${tidx+1}`).classList.add('defeated')) : setEnemyBar(target.hp, target.maxHp);
+        logMsg = `You fling a Throwing Star at ${theName(target.name)} for ${dmg} damage!`;
+        announceMsg = `Throwing Star deals ${dmg} damage! ${target.name} has ${Math.max(0, target.hp)} HP left.`;
     } else if (itemId === 'throwing_javelin') {
         const javelinDmg = roll(character.level * 8, character.level * 12);
-        combat.enemy.hp -= javelinDmg;
-        setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
-        announceMsg = `Throwing Javelin deals ${javelinDmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
-        addLog(`You hurl the javelin with full force — it strikes ${theName(combat.enemy.name)} for ${javelinDmg} damage!`, 'player');
+        const focusedEnemy = getFocusedEnemy();
+        const focusedIdx = getFocusedEnemyIdx();
+        focusedEnemy.hp -= javelinDmg;
+        if (combat.isDual) {
+            setDualEnemyBar(focusedIdx, focusedEnemy.hp, focusedEnemy.maxHp);
+            if (focusedEnemy.hp <= 0) document.getElementById(`enemy-card-${focusedIdx + 1}`).classList.add('defeated');
+        } else {
+            setEnemyBar(focusedEnemy.hp, focusedEnemy.maxHp);
+        }
+        addLog(`You hurl the javelin with full force — it strikes ${theName(focusedEnemy.name)} for ${javelinDmg} damage!`, 'player');
         removeItemFromInventory(itemId);
-        announce(announceMsg);
-        if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+        announce(`Throwing Javelin deals ${javelinDmg} damage! ${focusedEnemy.name} has ${Math.max(0, focusedEnemy.hp)} HP left.`);
+        const allDead = combat.isDual ? combat.enemy.hp <= 0 && combat.enemy2.hp <= 0 : focusedEnemy.hp <= 0;
+        if (allDead) { setTimeout(victory, 600); return; }
+        if (combat.isDual && focusedEnemy.hp <= 0) {
+            const livingIdx = combat.enemy.hp > 0 ? 0 : 1;
+            combatSetFocus(livingIdx);
+            const livingName = livingIdx === 0 ? combat.enemy.name : combat.enemy2.name;
+            addLog(`${focusedEnemy.name} is defeated! ${livingName} still fights!`, 'system');
+        }
         setTimeout(enemyTurn, 800);
         return;
     } else if (itemId === 'centaur_javelin') {
@@ -4581,9 +4604,18 @@ function useCombatItem(itemId) {
     announce(announceMsg);
 
     // Check if damaging item killed enemy
-    if (['iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','throwing_javelin','smoke_flare'].includes(itemId) && combat.enemy.hp <= 0) {
-        setTimeout(victory, 600);
-        return;
+    if (['iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','smoke_flare'].includes(itemId)) {
+        const allDead = combat.isDual ? combat.enemy.hp <= 0 && combat.enemy2.hp <= 0 : combat.enemy.hp <= 0;
+        if (allDead) { setTimeout(victory, 600); return; }
+        // Switch focus if one died in dual
+        if (combat.isDual) {
+            const fe = getFocusedEnemy();
+            if (fe.hp <= 0) {
+                const livingIdx = combat.enemy.hp > 0 ? 0 : 1;
+                combatSetFocus(livingIdx);
+                addLog(`${fe.name} is defeated! ${livingIdx === 0 ? combat.enemy.name : combat.enemy2.name} still fights!`, 'system');
+            }
+        }
     }
 
     // Using an item costs your turn -- enemy attacks next
