@@ -788,6 +788,9 @@
         .stat-card-name { font-family: 'Cinzel', serif; font-size: 0.75em; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
         .stat-card-row { display: flex; align-items: center; justify-content: space-between; }
         .stat-card-value { font-family: 'Cinzel', serif; font-size: 1.8em; font-weight: 700; color: var(--gold); }
+        .stat-card-breakdown { font-size: 0.72em; color: var(--text-dim); margin-top: 4px; line-height: 1.6; font-family: 'Cinzel', serif; }
+        .stat-card-breakdown .gear-bonus { color: #40c060; }
+        .stat-card-breakdown .stat-total { color: var(--gold-light); font-weight: 700; }
         .stat-card-value.secondary { color: #a08828; font-size: 1.5em; }
         .stat-card-desc { font-size: 0.8em; color: var(--text-dim); font-style: italic; margin-top: 2px; }
         .stat-card-btns { display: flex; gap: 4px; }
@@ -869,6 +872,20 @@
             overflow: hidden;
             box-sizing: border-box;
         }
+        #roster-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 500;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 60px 20px 20px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        #roster-overlay.show { display: flex !important; }
         #dungeon-select-overlay .overlay-panel,
         #travel-overlay .overlay-panel,
         #roster-overlay .overlay-panel {
@@ -876,6 +893,7 @@
             max-width: 420px;
             flex: 1;
             min-height: 0;
+            max-height: 100%;
             display: flex;
             flex-direction: column;
             text-align: center;
@@ -2601,6 +2619,41 @@
     <button class="leave-shop-btn" onclick="goToScreen('windmane')" aria-label="Leave the trading post">Leave Post</button>
 </div>
 
+<!-- -- HILL GIANT STRONGHOLD -- -->
+<div id="screen-giant-stronghold" class="screen" role="main" aria-label="Hill Giant Stronghold">
+    <p class="screen-header">You have entered</p>
+    <h2 class="screen-title">Hill Giant Stronghold</h2>
+
+    <div class="shopkeeper-banner" aria-label="Stronghold atmosphere" style="background:rgba(80,50,20,0.2);border-color:#6a4010">
+        <span class="shopkeeper-icon" aria-hidden="true">🏔</span>
+        <div>
+            <div class="shopkeeper-name" style="color:#c8843c">The Highland Crags</div>
+            <div class="shopkeeper-quote" id="giant-stronghold-quote">"The ground shakes here. Something enormous is coming."</div>
+        </div>
+    </div>
+
+    <div class="town-vitals" aria-label="Your vitals">
+        <div class="vital-pill" aria-label="Hit points"><span aria-hidden="true">❤</span><span id="giant-stronghold-hp">100</span></div>
+        <div class="vital-pill" aria-label="Magic points"><span aria-hidden="true">💙</span><span id="giant-stronghold-mp">50</span></div>
+        <div class="vital-pill" aria-label="Gold"><span aria-hidden="true">💰</span><span id="giant-stronghold-gold">200</span></div>
+    </div>
+
+    <div class="town-menu" role="group" aria-label="Stronghold locations">
+        <button class="menu-btn" onclick="openTownDungeonSelect('giant_stronghold')" aria-label="Choose a dungeon in the Hill Giant Stronghold"
+            style="border-color:#6a4010">
+            <span class="btn-icon" aria-hidden="true">🏔</span>
+            <span class="btn-label">Dungeons</span>
+            <span class="btn-sub" id="giant-stronghold-dungeon-sub">Giants, ogres and worse</span>
+        </button>
+        <button class="menu-btn" onclick="travelTo('town')" aria-label="Return to Greatwolf City"
+            style="border-color:#3a2a1a">
+            <span class="btn-icon" aria-hidden="true">🏰</span>
+            <span class="btn-label">Return Home</span>
+            <span class="btn-sub">Back to Greatwolf City</span>
+        </button>
+    </div>
+</div>
+
 <!-- -- VARG'S SHADOW REALM -- -->
 <div id="screen-shadow-realm" class="screen" role="main" aria-label="Varg's Shadow Realm">
     <p class="screen-header" style="color:#a040a0">You have entered</p>
@@ -2827,7 +2880,7 @@
                     <button class="sc-btn" onclick="sheetSpend('str')" aria-label="Increase Strength">+</button>
                 </div>
             </div>
-            <div class="stat-card-desc">Physical power</div>
+            <div class="stat-card-desc">Physical power <span id="cs-str-breakdown" style="font-size:0.75em;color:#40c060"></span></div>
         </div>
         <div class="stat-card" id="sc-int">
             <div class="stat-card-name">Intelligence</div>
@@ -2837,7 +2890,7 @@
                     <button class="sc-btn" onclick="sheetSpend('int')" aria-label="Increase Intelligence">+</button>
                 </div>
             </div>
-            <div class="stat-card-desc">Magical power</div>
+            <div class="stat-card-desc">Magical power <span id="cs-int-breakdown" style="font-size:0.75em;color:#40c060"></span></div>
         </div>
         <div class="stat-card" id="sc-dex">
             <div class="stat-card-name">Dexterity</div>
@@ -2847,7 +2900,7 @@
                     <button class="sc-btn" onclick="sheetSpend('dex')" aria-label="Increase Dexterity">+</button>
                 </div>
             </div>
-            <div class="stat-card-desc">Dodge &amp; crits</div>
+            <div class="stat-card-desc">Dodge &amp; crits <span id="cs-dex-breakdown" style="font-size:0.75em;color:#40c060"></span></div>
         </div>
         <div class="stat-card" id="sc-res">
             <div class="stat-card-name">Resilience</div>
@@ -2857,7 +2910,7 @@
                     <button class="sc-btn" onclick="sheetSpend('res')" aria-label="Increase Resilience">+</button>
                 </div>
             </div>
-            <div class="stat-card-desc">HP &amp; armor</div>
+            <div class="stat-card-desc">HP &amp; armor <span id="cs-res-breakdown" style="font-size:0.75em;color:#40c060"></span></div>
         </div>
     </div>
 
@@ -2871,7 +2924,7 @@
                     <button class="sc-btn" onclick="sheetSpend('per')" aria-label="Increase Perception">+</button>
                 </div>
             </div>
-            <div class="stat-card-desc">Loot &amp; discovery</div>
+            <div class="stat-card-desc">Loot &amp; discovery <span id="cs-per-breakdown" style="font-size:0.75em;color:#40c060"></span></div>
         </div>
         <div class="stat-card secondary" id="sc-cha">
             <div class="stat-card-name">Charisma</div>
@@ -2881,7 +2934,7 @@
                     <button class="sc-btn" onclick="sheetSpend('cha')" aria-label="Increase Charisma">+</button>
                 </div>
             </div>
-            <div class="stat-card-desc">Prices &amp; NPCs</div>
+            <div class="stat-card-desc">Prices &amp; NPCs <span id="cs-cha-breakdown" style="font-size:0.75em;color:#40c060"></span></div>
         </div>
     </div>
 
@@ -3306,7 +3359,22 @@
                 <div style="font-size:0.9em;color:#a080a0;line-height:1.6">Varg's corrupted domain. Wastes, shadow sanctums, and beasts that have never seen sunlight. Enter at your own peril.</div>
             </div>
 
-        </div>
+            <div style="background:rgba(40,25,5,0.7);border:1px solid #6a4010;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s"
+                 onclick="travelTo('giant_stronghold')"
+                 onmouseenter="this.style.borderColor='#c8843c'"
+                 onmouseleave="this.style.borderColor='#6a4010'"
+                 role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter')travelTo('giant_stronghold')"
+                 aria-label="Travel to the Hill Giant Stronghold, a brutal highland domain">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                    <span style="font-size:2em" aria-hidden="true">🏔</span>
+                    <div>
+                        <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:#c8843c">Hill Giant Stronghold</div>
+                        <div style="font-size:0.75em;color:#8a5828;font-style:italic">Highland crags — The Brutal North</div>
+                    </div>
+                </div>
+                <div style="font-size:0.9em;color:#a06830;line-height:1.6">Rocky highlands crawling with goblins, orcs, ogres, and hill giants. No magic, no corruption — just raw, crushing force.</div>
+            </div>
 
         <button class="leave-shop-btn" onclick="document.getElementById('travel-overlay').classList.remove('show')" aria-label="Stay in Greatwolf City">
             Stay in Greatwolf City
@@ -3820,7 +3888,7 @@ function loadGame() {
 
     if (loadCharacterFromSlot(slot)) {
         migrateGlobalHighestFloor();
-        populateUI();
+        try { populateUI(); } catch(e) { console.warn('populateUI error on load:', e); }
         goToScreen('town');
         document.getElementById('bottomNav').classList.add('visible');
         updateDesktopPanels();
@@ -3867,15 +3935,20 @@ function populateUI() {
     setBar('mp-bar','mp-progress','mp-label', c.mp, c.maxMp);
     setBar('xp-bar','xp-progress','xp-label', c.xp, c.xpNext);
 
-    // Primary stats
-    document.getElementById('cs-str').textContent = c.stats.str;
-    document.getElementById('cs-int').textContent = c.stats.int;
-    document.getElementById('cs-dex').textContent = c.stats.dex;
-    document.getElementById('cs-res').textContent = c.stats.res;
-
-    // Secondary stats
-    document.getElementById('cs-per').textContent = c.stats.per || 1;
-    document.getElementById('cs-cha').textContent = c.stats.cha || 1;
+    // Primary stats with gear breakdown
+    const equip = getEquipBonuses();
+    const statKeys = ['str','int','dex','res','per','cha'];
+    statKeys.forEach(s => {
+        const el = document.getElementById(`cs-${s}`);
+        if (!el) return;
+        const base = c.stats[s] || (s === 'per' || s === 'cha' ? 1 : 0);
+        const bonus = equip[s] || 0;
+        el.textContent = base;
+        const breakdown = document.getElementById(`cs-${s}-breakdown`);
+        if (breakdown) {
+            breakdown.textContent = bonus > 0 ? `+${bonus} gear = ${base + bonus}` : '';
+        }
+    });
 
     // Unspent points badge and stat buttons
     const badge = document.getElementById('cs-unspent-badge');
@@ -3961,10 +4034,10 @@ function goToScreen(id) {
         document.getElementById('bottomNav').classList.remove('visible');
     }
     // Track current town
-    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm'].includes(id)) currentTown = id;
+    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -4889,6 +4962,9 @@ function returnToTown() {
     } else if (home === 'light_realm') {
         travelToLightRealm();
         announce("You return to Fennyx's Realm of Light.");
+    } else if (home === 'giant_stronghold') {
+        travelToGiantStronghold();
+        announce('You return to the Hill Giant Stronghold.');
     } else {
         goToScreen('town');
         announce('You return to Greatwolf City.');
@@ -5321,6 +5397,8 @@ function travelTo(destination) {
         travelToShadowRealm();
     } else if (destination === 'light_realm') {
         travelToLightRealm();
+    } else if (destination === 'giant_stronghold') {
+        travelToGiantStronghold();
     } else if (destination === 'town') {
         goToScreen('town');
         announce('You return to Greatwolf City.');
@@ -5455,6 +5533,7 @@ function updateTownDungeonSub(townId) {
         windmane: 'windmane-dungeon-sub',
         shadow_realm: 'shadow-realm-dungeon-sub',
         light_realm: 'light-realm-dungeon-sub',
+        giant_stronghold: 'giant-stronghold-dungeon-sub',
     };
     const subEl = document.getElementById(subIds[townId]);
     const dungeonIds = TOWN_DUNGEONS[townId];
@@ -8550,6 +8629,101 @@ const DUNGEONS = {
             { id:'soul_crystal',         icon:'💀', name:'Soul Crystal',         desc:'A crystal of condensed soul energy from the underworld. Cold and faintly luminous.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
         ],
     },
+    highland_crags: {
+        id: 'highland_crags',
+        name: 'The Highland Crags',
+        icon: '🏔',
+        desc: 'Rocky boulder-strewn passes crawling with goblin scouts and orc raiders at the gates of the Hill Giant Stronghold.',
+        flavor: 'Where the giants\' servants keep watch',
+        color: '#c8843c',
+        enemies: [
+            { name:'Goblin Scout',       icon:'👺', level:1, hp:24,  atk:7,  xp:13, gold:[2,7],   floors:[1,5]   },
+            { name:'Orc Raider',         icon:'🗡',  level:1, hp:34,  atk:9,  xp:16, gold:[4,10],  floors:[1,8]   },
+            { name:'Goblin Shaman',      icon:'🔮', level:2, hp:38,  atk:11, xp:22, gold:[4,10],  floors:[3,14]  },
+            { name:'Orc Berserker',      icon:'😡', level:2, hp:52,  atk:13, xp:28, gold:[6,14],  floors:[4,18]  },
+            { name:'Boulder Thrower',    icon:'🪨', level:2, hp:48,  atk:12, xp:26, gold:[5,13],  floors:[5,20]  },
+            { name:'Orc Warchief',       icon:'⚔',  level:3, hp:78,  atk:14, xp:46, gold:[12,24], floors:[8,28]  },
+            { name:'Cave Troll',         icon:'👹', level:3, hp:95,  atk:15, xp:50, gold:[14,26], floors:[10,30] },
+            { name:'Ogre Brute',         icon:'💪', level:3, hp:108, atk:16, xp:54, gold:[15,28], floors:[12,32] },
+            { name:'Hill Giant',         icon:'🏔', level:4, hp:135, atk:20, xp:72, gold:[22,42], floors:[16,99] },
+            { name:'Orc Shaman',         icon:'🔮', level:3, hp:68,  atk:15, xp:48, gold:[12,24], floors:[14,34] },
+            { name:'Stone Troll',        icon:'🗿', level:4, hp:148, atk:21, xp:80, gold:[26,46], floors:[22,99] },
+            { name:'Ogre Warlord',       icon:'💪', level:4, hp:158, atk:23, xp:84, gold:[28,50], floors:[26,99] },
+            { name:'Cyclops',            icon:'👁',  level:4, hp:168, atk:24, xp:88, gold:[30,52], floors:[30,99] },
+            { name:'Stone Giant',        icon:'⛰',  level:5, hp:178, atk:27, xp:96, gold:[35,58], floors:[36,99] },
+        ],
+        bosses: {
+            10: { name:'Grakka the Orc Warchief',   icon:'⚔',  level:4, hp:228, atk:21, xp:168, gold:[48,82],   desc:'A massive orc warchief who united the highland clans under one brutal banner' },
+            20: { name:'Grunda the Cave Troll King', icon:'👹', level:5, hp:395, atk:26, xp:305, gold:[90,148],  desc:'A cave troll of enormous size who carved out a throne from the living rock of the crags' },
+            30: { name:'Molok the Hill Giant Lord',  icon:'🏔', level:6, hp:562, atk:33, xp:482, gold:[166,254], desc:'The lord of the highland giants — ancient, scarred, and absolutely unstoppable in open combat' },
+            40: { name:'The Stone Titan',            icon:'⛰',  level:7, hp:830, atk:41, xp:752, gold:[270,390], desc:'A titan of living stone that has stood in these highlands since before any living creature can remember' },
+        },
+        loot: [
+            { id:'giant_maul',           icon:'🔨', name:'Giant Maul',           desc:'A maul forged by hill giants. Impossibly heavy — but unstoppable when it connects.',  stat:'STR +7', slot:'mainHand', tags:['Maul'], stackable:false, dmg:[17,26] },
+            { id:'orc_greataxe',         icon:'🪓', name:'Orc Greataxe',         desc:'A massive two-handed axe of orc iron. Brutal, heavy, and absolutely devastating.',   stat:'STR +7', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[16,24] },
+            { id:'troll_club',           icon:'🪵', name:'Troll Club',           desc:'A club hewn from a whole tree by a cave troll. Dents armor like paper.',             stat:'STR +6', slot:'mainHand', tags:['Mace'], stackable:false, dmg:[15,22] },
+            { id:'highland_spear',       icon:'🔱', name:'Highland Spear',       desc:'A spear of orc-forged iron tipped with a giant boulder fragment. Piercing and brutal.', stat:'STR +5', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,20] },
+            { id:'goblin_blade',         icon:'🗡',  name:'Goblin Blade',         desc:'A serrated blade favored by goblin scouts. Crude but viciously sharp.',              stat:'DEX +5', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
+            { id:'orc_shaman_staff',     icon:'🪄', name:'Orc Shaman Staff',     desc:'A staff topped with a giant skull. Channels primal earth magic.',                   stat:'INT +6', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
+            { id:'giant_plate',          icon:'🧥', name:'Giant Plate',          desc:'Armor hammered from boulder-iron by hill giant smiths. Impossibly thick.',           stat:'ARM +9, STR +6', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'orc_warchief_mail',    icon:'🥋', name:'Warchief Mail',        desc:'Chainmail worn by orc warchiefs. Heavy, scarred, and battle-hardened.',             stat:'ARM +6, STR +5', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'troll_hide_vest',      icon:'🥋', name:'Troll Hide Vest',      desc:'Armor of cave troll hide. Thick as iron, flexible as leather.',                     stat:'ARM +5, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'shaman_robes',         icon:'👘', name:'Shaman Robes',         desc:'Robes of orc shamans lined with giant bone. Channels primal earth power.',          stat:'ARM +2, INT +6, MP +12', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'giant_greaves',        icon:'🦾', name:'Giant Greaves',        desc:'Leg armor of boulder-iron. Heavier than anything in the lowlands.',                 stat:'ARM +9, STR +6', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'orc_boots',            icon:'🥾', name:'Orc War Boots',        desc:'Boots of thick orc-hide reinforced with iron. Built to march forever.',             stat:'ARM +4, STR +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'giant_helm',           icon:'⛑',  name:'Giant War Helm',       desc:'A helm of boulder-iron sized for a giant, reforged for mortal use. Absurdly tough.', stat:'ARM +8, STR +5', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'cyclops_eye_ring',     icon:'💍', name:'Cyclops Eye Ring',     desc:'A ring carved from a cyclops eye socket. Grants uncanny focus and perception.',     stat:'PER +4, STR +3', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'giant_medallion',      icon:'📿', name:'Giant Medallion',      desc:'A medallion of boulder-iron worn by hill giant chieftains. Heavy with raw power.',  stat:'STR +5, RES +3', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'giant_bone_shard',     icon:'🏔', name:'Giant Bone Shard',     desc:'A shard of giant bone from the highland crags. Prized by blacksmiths.',            stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
+    giants_keep: {
+        id: 'giants_keep',
+        name: "The Giant's Keep",
+        icon: '🏰',
+        desc: "The fortress carved into the mountain's heart. Elite guards, veteran warriors, and the chieftain's own enforcers protect what lies within.",
+        flavor: 'The stronghold\'s iron heart',
+        color: '#a06030',
+        enemies: [
+            { name:'Orc Veteran',        icon:'⚔',  level:2, hp:52,  atk:12, xp:26, gold:[6,14],  floors:[1,6]   },
+            { name:'Keep Guard',         icon:'🛡', level:2, hp:58,  atk:12, xp:28, gold:[7,15],  floors:[1,8]   },
+            { name:'Iron Ogre',          icon:'💪', level:2, hp:72,  atk:14, xp:32, gold:[8,16],  floors:[4,18]  },
+            { name:'Orc Champion',       icon:'🏆', level:3, hp:82,  atk:15, xp:48, gold:[13,26], floors:[5,22]  },
+            { name:'Giant Sentinel',     icon:'🏔', level:3, hp:105, atk:16, xp:52, gold:[15,28], floors:[6,24]  },
+            { name:'Keep Enforcer',      icon:'💪', level:3, hp:118, atk:17, xp:56, gold:[16,30], floors:[10,30] },
+            { name:'Elite Giant',        icon:'⛰',  level:4, hp:145, atk:21, xp:74, gold:[24,44], floors:[14,99] },
+            { name:'Orc Ironguard',      icon:'🛡', level:3, hp:92,  atk:16, xp:52, gold:[14,26], floors:[12,32] },
+            { name:'Ogre Enforcer',      icon:'💪', level:4, hp:162, atk:22, xp:82, gold:[28,50], floors:[18,99] },
+            { name:'Giant Warlord',      icon:'🏔', level:4, hp:172, atk:24, xp:88, gold:[30,54], floors:[22,99] },
+            { name:'Keep Titan',         icon:'⛰',  level:4, hp:182, atk:25, xp:92, gold:[32,56], floors:[28,99] },
+            { name:'Chieftain\'s Guard', icon:'👑', level:5, hp:192, atk:27, xp:98, gold:[36,60], floors:[34,99] },
+            { name:'Fortress Colossus',  icon:'🏰', level:5, hp:205, atk:29, xp:104,gold:[40,66], floors:[38,99] },
+        ],
+        bosses: {
+            10: { name:'Commander Vrakh',           icon:'⚔',  level:4, hp:235, atk:22, xp:172, gold:[52,86],   desc:'The keep\'s senior orc commander — disciplined, ruthless, and fiercely loyal to the chieftain' },
+            20: { name:'Ironjaw the Ogre Enforcer', icon:'💪', level:5, hp:408, atk:27, xp:312, gold:[94,154],  desc:'The chieftain\'s personal enforcer — an ogre of extraordinary size who has never lost a fight inside the keep' },
+            30: { name:'The Giant Warlord Korruk',  icon:'🏔', level:6, hp:575, atk:34, xp:490, gold:[170,260], desc:'A giant warlord who commands the keep\'s inner defenses and answers only to the chieftain himself' },
+            40: { name:'Chieftain Borgrak',         icon:'👑', level:7, hp:845, atk:43, xp:762, gold:[275,398], desc:'The chieftain of the Hill Giant Stronghold — ancient, enormous, and absolutely devastating in combat. The keep falls with him.' },
+        },
+        loot: [
+            { id:'keep_greatsword',      icon:'⚔',  name:'Keep Greatsword',      desc:'A greatsword of keep-forged iron carried by giant sentinels. Perfectly balanced for its size.', stat:'STR +7', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[16,24] },
+            { id:'fortress_maul',        icon:'🔨', name:'Fortress Maul',        desc:'A maul of keep-forged iron used by the chieftain\'s enforcers. The heaviest weapon in the stronghold.', stat:'STR +8', slot:'mainHand', tags:['Maul'], stackable:false, dmg:[18,28] },
+            { id:'keep_axe',             icon:'🪓', name:'Keep Axe',             desc:'A war axe of elite orc iron, issued only to orc champions. Razor-edged and relentless.',    stat:'STR +7', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[16,24] },
+            { id:'iron_ogre_club',       icon:'🪵', name:'Iron Ogre Club',       desc:'A club of solid fortress iron swung by iron ogres. Leaves craters where it lands.',        stat:'STR +7', slot:'mainHand', tags:['Mace'], stackable:false, dmg:[16,23] },
+            { id:'keep_spear',           icon:'🔱', name:'Keep Spear',           desc:'A fortress-issue spear of giant-forged iron. Standard issue for keep guards — exceptional by any other measure.', stat:'DEX +5, STR +4', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[14,21] },
+            { id:'chieftain_staff',      icon:'🪄', name:'Chieftain\'s Staff',   desc:'A staff of iron and giant bone carried by the chieftain\'s inner circle. Radiates raw earth power.', stat:'INT +7, STR +3', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[11,17] },
+            { id:'fortress_plate',       icon:'🧥', name:'Fortress Plate',       desc:'Armor of keep-forged fortress iron. The finest heavy armor the stronghold produces.',      stat:'ARM +10, STR +6', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
+            { id:'keep_chainmail',       icon:'🥋', name:'Keep Chainmail',       desc:'Chainmail of elite orc iron worn by orc champions. Heavy, tight, and battle-proven.',     stat:'ARM +7, STR +5', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'enforcer_vest',        icon:'🥋', name:'Enforcer Vest',        desc:'Armor of ogre-hide reinforced with iron plates. Worn by the chieftain\'s personal guard.',  stat:'ARM +6, DEX +4', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'keep_robes',           icon:'👘', name:'Keep Robes',           desc:'Robes of the keep\'s inner circle lined with giant iron thread. Heavy with earth power.',  stat:'ARM +3, INT +7, MP +14', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
+            { id:'fortress_greaves',     icon:'🦾', name:'Fortress Greaves',     desc:'Leg armor of fortress iron. The heaviest greaves in the entire stronghold.',              stat:'ARM +10, STR +6', slot:'legs', tags:['Heavy','Legs'], stackable:false, type:'heavy' },
+            { id:'keep_boots',           icon:'🥾', name:'Keep Boots',           desc:'Boots of fortress-grade iron-reinforced leather. Built for long marches in stone corridors.', stat:'ARM +5, STR +4', slot:'feet', tags:['Medium','Feet'], stackable:false, type:'medium' },
+            { id:'chieftain_helm',       icon:'👑', name:'Chieftain\'s Helm',    desc:'A helm of fortress iron worn by the chieftain himself. Reforged for mortal use — barely.',  stat:'ARM +9, STR +6', slot:'head', tags:['Heavy','Head'], stackable:false, type:'heavy' },
+            { id:'chieftain_ring',       icon:'💍', name:'Chieftain\'s Ring',    desc:'A ring of fortress iron bearing the chieftain\'s mark. Commands respect — and fear.',     stat:'STR +5, RES +4', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'chieftain_medallion',  icon:'📿', name:'Chieftain\'s Medallion', desc:'A medallion of giant-forged iron worn by Borgrak himself. The ultimate trophy of the keep.', stat:'STR +6, RES +4', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'fortress_iron_shard',  icon:'🏰', name:'Fortress Iron Shard',  desc:'A shard of keep-forged fortress iron. The finest raw material the stronghold produces.',  stat:'Material', slot:'item', tags:['Material'], stackable:true },
+        ],
+    },
 };
 
 
@@ -8566,6 +8740,7 @@ const TOWN_DUNGEONS = {
     windmane: ['sunstone_steppe'],
     shadow_realm: ['varg_wastes', 'basalt_flats', 'shadow_sanctum', 'varg_underworld'],
     light_realm: ['sunspire', 'radiant_plains', 'fennyx_sanctum'],
+    giant_stronghold: ['highland_crags', 'giants_keep'],
 };
 
 const DUNGEON_HOME_TOWN = {
@@ -8584,6 +8759,8 @@ const DUNGEON_HOME_TOWN = {
     sunspire: 'light_realm',
     radiant_plains: 'light_realm',
     fennyx_sanctum: 'light_realm',
+    highland_crags: 'giant_stronghold',
+    giants_keep: 'giant_stronghold',
 };
 
 const TOWN_DISPLAY_NAMES = {
@@ -8595,6 +8772,7 @@ const TOWN_DISPLAY_NAMES = {
     windmane: 'Windmane',
     shadow_realm: "Varg's Shadow Realm",
     light_realm: "Fennyx's Realm of Light",
+    giant_stronghold: 'Hill Giant Stronghold',
 };
 
 function getHomeTownForDungeon(dungeonId) {
@@ -8789,39 +8967,39 @@ function openRoster() {
     list.innerHTML = '';
     const filled = roster.filter(Boolean);
 
-    filled.length === 0 ? list.innerHTML = '<div class="roster-empty">No characters yet.<br>Create your first adventurer below.<\/div>' :
-    roster.forEach((entry, idx) => {
-        if (!entry) return;
-        const card = document.createElement('div');
-        card.className = 'roster-card';
-        card.setAttribute('tabindex', '0');
-        card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', entry.name + ', Level ' + entry.level + '. Tap to play.');
-        card.innerHTML = `
-            <span class="roster-icon" aria-hidden="true">🧙<\/span>
-            <div class="roster-info">
-                <div class="roster-name">${entry.name}<\/div>
-                <div class="roster-sub">Level ${entry.level} -- ${entry.gold} Gold<\/div>
-            <\/div>
-        `;
-        // Tap card = play
-        card.onclick = () => selectCharacter(idx);
-        card.onkeydown = (e) => { if (e.key === 'Enter') selectCharacter(idx); };
+    if (filled.length === 0) {
+        list.innerHTML = '<div class="roster-empty">No characters yet.<br>Create your first adventurer below.<\/div>';
+    } else {
+        roster.forEach((entry, idx) => {
+            if (!entry) return;
+            const card = document.createElement('div');
+            card.className = 'roster-card';
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', (entry.name||'Unknown') + ', Level ' + (entry.level||1) + '. Tap to play.');
+            card.innerHTML = `
+                <span class="roster-icon" aria-hidden="true">🧙<\/span>
+                <div class="roster-info">
+                    <div class="roster-name">${entry.name||'Unknown'}<\/div>
+                    <div class="roster-sub">Level ${entry.level||1} -- ${entry.gold||0} Gold<\/div>
+                <\/div>
+            `;
+            card.onclick = () => selectCharacter(idx);
+            card.onkeydown = (e) => { if (e.key === 'Enter') selectCharacter(idx); };
 
-        // Separate delete button outside the card
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'roster-delete';
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.setAttribute('aria-label', 'Delete ' + entry.name);
-        deleteBtn.onclick = (e) => { e.stopPropagation(); promptDeleteChar(e, idx); };
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'roster-delete';
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.setAttribute('aria-label', 'Delete ' + (entry.name||'character'));
+            deleteBtn.onclick = (e) => { e.stopPropagation(); promptDeleteChar(e, idx); };
 
-        // Wrap card + delete in a row
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:8px';
-        row.appendChild(card);
-        row.appendChild(deleteBtn);
-        list.appendChild(row);
-    });
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;gap:8px';
+            row.appendChild(card);
+            row.appendChild(deleteBtn);
+            list.appendChild(row);
+        });
+    }
 
     const slots = filled.length;
     document.getElementById('roster-sub').textContent = slots === 0
@@ -8835,7 +9013,7 @@ function openRoster() {
 function selectCharacter(slot) {
     document.getElementById('roster-overlay').classList.remove('show');
     if (loadCharacterFromSlot(slot)) {
-        dungeonState = null; // reset dungeon state for new character
+        dungeonState = null;
         populateUI();
         document.getElementById('bottomNav').classList.add('visible');
         goToScreen('town');
@@ -9415,6 +9593,27 @@ function travelToLightRealm() {
     announce("Fennyx's Realm of Light. A radiant celestial domain. Two options: Dungeons or Return Home.");
 }
 
+// -- HILL GIANT STRONGHOLD FUNCTIONS -----------------------------------
+const GIANT_STRONGHOLD_QUOTES = [
+    '"The ground shakes here. Something enormous is coming."',
+    '"You can smell the orc camps from here. Dozens of them."',
+    '"Giants carved these crags with their bare hands. Long ago."',
+    '"A warrior with a good maul will feel right at home."',
+    '"Turn back now, or don\'t. The giants don\'t care either way."',
+];
+
+function travelToGiantStronghold() {
+    if (!character) return;
+    document.getElementById('giant-stronghold-hp').textContent = character.hp + ' / ' + character.maxHp;
+    document.getElementById('giant-stronghold-mp').textContent = character.mp + ' / ' + character.maxMp;
+    document.getElementById('giant-stronghold-gold').textContent = character.gold;
+    updateTownDungeonSub('giant_stronghold');
+    document.getElementById('giant-stronghold-quote').textContent =
+        GIANT_STRONGHOLD_QUOTES[Math.floor(Math.random() * GIANT_STRONGHOLD_QUOTES.length)];
+    goToScreen('giant-stronghold');
+    announce('Hill Giant Stronghold. A brutal highland domain. Two options: Dungeons or Return Home.');
+}
+
 function openWindmaneShop() {
     if (!character) return;
     document.getElementById('windmane-shop-gold').textContent = character.gold;
@@ -9587,6 +9786,8 @@ function returnToCurrentTown() {
         travelToShadowRealm();
     } else if (t === 'light-realm') {
         travelToLightRealm();
+    } else if (t === 'giant-stronghold') {
+        travelToGiantStronghold();
     } else {
         goToScreen(t);
     }
