@@ -5101,7 +5101,12 @@ function victory() {
     document.getElementById('result-btn-main').textContent = floorDone ? 'Floor Complete!' : 'Next Encounter';
     document.getElementById('combat-result').classList.add('show');
     document.getElementById('bottomNav').classList.add('visible');
-    playMusic('dungeon');
+
+    // Update return to town button with correct town name
+    const _homeTownId = (DUNGEON_HOME_TOWN && DUNGEON_HOME_TOWN[currentDungeonId]) || 'town';
+    const _townName = (TOWN_DISPLAY_NAMES && TOWN_DISPLAY_NAMES[_homeTownId]) || 'Greatwolf City';
+    const _returnBtn = document.querySelector('#combat-result [onclick="returnToTown()"]');
+    if (_returnBtn) { _returnBtn.textContent = `🏘 Return to ${_townName}`; _returnBtn.setAttribute('aria-label', `Return to ${_townName}`); }
     playSFX(levelsGained > 0 ? 'levelup' : 'victory');
 
     const lootMsg = loot ? ` Found ${loot.name}.` : '';
@@ -5248,12 +5253,13 @@ function showFloorClearOverlay() {
     }
 
     // Update return button label to reflect the right home town
-    const townName = currentDungeonId === 'iron_depths' ? 'Ironhold'
-                   : currentDungeonId === 'sunken_mariner' ? 'Sunport'
-                   : currentDungeonId === 'ashwood' ? 'Wolfhaven'
-                   : 'Greatwolf City';
+    const homeTownId = (DUNGEON_HOME_TOWN && DUNGEON_HOME_TOWN[currentDungeonId]) || 'town';
+    const townName = (TOWN_DISPLAY_NAMES && TOWN_DISPLAY_NAMES[homeTownId]) || 'Greatwolf City';
     const returnBtns = document.querySelectorAll('[onclick="returnToTown()"]');
-    returnBtns.forEach(b => { b.setAttribute('aria-label', `Return to ${townName}`); });
+    returnBtns.forEach(b => {
+        b.setAttribute('aria-label', `Return to ${townName}`);
+        b.textContent = `🏘 Return to ${townName}`;
+    });
 
     document.getElementById('floor-clear-overlay').classList.add('show');
     document.getElementById('bottomNav').classList.add('visible');
