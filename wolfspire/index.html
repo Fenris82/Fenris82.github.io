@@ -4497,8 +4497,7 @@ function useCombatItem(itemId) {
         announceMsg = `Throwing Star deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
     } else if (itemId === 'throwing_javelin') {
-        const str = character.stats.str + (getEquipBonuses().str || 0);
-        const javelinDmg = roll(str * 3, str * 5);
+        const javelinDmg = roll(character.level * 8, character.level * 12);
         combat.enemy.hp -= javelinDmg;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
         announceMsg = `Throwing Javelin deals ${javelinDmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
@@ -5561,11 +5560,11 @@ const IRONHOLD_INVENTORY = {
         { id:'miner_sash',        icon:'🎀', name:"Miner's Sash",          desc:'A practical cloth sash with tool loops. Surprisingly useful.',           price:35,  tags:['Light','Waist'],    stat:'ARM +2, MP +6',  type:'light',  slot:'waist'   },
     ],
     items: [
-        { id:'iron_grenade',     icon:'💣', name:'Iron Grenade',     desc:'A dwarven-forged explosive. Deals heavy damage to any enemy.',            price:40,  tags:['Consumable','Throwable'], stat:'Deals 80-120 damage', slot:'item', stackable:true },
-        { id:'moon_bomb',        icon:'🌙', name:'Moon Bomb',        desc:'An alchemical bomb infused with lunar essence. Devastating magic damage.',  price:65,  tags:['Consumable','Throwable'], stat:'Deals 100-150 magic damage', slot:'item', stackable:true },
-        { id:'thrown_axe',       icon:'🪓', name:'Throwing Axe',     desc:'A heavy axe balanced for throwing. Deals solid STR-based damage.',        price:20,  tags:['Consumable','Throwable'], stat:'STR-based damage', slot:'item', stackable:true },
-        { id:'throwing_javelin', icon:'🏹', name:'Throwing Javelin', desc:'A heavy iron-tipped javelin. Throw it with force for massive STR damage.', price:30,  tags:['Consumable','Throwable'], stat:'STR x 3-5 damage', slot:'item', stackable:true },
-        { id:'smoke_bomb',       icon:'💨', name:'Smoke Bomb',       desc:'Creates a cloud of smoke — guarantees your next retreat succeeds.',        price:25,  tags:['Consumable'], stat:'Guaranteed flee', slot:'item', stackable:true },
+        { id:'iron_grenade',     icon:'💣', name:'Iron Grenade',     desc:'A dwarven-forged explosive. Hurls a grenade dealing level-scaled damage.',  price:40, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'moon_bomb',        icon:'🌙', name:'Moon Bomb',        desc:'An alchemical charge that detonates in a burst of pale moonlight. Level-scaled damage.', price:65, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'thrown_axe',       icon:'🪓', name:'Throwing Axe',     desc:'A balanced hand axe built for one deadly throw. Level-scaled damage.',      price:20, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'throwing_javelin', icon:'🏹', name:'Throwing Javelin', desc:'A heavy iron-tipped javelin. Hurl it with full force for level-scaled damage.', price:30, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'smoke_bomb',       icon:'💨', name:'Smoke Bomb',       desc:'Creates a cloud of smoke — guarantees your next retreat succeeds.',         price:25, tags:['Consumable'], stat:'Guaranteed flee', slot:'item', stackable:true },
     ],
 };
 
@@ -7549,7 +7548,7 @@ function findShopItem(shopId, itemId) {
             if (item) return item;
         }
     } else if (shopId === 'ironhold') {
-        return [...IRONHOLD_INVENTORY.weapons, ...IRONHOLD_INVENTORY.armor].find(i => i.id === itemId);
+        return [...IRONHOLD_INVENTORY.weapons, ...IRONHOLD_INVENTORY.armor, ...(IRONHOLD_INVENTORY.items||[])].find(i => i.id === itemId);
     } else if (shopId === 'wolfhaven') {
         return [...WOLFHAVEN_INVENTORY.weapons, ...WOLFHAVEN_INVENTORY.armor, ...WOLFHAVEN_INVENTORY.consumables].find(i => i.id === itemId);
     } else if (shopId === 'sunport') {
