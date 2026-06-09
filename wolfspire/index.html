@@ -3511,7 +3511,7 @@
         <button class="begin-btn" onclick="rosterNewGame()" aria-label="Create a new character" style="margin-bottom:12px;width:100%">
             + Create New Character
         </button>
-        <button class="leave-shop-btn" onclick="document.getElementById('roster-overlay').classList.remove('show')" aria-label="Back to title screen">
+        <button class="leave-shop-btn" onclick="document.getElementById('roster-overlay').classList.remove('show');document.getElementById('roster-overlay').style.display='none'" aria-label="Back to title screen">
             Back
         </button>
     </div>
@@ -9007,11 +9007,14 @@ function openRoster() {
         : slots + ' of ' + MAX_CHARS + ' character slots used.';
 
     document.getElementById('roster-overlay').classList.add('show');
+    document.getElementById('roster-overlay').style.display = 'flex';
     announce('Character select. ' + slots + ' characters. ' + (slots === 0 ? 'Create your first.' : 'Choose one or create new.'));
 }
 
 function selectCharacter(slot) {
-    document.getElementById('roster-overlay').classList.remove('show');
+    const overlay = document.getElementById('roster-overlay');
+    overlay.classList.remove('show');
+    overlay.style.display = 'none';
     if (loadCharacterFromSlot(slot)) {
         dungeonState = null;
         populateUI();
