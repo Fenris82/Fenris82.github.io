@@ -753,10 +753,10 @@
 <nav class="mobile-drawer" id="mobile-drawer" aria-label="Mobile navigation" aria-hidden="true">
     <p class="drawer-section-label">Navigate</p>
     <ul class="drawer-nav-links" role="list">
-        <li><a href="#" onclick="closeDrawer()">🐺 Home</a></li>
-        <li><a href="#games" onclick="closeDrawer()">🎮 Our Games</a></li>
-        <li><a href="#about" onclick="closeDrawer()">📖 About Us</a></li>
-        <li><a href="#community" onclick="closeDrawer()">💬 Community</a></li>
+        <li><a href="#" onclick="closeDrawer(); return true;">🐺 Home</a></li>
+        <li><a href="#games" onclick="closeDrawer(); setTimeout(()=>document.getElementById('games').scrollIntoView({behavior:'smooth'}),320); return false;">🎮 Our Games</a></li>
+        <li><a href="#about" onclick="closeDrawer(); setTimeout(()=>document.getElementById('about').scrollIntoView({behavior:'smooth'}),320); return false;">📖 About Us</a></li>
+        <li><a href="#community" onclick="closeDrawer(); setTimeout(()=>document.getElementById('community').scrollIntoView({behavior:'smooth'}),320); return false;">💬 Community</a></li>
     </ul>
 
     <p class="drawer-section-label">Connect With Us</p>
@@ -848,7 +848,7 @@
                 <span class="game-icon" aria-hidden="true">🐺</span>
                 <div>
                     <div class="game-title">Wolfspire</div>
-                    <div class="game-version">Version 0.3 — Early Access</div>
+                    <div class="game-version">Early Access</div>
                 </div>
             </div>
             <p class="game-desc">
