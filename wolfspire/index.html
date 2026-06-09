@@ -2221,6 +2221,7 @@
     <div class="shop-tabs" role="tablist" aria-label="Shop categories">
         <button class="shop-tab active" id="itab-weapons" role="tab" aria-selected="true" onclick="switchIronholdTab('weapons')">⚒ Weapons</button>
         <button class="shop-tab" id="itab-armor" role="tab" aria-selected="false" onclick="switchIronholdTab('armor')">🛡 Armor</button>
+        <button class="shop-tab" id="itab-items" role="tab" aria-selected="false" onclick="switchIronholdTab('items')">💣 Items</button>
         <button class="shop-tab" id="itab-sell" role="tab" aria-selected="false" onclick="switchIronholdTab('sell')">💰 Sell</button>
     </div>
 
@@ -2230,6 +2231,7 @@
 
     <div class="shop-panel active" id="ironhold-weapons" role="tabpanel"></div>
     <div class="shop-panel" id="ironhold-armor" role="tabpanel"></div>
+    <div class="shop-panel" id="ironhold-items" role="tabpanel"></div>
     <div class="shop-panel" id="ironhold-sell" role="tabpanel"></div>
 
     <button class="leave-shop-btn" onclick="goToScreen('ironhold')" aria-label="Leave the forge shop">
@@ -4397,7 +4399,7 @@ function setActionsEnabled(enabled) {
     if (offhandBtn) offhandBtn.disabled = !enabled;
     document.getElementById('btn-defend').disabled = !enabled;
     document.getElementById('btn-retreat').disabled = !enabled;
-    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'moon_bomb', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
+    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'moon_bomb', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'throwing_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
     const hasItems = character && character.inventory.some(i => i.stackable && i.quantity > 0 && USABLE_IN_COMBAT.includes(i.id));
     document.getElementById('btn-items').disabled = !enabled || !hasItems;
     const hasSkills = character && (character.skills||[]).some(id => SKILLS_DATA.find(s=>s.id===id && !s.passive));
@@ -4410,7 +4412,7 @@ function openCombatItems() {
     if (!combat || combat.over) return;
     const list = document.getElementById('combat-items-list');
     // Only show items that have a combat use -- potions, grenades, smoke bombs
-    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'moon_bomb', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
+    const USABLE_IN_COMBAT = ['health_potion', 'mana_potion', 'smoke_bomb', 'iron_grenade', 'moon_bomb', 'thrown_axe', 'throwing_star', 'centaur_javelin', 'throwing_javelin', 'brine_tonic', 'surge_draught', 'smoke_flare', 'salted_rations', 'nettle_poison', 'healing_herb', 'mana_bloom', 'thornpoison', 'bark_shield', 'fennyx_blessing'];
     const consumables = character.inventory.filter(i => i.stackable && i.quantity > 0 && USABLE_IN_COMBAT.includes(i.id));
 
     if (consumables.length === 0) {
@@ -4494,12 +4496,19 @@ function useCombatItem(itemId) {
         logMsg = `You fling a Throwing Star at ${theName(combat.enemy.name)} for ${dmg} damage!`;
         announceMsg = `Throwing Star deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
-    } else if (itemId === 'centaur_javelin') {
-        const dmg = roll(character.level * 8, character.level * 12);
-        combat.enemy.hp -= dmg;
-        logMsg = `You hurl a Centaur Javelin at ${theName(combat.enemy.name)} for ${dmg} damage!`;
-        announceMsg = `Centaur Javelin deals ${dmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
+    } else if (itemId === 'throwing_javelin') {
+        const str = character.stats.str + (getEquipBonuses().str || 0);
+        const javelinDmg = roll(str * 3, str * 5);
+        combat.enemy.hp -= javelinDmg;
         setEnemyBar(combat.enemy.hp, combat.enemy.maxHp);
+        announceMsg = `Throwing Javelin deals ${javelinDmg} damage! Enemy has ${Math.max(0, combat.enemy.hp)} HP left.`;
+        addLog(`You hurl the javelin with full force — it strikes ${theName(combat.enemy.name)} for ${javelinDmg} damage!`, 'player');
+        removeItemFromInventory(itemId);
+        announce(announceMsg);
+        if (combat.enemy.hp <= 0) { setTimeout(victory, 600); return; }
+        setTimeout(enemyTurn, 800);
+        return;
+    } else if (itemId === 'centaur_javelin') {
     } else if (itemId === 'brine_tonic') {
         const restore = Math.floor(character.maxHp * 0.5);
         combat.playerHp = Math.min(character.maxHp, combat.playerHp + restore);
@@ -4573,7 +4582,7 @@ function useCombatItem(itemId) {
     announce(announceMsg);
 
     // Check if damaging item killed enemy
-    if (['iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','smoke_flare'].includes(itemId) && combat.enemy.hp <= 0) {
+    if (['iron_grenade','moon_bomb','thrown_axe','throwing_star','centaur_javelin','throwing_javelin','smoke_flare'].includes(itemId) && combat.enemy.hp <= 0) {
         setTimeout(victory, 600);
         return;
     }
@@ -5551,6 +5560,13 @@ const IRONHOLD_INVENTORY = {
         { id:'deep_leather_belt', icon:'👔', name:'Deep Leather Belt',      desc:'Thick leather from the mine depths. Flexible but tough.',              price:45,  tags:['Medium','Waist'],   stat:'ARM +3, DEX +3', type:'medium', slot:'waist'   },
         { id:'miner_sash',        icon:'🎀', name:"Miner's Sash",          desc:'A practical cloth sash with tool loops. Surprisingly useful.',           price:35,  tags:['Light','Waist'],    stat:'ARM +2, MP +6',  type:'light',  slot:'waist'   },
     ],
+    items: [
+        { id:'iron_grenade',     icon:'💣', name:'Iron Grenade',     desc:'A dwarven-forged explosive. Deals heavy damage to any enemy.',            price:40,  tags:['Consumable','Throwable'], stat:'Deals 80-120 damage', slot:'item', stackable:true },
+        { id:'moon_bomb',        icon:'🌙', name:'Moon Bomb',        desc:'An alchemical bomb infused with lunar essence. Devastating magic damage.',  price:65,  tags:['Consumable','Throwable'], stat:'Deals 100-150 magic damage', slot:'item', stackable:true },
+        { id:'thrown_axe',       icon:'🪓', name:'Throwing Axe',     desc:'A heavy axe balanced for throwing. Deals solid STR-based damage.',        price:20,  tags:['Consumable','Throwable'], stat:'STR-based damage', slot:'item', stackable:true },
+        { id:'throwing_javelin', icon:'🏹', name:'Throwing Javelin', desc:'A heavy iron-tipped javelin. Throw it with force for massive STR damage.', price:30,  tags:['Consumable','Throwable'], stat:'STR x 3-5 damage', slot:'item', stackable:true },
+        { id:'smoke_bomb',       icon:'💨', name:'Smoke Bomb',       desc:'Creates a cloud of smoke — guarantees your next retreat succeeds.',        price:25,  tags:['Consumable'], stat:'Guaranteed flee', slot:'item', stackable:true },
+    ],
 };
 
 const BRUNDAR_FIRST_VISIT = [
@@ -5633,18 +5649,20 @@ function switchIronholdTab(tab) {
 }
 
 function renderIronholdShop() {
-    ['weapons', 'armor'].forEach(category => {
+    ['weapons', 'armor', 'items'].forEach(category => {
         const panel = document.getElementById('ironhold-' + category);
         panel.innerHTML = '';
-        let items = applyShopItemFilters(IRONHOLD_INVENTORY[category], category === 'armor');
-        if (items.length === 0) {
+        let items = category === 'items'
+            ? IRONHOLD_INVENTORY.items
+            : applyShopItemFilters(IRONHOLD_INVENTORY[category], category === 'armor');
+        if (!items || items.length === 0) {
             panel.innerHTML = '<div class="inv-empty">No items match this filter.<\/div>';
             return;
         }
         items.forEach(item => {
             const finalPrice = getDiscountedPrice(item.price);
             const canAfford = character.gold >= finalPrice;
-            const tagHTML = item.tags.map(t => {
+            const tagHTML = (item.tags||[]).map(t => {
                 const cls = t === 'Heavy' ? 'type-heavy' : t === 'Medium' ? 'type-medium' : t === 'Light' ? 'type-light' : '';
                 return `<span class="shop-tag ${cls}">${t}<\/span>`;
             }).join('');
