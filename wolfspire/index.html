@@ -6416,7 +6416,8 @@ const SKILLS_DATA = [
         stat:'STR x 2.0', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Physical'],
         use:(c,enemy) => {
-            const dmg = Math.floor(roll(c.stats.str*2, c.stats.str*4) * 2.0);
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = Math.floor(roll(str*2, str*4) * 2.0);
             return { damage:dmg, log:`SLAM! You bring your weapon down on ${theName(enemy.name)} for ${dmg} massive damage!`, type:'player' };
         }
     },
@@ -6438,7 +6439,8 @@ const SKILLS_DATA = [
         stat:'STR x 1.5', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Physical'],
         use:(c,enemy) => {
-            const dmg = Math.floor(roll(c.stats.str*2, c.stats.str*4) * 1.5);
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = Math.floor(roll(str*2, str*4) * 1.5);
             return { damage:dmg, log:`You cleave ${theName(enemy.name)} for ${dmg} damage!`, type:'player' };
         }
     },
@@ -6448,8 +6450,9 @@ const SKILLS_DATA = [
         stat:'STR x 0.75 x 2', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Physical'],
         use:(c,enemy) => {
-            const h1 = Math.floor(roll(c.stats.str*2, c.stats.str*4)*0.75);
-            const h2 = Math.floor(roll(c.stats.str*2, c.stats.str*4)*0.75);
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const h1 = Math.floor(roll(str*2, str*4)*0.75);
+            const h2 = Math.floor(roll(str*2, str*4)*0.75);
             return { damage:h1+h2, log:`Rapid Strike! You hit ${theName(enemy.name)} twice -- ${h1} + ${h2} = ${h1+h2} damage!`, type:'player' };
         }
     },
@@ -6469,7 +6472,8 @@ const SKILLS_DATA = [
         stat:'STR x 1.6 + Weaken', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Physical'],
         use:(c,enemy) => {
-            const dmg = Math.floor(roll(c.stats.str*2, c.stats.str*4) * 1.6);
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = Math.floor(roll(str*2, str*4) * 1.6);
             combat.enemyWeakened = true;
             return { damage:dmg, log:`Overpower! You force ${theName(enemy.name)} back for ${dmg} damage! Their next attack is weakened!`, type:'player' };
         }
@@ -6488,7 +6492,8 @@ const SKILLS_DATA = [
         stat:'STR x 1.0 + Stun', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Physical'],
         use:(c,enemy) => {
-            const dmg = roll(c.stats.str*2, c.stats.str*3);
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = roll(str*2, str*3);
             combat.enemyFrozen = true;
             return { damage:dmg, log:`Shield Bash! You stun ${theName(enemy.name)} for ${dmg} damage! They lose their next turn!`, type:'player' };
         }
@@ -6499,7 +6504,7 @@ const SKILLS_DATA = [
         stat:'DEX x 2-4 (x2)', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Ranged'],
         use:(c,enemy) => {
-            const dex = c.stats.dex + getEquipBonuses().dex;
+            const dex = c.stats.dex + (getEquipBonuses().dex||0);
             const s1 = roll(dex*2, dex*4);
             const s2 = roll(dex*2, dex*4);
             return { damage:s1+s2, log:`Double Shot! Two projectiles find their mark -- ${s1} + ${s2} = ${s1+s2} damage!`, type:'player' };
@@ -6511,7 +6516,7 @@ const SKILLS_DATA = [
         stat:'DEX x 2-3 + Weaken', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Ranged'],
         use:(c,enemy) => {
-            const dex = c.stats.dex + getEquipBonuses().dex;
+            const dex = c.stats.dex + (getEquipBonuses().dex||0);
             const dmg = roll(dex*2, dex*3);
             combat.enemyWeakened = true;
             return { damage:dmg, log:`Crippling Shot! You wound ${theName(enemy.name)} for ${dmg} damage! Their next attack is weakened!`, type:'player' };
@@ -6534,9 +6539,24 @@ const SKILLS_DATA = [
         stat:'DEX x 2.0', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Stealth'],
         use:(c,enemy) => {
-            const dex = c.stats.dex + getEquipBonuses().dex;
+            const dex = c.stats.dex + (getEquipBonuses().dex||0);
             const dmg = Math.floor(roll(dex*2, dex*4) * 2.0);
             return { damage:dmg, log:`Backstab! You slip behind ${theName(enemy.name)} and drive your blade in for ${dmg} devastating damage!`, type:'player' };
+        }
+    },
+    {
+        id:'whirlwind', icon:'🌪', name:'Whirlwind', type:'skill',
+        desc:'Spin with reckless fury — four rapid strikes tearing through the enemy from every angle.',
+        stat:'STR x 0.8 x 4', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Physical'],
+        use:(c,enemy) => {
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const h1 = Math.floor(roll(str*2, str*3) * 0.8);
+            const h2 = Math.floor(roll(str*2, str*3) * 0.8);
+            const h3 = Math.floor(roll(str*2, str*3) * 0.8);
+            const h4 = Math.floor(roll(str*2, str*3) * 0.8);
+            const total = h1 + h2 + h3 + h4;
+            return { damage:total, log:`WHIRLWIND! You spin in a fury of steel — ${h1}, ${h2}, ${h3}, ${h4}! ${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} is shredded for ${total} total damage!`, type:'player' };
         }
     },
     {
@@ -6545,7 +6565,7 @@ const SKILLS_DATA = [
         stat:'DEX x 1.5 x 3', price:50, cooldown:1, mpCost:12,
         tags:['Skill','Shadow'],
         use:(c,enemy) => {
-            const dex = c.stats.dex + getEquipBonuses().dex;
+            const dex = c.stats.dex + (getEquipBonuses().dex||0);
             const b1 = Math.floor(roll(dex*2, dex*3) * 1.5);
             const b2 = Math.floor(roll(dex*2, dex*3) * 1.5);
             const b3 = Math.floor(roll(dex*2, dex*3) * 1.5);
