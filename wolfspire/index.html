@@ -1029,7 +1029,7 @@
             position: fixed;
             inset: 0;
             background: rgba(0,0,0,0.8);
-            z-index: 200;
+            z-index: 350;
             align-items: flex-end;
             justify-content: center;
             padding: 20px;
@@ -2081,7 +2081,7 @@
     </div>
 
     <h3 class="sheet-section-label">Combat Log</h3>
-    <div class="combat-log" id="combat-log" role="log" aria-label="Combat log" aria-live="polite"></div>
+    <div class="combat-log" id="combat-log" role="log" aria-label="Combat log" aria-relevant="additions" aria-atomic="false"></div>
 
     <h3 class="sheet-section-label">Actions</h3>
     <div class="combat-actions" role="group" aria-label="Combat actions">
@@ -4137,9 +4137,11 @@ function goToScreen(id) {
     // Hide nav on title and create screens, combat handles its own nav state
     if (id === 'title' || id === 'create') {
         document.getElementById('bottomNav').classList.remove('visible');
-    } else if (id !== 'combat') {
-        // Show nav on all other in-game screens
-        if (character) document.getElementById('bottomNav').classList.add('visible');
+    } else if (id === 'combat') {
+        // Combat hides nav via startNextEncounter — don't touch it here
+    } else {
+        // Force nav visible on ALL other in-game screens
+        document.getElementById('bottomNav').classList.add('visible');
     }
     // Track current town
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold'].includes(id)) currentTown = id;
@@ -6227,7 +6229,10 @@ function openDetail(invIndex, equippedSlot) {
 function showItemDetailById(itemId) {
     if (!character) return;
     const idx = character.inventory.findIndex(i => i.id === itemId);
-    if (idx === -1) return;
+    if (idx === -1) {
+        announce('Item not yet in inventory. Continue to collect it first.');
+        return;
+    }
     openDetail(idx, null);
 }
 
@@ -7333,7 +7338,6 @@ function useAbility(id) {
     combat.cooldowns[id] = ability.cooldown + 1;
 
     addLog(result.log, result.type);
-    announce(result.log);
     setCombatPlayerBars();
 
     if (result.damage > 0 || result.dualHandled) {
