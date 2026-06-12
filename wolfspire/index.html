@@ -2755,17 +2755,17 @@
     </div>
 
     <div class="town-menu" role="group" aria-label="Wolfgate locations">
-        <button class="menu-btn" onclick="openTownDungeonSelect('wolfgate')" aria-label="Enter the Wolfgate dungeon"
-            style="border-color:#1a6a40">
-            <span class="btn-icon" aria-hidden="true">⛏</span>
-            <span class="btn-label">The Wolfgate</span>
-            <span class="btn-sub" id="wolfgate-dungeon-sub">The Wolfsteel mines run deep</span>
-        </button>
         <button class="menu-btn" onclick="openWolfgateShop()" aria-label="Visit Deucalius's shop"
             style="border-color:#1a6a40">
             <span class="btn-icon" aria-hidden="true">🛒</span>
             <span class="btn-label">Deucalius's Outpost</span>
             <span class="btn-sub">Wolfsteel gear and supplies</span>
+        </button>
+        <button class="menu-btn" onclick="openTownDungeonSelect('wolfgate')" aria-label="Choose a dungeon to explore"
+            style="border-color:#1a6a40">
+            <span class="btn-icon" aria-hidden="true">⛏</span>
+            <span class="btn-label">Choose a Dungeon</span>
+            <span class="btn-sub" id="wolfgate-dungeon-sub">The Wolfsteel mines run deep</span>
         </button>
         <button class="menu-btn" onclick="travelTo('town')" aria-label="Return to Greatwolf City"
             style="border-color:#1a3a20">
@@ -9417,8 +9417,11 @@ const DUNGEONS = {
     },
 
     wolfgate: {
+        id: 'wolfgate',
         name: 'The Wolfgate',
         icon: '⛏',
+        flavor: 'The Wolfsteel mine runs deep',
+        color: '#4aaf70',
         desc: 'The ancient mine beneath the Isle of Wolfgate where Wolfsteel is still unearthed. Golems, corrupted druids, and things far older than the island itself wait in the deep.',
         enemies: [
             { id:'wolfsteel_golem',      name:'Wolfsteel Golem',      icon:'🗿', level:2, hp:90,  atk:14, xp:55,  gold:[12,22], floors:[1,40],  desc:'A construct of raw Wolfsteel ore. Slow but nearly impossible to stagger.' },
