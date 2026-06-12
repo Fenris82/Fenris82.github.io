@@ -1957,6 +1957,17 @@
                 </button>
             </div>
         </div>
+        <div class="settings-row">
+            <label class="settings-label" for="toggle-confirm-destroy">Confirm when destroying items</label>
+            <div class="toggle-wrap">
+                <span class="toggle-state" id="confirm-destroy-state">On</span>
+                <button class="toggle-btn on" id="toggle-confirm-destroy" role="switch" aria-checked="true"
+                    onclick="toggleGamePref('confirmDestroyItems')" aria-label="Toggle destroy confirmation on or off">
+                    <span class="toggle-thumb"></span>
+                </button>
+            </div>
+        </div>
+        <div style="font-size:0.78em;color:#8a4a4a;padding:0 4px 8px;font-style:italic">⚠ Destroyed items are permanently gone and cannot be recovered. Keep this on unless you're sure.</div>
     </div>
 
     <!-- Save Transfer -->
@@ -1994,7 +2005,8 @@
         <div style="font-size:0.95em">Explore the world and uncover its secrets.<br>Lore fragments found in dungeons will appear here.</div>
     </div>
 
-    <div id="journal-entries" style="display:none;display:flex;flex-direction:column;gap:16px;margin-top:8px"></div>
+    <h3 class="sheet-section-label" id="journal-entries-heading" style="display:none">Lore Fragments</h3>
+    <div id="journal-entries" style="display:none;flex-direction:column;gap:16px;margin-top:8px"></div>
 </div>
 
 <!-- -- COMBAT -- -->
@@ -3112,6 +3124,7 @@
             <button class="detail-btn unequip" id="detail-unequip-btn" onclick="unequipFromDetail()" aria-label="Unequip this item" style="display:none">Unequip</button>
             <button class="detail-btn use" id="detail-use-btn" onclick="useFromDetail()" aria-label="Use this item" style="display:none">Use</button>
             <button class="detail-btn lock" id="detail-lock-btn" onclick="promptToggleItemLock()" aria-label="Lock this item" style="display:none">Lock Item</button>
+            <button class="detail-btn" id="detail-destroy-btn" onclick="promptDestroyItem()" aria-label="Destroy this item" style="display:none;background:rgba(140,30,30,0.3);border-color:#8a2a2a;color:#ff6060">🗑 Destroy</button>
             <button class="detail-btn cancel" onclick="closeDetail()" aria-label="Close item details">Close</button>
         </div>
     </div>
@@ -3125,6 +3138,18 @@
         <div class="confirm-buttons">
             <button class="confirm-btn primary" onclick="confirmLockItem()" aria-label="Confirm lock item">Yes, Lock It</button>
             <button class="confirm-btn cancel" onclick="closeLockItemConfirm()" aria-label="Cancel">Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- -- DESTROY ITEM OVERLAY -- -->
+<div class="confirm-overlay" id="destroy-item-overlay" role="dialog" aria-modal="true" aria-labelledby="destroy-item-title">
+    <div class="confirm-card">
+        <h2 class="confirm-title" id="destroy-item-title" style="color:#ff6060">Destroy Item?</h2>
+        <div class="confirm-body" id="destroy-item-body">This item will be permanently destroyed. This cannot be undone.</div>
+        <div class="confirm-buttons">
+            <button class="confirm-btn" style="background:rgba(140,30,30,0.4);border-color:#8a2a2a;color:#ff6060" onclick="confirmDestroyItem()" aria-label="Confirm destroy item">Yes, Destroy It</button>
+            <button class="confirm-btn cancel" onclick="closeDestroyConfirm()" aria-label="Cancel">Cancel</button>
         </div>
     </div>
 </div>
@@ -4731,7 +4756,7 @@ function getEquipBonuses() {
         if (stat.includes('ARM +')) bonuses.arm += parseInt(stat.match(/ARM \+(\d+)/)[1]);
         if (stat.includes('MP +') && !stat.includes('MP +40%')) bonuses.mp += parseInt(stat.match(/MP \+(\d+)/)[1]);
         if (stat.includes('RES +')) bonuses.res += parseInt(stat.match(/RES \+(\d+)/)[1]);
-        // Valorian's Knightly Longsword crit bonus
+        // Cronus's Knightly Longsword crit bonus
         if (item.special === 'knightly') bonuses.critBonus += 10;
         if (item.special === 'precision') bonuses.critBonus += 15;
     });
@@ -5087,6 +5112,51 @@ function xpToNextLevel(level) {
     return Math.floor(100 * Math.pow(1.15, level - 1));
 }
 
+
+// -- LORE FRAGMENTS ---------------------------------------
+const LORE_FRAGMENTS = {
+    wolfspire_1: { title:'The Founding of Greatwolf City', body:'Greatwolf City was founded when the old city of Wolfborn fell. Built from its ashes, the city stands as a safe haven for anyone seeking refuge against evil. Its gates have never been closed.', icon:'🏰', source:'Found in the Greatwolf Depths' },
+    wolfspire_2: { title:'The Ragnar Council', body:'The Ragnar Council was formed after the founding of Greatwolf City. It exists to keep the city from falling into chaos should darkness arise. It is said that the members give out tasks to those deemed worthy.', icon:'⚖', source:'Found in the Greatwolf Depths' },
+    wolfspire_3: { title:'The Greatwolf Defenders', body:"After the fall of Wolfborn, an alliance was formed to push back against Varg's corruption. There were four champions — Fenris, Fennyx's chosen; Fenric the Ranger; Deucalius the Warchief; and Geminus the Magetech Gunslinger. It is said that if one looks hard enough, ancient relics of the weapons they once wielded can still be found.", icon:'⚔', source:'Found in the Greatwolf Depths' },
+    wolfspire_4: { title:'Fenris, Champion of the Greatwolf', body:"Regarded as one of Fennyx's proudest champions, Fenris was more than a brute with a hammer. Some say he was a knight of the old order. Others say he was chosen directly by the Greatwolf — and that the wolf still watches over those who carry his name.", icon:'🐺', source:'Found in the Greatwolf Depths' },
+    wolfspire_5: { title:'Fenric the Ranger', body:"This Greatwolf Defender is not like the others. Instead of heavy weapons and armor, Fenric prefers the stealth and precision of a ranger. He moves without sound and strikes without warning.", icon:'🏹', source:'Found in the Greatwolf Depths' },
+    wolfspire_6: { title:'Geminus the Gunslinger', body:"This Greatwolf Defender is unique in his own right. Instead of melee weapons, Geminus prefers any magetech weapon — a gun, or a mythical flamethrower. No one knows where he came from or why he was chosen. Some say he has weapons hidden in the deepest parts of the dungeons.", icon:'🔫', source:'Found in the Greatwolf Depths' },
+    wolfspire_7: { title:'Deucalius the Warchief', body:"This Greatwolf Defender is equal parts warrior and druid. He is also the Warchief and overseer of the Isle of Wolfgate — a place shrouded in mystery. Deucalius prefers to swing an axe up close, but is not afraid to fire an arrow from a distance.", icon:'🪓', source:'Found in the Greatwolf Depths' },
+    greymantle_1: { title:'Aldric Greymantle', body:"Aldric Greymantle, shopkeeper of Greatwolf City, came from the elven town of Ironwood. When he pledged himself to the Greatwolf's cause, he was offered a golden cloak befitting his new station. He declined. He kept his gray mantle — the one he'd worn since Ironwood — and they simply pressed the holy symbol into the fabric. He wears it still, behind the counter, every day.", icon:'🧥', source:'Found in the Greatwolf Depths' },
+    lunaris_1: { title:'Lunaris, the Lunar Dragon', body:"Lunaris was not born of fire and fury like most dragons. He was hatched from an egg stolen by Varg — the act that finally broke the peace between the brothers. Raised under Fennyx's light, he grew into something neither fully aligned nor fully neutral. He is the moon — constant, watchful, neither warm nor cold. Some say he still circles the world, keeping balance between what was and what is becoming.", icon:'🐉', source:"Found in Fennyx's Realm of Light" },
+    fennyx_1: { title:'Fennyx, the Radiant', body:"Fennyx and Varg were not always enemies. They built this world together, side by side, before the corruption found its way in. When Varg became obsessed with a relic he did not understand, Fennyx saw what it was doing to him. He pleaded. Varg did not listen. Fennyx has been trying to bring him back ever since — though fewer and fewer believe that is still possible.", icon:'☀', source:"Found in Fennyx's Realm of Light" },
+    cronus_1: { title:'Cronus, Sword of the Alliance', body:"Cronus was never named among the Defenders — but those who were there said he stood with them anyway. Sword, shield, heavy plate, never a step backward. Where Fenris swung his maul and let the chaos sort itself out, Cronus was calculated. Controlled. Honorable to a fault — the kind of man who would rather lose than win the wrong way. Some say he and Fenris were closer than brothers. Whatever bond they shared was forged in the worst of the war against Varg — and tested there too.", icon:'🛡', source:'Found in the Greatwolf Depths' },
+    varg_1: { title:'Varg, the Corrupted', body:"Varg was never meant to be a villain. He was restless, chaotic, always pushing boundaries — but never cruel. Then he found the object. No one knows what it was or where it came from. What is known is that it changed him. He sent his forces to take what Fennyx had built, and the age of shadow began. Some say the real Varg is still in there somewhere, buried under the corruption. Most have stopped looking.", icon:'☠', source:"Found in Varg's Shadow Realm" },
+    shadow_1: { title:"Varg's Darkness", body:"Varg was once a guardian of the realm, entrusted with balance. When he turned, he did not simply fall — he dragged entire kingdoms into shadow with him. What remains of his domain is not a place. It is a wound.", icon:'☠', source:"Found in Varg's Shadow Realm" },
+    light_2: { title:'Luminous, High Priest of Fennyx', body:"Luminous, High Priest of Fennyx and guardian of Greatwolf City, had humble beginnings in Wolfhaven. A loyal druid, he led a group of his own to safety after the fall of Wolfborn. Some say the light he carries has never dimmed since that day.", icon:'☀', source:"Found in Fennyx's Realm of Light" },
+    light_1: { title:"Fennyx's Light", body:"Fennyx does not fight Varg's darkness with fire. She fights it with patience. Every soul that finds its way to the light is a victory she has been waiting for. She has been waiting a very long time.", icon:'☀', source:"Found in Fennyx's Realm of Light" },
+    giant_1: { title:'The Highland Giants', body:'The hill giants did not build the stronghold. They found it, killed whatever was there before, and called it home. Giants do not have history. They have territory. They have held these highlands for as long as anyone can remember.', icon:'🏔', source:'Found in the Hill Giant Stronghold' },
+    iron_1: { title:'The Deep Miners', body:'The dwarves of Ironhold do not fear what is underground. They fear what comes up. The deeper they dig, the older the things they find. Most of what they uncover they bury again quickly, and do not speak of it.', icon:'⛏', source:'Found in the Iron Depths' },
+};
+
+const BOSS_LORE_DROPS = {};
+
+
+const CHEST_LORE_DROPS = ['wolfspire_1','wolfspire_2','wolfspire_3','wolfspire_4','wolfspire_5','wolfspire_6','wolfspire_7','greymantle_1','fennyx_1','varg_1','lunaris_1','cronus_1','shadow_1','light_1','light_2','giant_1','iron_1'];
+
+function tryDropLoreFragment(dungeonId, isBoss) {
+    if (!character) return;
+    if (!character.journal) character.journal = [];
+    const already = character.journal.map(e => e.title);
+    let candidates = [];
+    if (isBoss && BOSS_LORE_DROPS[dungeonId]) {
+        candidates = BOSS_LORE_DROPS[dungeonId].filter(k => !already.includes(LORE_FRAGMENTS[k]?.title));
+    } else if (!isBoss && Math.random() < 0.15) {
+        candidates = CHEST_LORE_DROPS.filter(k => !already.includes(LORE_FRAGMENTS[k]?.title));
+    }
+    if (candidates.length === 0) return;
+    const key = candidates[Math.floor(Math.random() * candidates.length)];
+    const fragment = LORE_FRAGMENTS[key];
+    if (!fragment) return;
+    addJournalEntry(fragment);
+    announce(`Journal updated! New entry: ${fragment.title}`);
+}
+
 function victory() {
     combat.over = true;
     const floor = dungeonState ? dungeonState.floor : 1;
@@ -5145,6 +5215,7 @@ function victory() {
     if (enemy.isBoss) {
         addLog(`⚠ Boss defeated! The dungeon shudders around you.`, 'victory');
         dungeonState.bossDefeated = true;
+        tryDropLoreFragment(currentDungeonId, true);
     }
 
     // Build reward HTML
@@ -5410,6 +5481,9 @@ function openTreasureChest() {
     if (loot2) rewardHTML += `<div class="reward-line" style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--gold-dim)" onclick="showItemDetailById('${loot2.id}')" role="button" tabindex="0" aria-label="View details for ${loot2.name}">🎁 ${loot2.name}<\/div>`;
     if (!loot1) rewardHTML = `<div class="reward-line" style="color:#888">The chest was empty...<\/div>`;
 
+    // Small chance of lore fragment in chest
+    tryDropLoreFragment(currentDungeonId, false);
+
     document.getElementById('result-icon').textContent = '📦';
     document.getElementById('result-title').textContent = 'Treasure!';
     document.getElementById('result-title').className = 'result-title win';
@@ -5427,25 +5501,6 @@ function openTreasureChest() {
     announce(msg);
 }
 
-function rollChestLoot() {
-    const floor = dungeonState ? dungeonState.floor : 1;
-    const perBonus = character.stats.per || 1;
-
-    // Build chest pool based on floor depth
-    // Deeper floors unlock better gear in chests
-    const alwaysAvail = LOOT_POOL.filter(l => l.stackable); // consumables and materials always available
-    const gearPool = LOOT_POOL.filter(l => !l.stackable);   // all gear items
-
-    // On deeper floors gear drops become more likely
-    const gearChance = 30 + (Math.floor(floor / 5) * 5) + (perBonus * 2);
-    const useGear = Math.random() * 100 < Math.min(gearChance, 75);
-
-    if (useGear && gearPool.length > 0) {
-        return gearPool[Math.floor(Math.random() * gearPool.length)];
-    } else {
-        return alwaysAvail[Math.floor(Math.random() * alwaysAvail.length)];
-    }
-}
 const LOOT_POOL = [
     // -- WEAPONS --
     // Basic drops
@@ -5556,13 +5611,13 @@ const LEGENDARY_CHEST_ITEMS = [
     { id:'wolfsteel_blade',  icon:'⚔',  name:'Wolfsteel Blade',     desc:'A blade forged from Wolfsteel. Lightweight, golden, and impossibly sharp.',           stat:'STR +9',  slot:'mainHand', tags:['Sword'],  stackable:false, dmg:[18,28], type:'legendary' },
     { id:'maul_of_justice',  icon:'⚖',  name:'Maul of Justice',     desc:"Fenris's legendary weapon. Said to strike with the weight of judgment itself. On hit: chance to stun and strike again.",  stat:'STR +12', slot:'mainHand', tags:['Hammer'], stackable:false, dmg:[28,45], type:'legendary', special:'justice' },
     { id:'staff_of_life',    icon:'✨', name:'Staff of Life',        desc:'An ancient staff humming with restorative energy. Each strike has a 20% chance to fully restore your MP.',               stat:'INT +10', slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[14,22], type:'legendary', special:'lifestaff' },
-    { id:'knightly_longsword',icon:'⚔', name:"Valorian's Knightly Longsword of Honor", desc:"The sword of Valorian, closest ally to Fenris and a Greatwolf Defender. Perfectly balanced, sworn to protect, and never swung without cause. Grants +10% critical strike chance.", stat:'STR +8', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[20,30], type:'legendary', special:'knightly' },
+    { id:'knightly_longsword',icon:'⚔', name:"Cronus's Knightly Longsword of Honor", desc:"The sword of Cronus, closest ally to Fenris and a Greatwolf Defender. Perfectly balanced, sworn to protect, and never swung without cause. Grants +10% critical strike chance.", stat:'STR +8', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[20,30], type:'legendary', special:'knightly' },
     { id:'geminus_torch',    icon:'🔥', name:"Geminus's Torch",     desc:"The flamethrower carried by Geminus of the Greatwolf Defenders. Burns enemies and leaves them scorched for 3 turns.",     stat:'STR +9',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[22,34], type:'legendary', special:'torch' },
     { id:'deucalius_battle_axe', icon:'🪓', name:"Deucalius's Battle Axe of Strength", desc:"Wielded by Deucalius during the age of the Greatwolf Defenders. Its weight alone could shatter shields.", stat:'STR +11', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[26,40], type:'legendary' },
     { id:'fenric_longbow',   icon:'🏹', name:"Fenric's Longbow of Precision", desc:"The longbow of Fenric, a Greatwolf Defender whose arrows never missed their mark. Grants +15% critical strike chance.", stat:'DEX +10', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,32], type:'legendary', special:'precision' },
-    { id:'valorian_arbalest', icon:'🏹', name:"Valorian's Arbalest", desc:"The crossbow of Valorian, closest ally to Fenris and a Greatwolf Defender. Its bolts punch true through the thickest hide. Grants +15% critical strike chance.", stat:'DEX +9', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,30], type:'legendary', special:'precision' },
+    { id:'cronus_arbalest', icon:'🏹', name:"Cronus's Arbalest", desc:"The crossbow of Cronus, closest ally to Fenris and a Greatwolf Defender. Its bolts punch true through the thickest hide. Grants +15% critical strike chance.", stat:'DEX +9', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[20,30], type:'legendary', special:'precision' },
     { id:'wolfsteel_rocket_launcher', icon:'💥', name:'Wolfsteel Rocket Launcher', desc:"No one knows who built it or where it came from. Rumors swirl that Geminus wielded it alongside his torch — unconfirmed.", stat:'STR +10', slot:'mainHand', tags:['Gun'], stackable:false, dmg:[32,48], type:'legendary' },
-    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Valorian, his closest ally.", stat:'ARM +11, STR +4', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
+    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Cronus, his closest ally.", stat:'ARM +11, STR +4', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
     { id:'spear_of_justice', icon:'🔱', name:'Spear of Justice', desc:"Wielded by an angelic thief — some say Nightshade of the Ragnar Council, others that Fennyx blessed a relic of Varg's evil and made it holy. Each strike has a 25% chance to restore your spirit.", stat:'STR +9', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[18,28], type:'legendary', special:'holy' },
     { id:'varg_unholy_scythe', icon:'☠', name:"Varg's Unholy Scythe of Deception", desc:"Wielded by Varg himself. It hums with corrupted energy, a serpent engraved on its handle.", stat:'STR +11', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[24,38], type:'legendary', special:'deception' },
 ];
@@ -6224,6 +6279,13 @@ function openDetail(invIndex, equippedSlot) {
         lockBtn.setAttribute('aria-label', isItemLocked(item) ? 'Unlock this item' : 'Lock this item');
     }
 
+    // Show destroy button for non-equipped, non-locked items
+    const destroyBtn = document.getElementById('detail-destroy-btn');
+    if (destroyBtn) {
+        const isEquipped = isItemEquipped(item.id, invIndex);
+        const isLocked = item.locked;
+        destroyBtn.style.display = (!isEquipped && !isLocked) ? 'block' : 'none';
+    }
     document.getElementById('item-detail-overlay').classList.add('show');
     const detailStat = formatInvStatLine(item);
     announce(`${item.name}${isItemLocked(item) ? ', locked' : ''}. ${item.desc}.${detailStat ? ' ' + detailStat + '.' : ''}`);
@@ -6246,6 +6308,36 @@ function closeDetail() {
     detailItem = null;
     detailInvIndex = null;
     detailEquippedSlot = null;
+}
+
+function promptDestroyItem() {
+    if (!detailItem) return;
+    const gamePrefs = JSON.parse(localStorage.getItem('wolfspire_game') || '{}');
+    if (gamePrefs.confirmDestroyItems === false) {
+        // Skip confirm if toggled off
+        confirmDestroyItem();
+        return;
+    }
+    document.getElementById('destroy-item-body').textContent =
+        `"${detailItem.name}" will be permanently destroyed. This cannot be undone.`;
+    document.getElementById('destroy-item-overlay').classList.add('show');
+    announce(`Destroy ${detailItem.name}? This cannot be undone.`);
+}
+
+function closeDestroyConfirm() {
+    document.getElementById('destroy-item-overlay').classList.remove('show');
+}
+
+function confirmDestroyItem() {
+    if (!detailItem || detailInvIndex === null) return;
+    const name = detailItem.name;
+    character.inventory.splice(detailInvIndex, 1);
+    saveGame();
+    closeDestroyConfirm();
+    closeDetail();
+    renderBag();
+    showToast(`🗑 ${name} destroyed.`);
+    announce(`${name} destroyed.`);
 }
 
 function setItemLocked(invIndex, locked) {
@@ -9351,8 +9443,8 @@ function migrateItemMeta(item) {
         item.dmg = [16, 24];
     }
     if (item.id === 'knightly_longsword') {
-        item.name = "Valorian's Knightly Longsword of Honor";
-        item.desc = "The sword of Valorian, closest ally to Fenris and a Greatwolf Defender. Perfectly balanced, sworn to protect, and never swung without cause. Grants +10% critical strike chance.";
+        item.name = "Cronus's Knightly Longsword of Honor";
+        item.desc = "The sword of Cronus, closest ally to Fenris and a Greatwolf Defender. Perfectly balanced, sworn to protect, and never swung without cause. Grants +10% critical strike chance.";
     }
 }
 
@@ -10227,8 +10319,10 @@ function renderJournal() {
         return;
     }
 
+    const heading = document.getElementById('journal-entries-heading');
     empty.style.display = 'none';
     list.style.display = 'flex';
+    if (heading) heading.style.display = 'block';
     list.innerHTML = '';
 
     entries.forEach((entry, i) => {
@@ -12857,7 +12951,7 @@ function addDesktopLogEntry(msg, type) {
 }
 
 // -- GAME PREFS -------------------------------------------
-let gamePrefs = { confirmLockItems: true };
+let gamePrefs = { confirmLockItems: true, confirmDestroyItems: true };
 
 function loadGamePrefs() {
     try {
@@ -12876,11 +12970,20 @@ function saveGamePrefs() {
 function applyGamePrefsToUI() {
     const toggle = document.getElementById('toggle-confirm-lock');
     const state = document.getElementById('confirm-lock-state');
-    if (!toggle) return;
-    const enabled = !!gamePrefs.confirmLockItems;
-    toggle.classList.toggle('on', enabled);
-    toggle.setAttribute('aria-checked', enabled.toString());
-    if (state) state.textContent = enabled ? 'On' : 'Off';
+    if (toggle) {
+        const enabled = !!gamePrefs.confirmLockItems;
+        toggle.classList.toggle('on', enabled);
+        toggle.setAttribute('aria-checked', enabled.toString());
+        if (state) state.textContent = enabled ? 'On' : 'Off';
+    }
+    const dtoggle = document.getElementById('toggle-confirm-destroy');
+    const dstate = document.getElementById('confirm-destroy-state');
+    if (dtoggle) {
+        const denabled = gamePrefs.confirmDestroyItems !== false;
+        dtoggle.classList.toggle('on', denabled);
+        dtoggle.setAttribute('aria-checked', denabled.toString());
+        if (dstate) dstate.textContent = denabled ? 'On' : 'Off';
+    }
 }
 
 function toggleGamePref(key) {
@@ -12889,6 +12992,9 @@ function toggleGamePref(key) {
     applyGamePrefsToUI();
     if (key === 'confirmLockItems') {
         announce('Confirm when locking items turned ' + (gamePrefs.confirmLockItems ? 'on' : 'off') + '.');
+    }
+    if (key === 'confirmDestroyItems') {
+        announce('Confirm when destroying items turned ' + (gamePrefs.confirmDestroyItems ? 'on' : 'off') + '.');
     }
 }
 
