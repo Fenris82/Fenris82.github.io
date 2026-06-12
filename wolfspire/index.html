@@ -1670,12 +1670,52 @@
             <span class="btn-label">Inn</span>
             <span class="btn-sub">Olivia's Rest</span>
         </button>
+        <button class="menu-btn" onclick="openVault()" aria-label="Visit the Vault to store special items">
+            <span class="btn-icon" aria-hidden="true">🏦</span>
+            <span class="btn-label">The Vault</span>
+            <span class="btn-sub">Store your prized items</span>
+        </button>
         <button class="menu-btn" onclick="openGameRoom()" aria-label="Visit the Greatwolf Game Room">
             <span class="btn-icon" aria-hidden="true">🎲</span>
             <span class="btn-label">Game Room</span>
             <span class="btn-sub">Cards & rune puzzles</span>
         </button>
     </div>
+</div>
+
+<!-- -- THE VAULT -- -->
+<div id="screen-vault" class="screen" role="main" aria-label="The Vault">
+    <p class="screen-header">Greatwolf City</p>
+    <h2 class="screen-title">The Vault</h2>
+
+    <div class="shopkeeper-banner" aria-label="Vault keeper">
+        <span class="shopkeeper-icon" aria-hidden="true">🏦</span>
+        <div>
+            <div class="shopkeeper-name">The Greatwolf Vault</div>
+            <div class="shopkeeper-quote" id="vault-quote">"Keep what matters. Let go of the rest."</div>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+        <button class="shop-tab active" id="vtab-vault" role="tab" aria-selected="true" onclick="switchVaultTab('vault')">🏦 Stored</button>
+        <button class="shop-tab" id="vtab-inventory" role="tab" aria-selected="false" onclick="switchVaultTab('inventory')">🎒 Inventory</button>
+    </div>
+
+    <div id="vault-stored-panel">
+        <div id="vault-empty" style="text-align:center;padding:32px;color:var(--text-dim);font-style:italic">
+            Your vault is empty. Move items here from your inventory to keep them safe.
+        </div>
+        <div id="vault-stored-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <div id="vault-inventory-panel" style="display:none">
+        <div style="font-size:0.82em;color:var(--text-dim);margin-bottom:12px;font-style:italic">Tap an item to move it to the vault.</div>
+        <div id="vault-inv-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <button class="leave-shop-btn" onclick="goToScreen('town');setActiveNav('nav-town')" aria-label="Return to Greatwolf City">
+        Leave Vault
+    </button>
 </div>
 
 <!-- -- GAME ROOM HUB -- -->
@@ -4172,7 +4212,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','vault','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -10403,9 +10443,29 @@ const FORGE_TIERS = [
     { tier:6,  label:'+6',  goldCost:680,  itemCost:8,  statBonus:2, dmgBonus:[4,7]   },
     { tier:7,  label:'+7',  goldCost:880,  itemCost:10, statBonus:2, dmgBonus:[4,7]   },
     { tier:8,  label:'+8',  goldCost:1100, itemCost:10, statBonus:2, dmgBonus:[5,8]   },
-    { tier:9,  label:'+9',  goldCost:1400, itemCost:12, statBonus:2, dmgBonus:[5,8]   },
-    { tier:10, label:'+10', goldCost:2000, itemCost:16, statBonus:3, dmgBonus:[8,12]  },
+    { tier:9,  label:'+9',  goldCost:1400, itemCost:10, statBonus:2, dmgBonus:[5,8]   },
+    { tier:10, label:'+10', goldCost:2000, itemCost:10, statBonus:3, dmgBonus:[8,12]  },
 ];
+
+// For tiers beyond 10, calculate dynamically
+function getForgeData(currentTier) {
+    if (currentTier < FORGE_TIERS.length) {
+        return FORGE_TIERS[currentTier];
+    }
+    // Unlimited forging past tier 10
+    // Gold scales by +100 per tier above 10, capped at +500 per tier past 30
+    const above10 = currentTier - 9;
+    const above30 = Math.max(0, currentTier - 29);
+    const extraGold = Math.min(above10 * 100, (20 * 100) + (above30 * 500));
+    return {
+        tier: currentTier + 1,
+        label: `+${currentTier + 1}`,
+        goldCost: 2000 + extraGold,
+        itemCost: 10,
+        statBonus: 1,
+        dmgBonus: [3, 5]
+    };
+}
 
 const TRANSMUTE_COST = 150;
 
@@ -10578,45 +10638,41 @@ function renderForgeList() {
 
     forgeable.forEach(({ item, idx }) => {
         const currentTier = item.forgeTier || 0;
-        const nextTier = FORGE_TIERS[currentTier];
-        const maxed = currentTier >= 10;
+        const nextTier = getForgeData(currentTier);
         const slotLabel = getForgeSlotLabel(item);
 
-    // Count sacrificeable items (unequipped, non-relic, not locked, not consumables/throwables)
     const sacrificeable = character.inventory.filter((i, ix) =>
         ix !== idx && canUseAsForgeSacrifice(i, ix) && !i.stackable
     ).length;
-    // Stackable materials only (not consumables or throwables)
     const stackCount = character.inventory
         .filter(i => i.stackable && !isForgeSacrificeExcluded(i))
         .reduce((sum, i) => sum + (i.quantity || 1), 0);
         const totalSacrificeable = sacrificeable + stackCount;
 
-        const canAfford = !maxed && nextTier &&
+        const canAfford = nextTier &&
             character.gold >= nextTier.goldCost &&
             totalSacrificeable >= nextTier.itemCost;
 
         const tierLabel = currentTier > 0 ? ` +${currentTier}` : '';
-        const nextLabel = maxed ? 'Max Level (+10)'
-            : `+${currentTier+1}: ${nextTier.goldCost}g + ${nextTier.itemCost} items sacrificed`;
+        const nextLabel = `+${currentTier+1}: ${nextTier.goldCost}g + ${nextTier.itemCost} items`;
         const slotBadge = slotLabel ? ` <span style="color:var(--text-dim);font-size:0.75em">(${slotLabel})</span>` : '';
 
         const div = document.createElement('div');
         div.className = 'shop-item';
-        div.setAttribute('aria-label', `${item.name}${tierLabel}. ${maxed ? 'Fully upgraded.' : 'Upgrade cost: ' + nextLabel}`);
+        div.setAttribute('aria-label', `${item.name}${tierLabel}. Upgrade cost: ${nextLabel}`);
         div.innerHTML = `
             <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
             <div class="shop-item-info">
                 <div class="shop-item-name">${item.name}${tierLabel ? `<span style="color:var(--gold);font-size:0.8em;margin-left:6px">${tierLabel}<\/span>` : ''}${slotBadge}<\/div>
                 <div class="shop-item-desc">${item.stat || ''}${item.dmg ? ` | DMG ${item.dmg[0]}-${item.dmg[1]}` : ''}<\/div>
-                <div class="shop-item-desc" style="color:${maxed ? '#4caf50' : canAfford ? 'var(--text-dim)' : '#e07070'};font-size:0.85em">
-                    ${maxed ? '✓ Fully Upgraded' : nextLabel}
+                <div class="shop-item-desc" style="color:${canAfford ? 'var(--text-dim)' : '#e07070'};font-size:0.85em">
+                    ${nextLabel}
                 <\/div>
             <\/div>
             <div class="shop-item-buy">
-                ${maxed ? '' : `<button class="buy-btn" ${canAfford ? '' : 'disabled'}
+                <button class="buy-btn" ${canAfford ? '' : 'disabled'}
                     onclick="forgeItem(${idx})"
-                    aria-label="Upgrade ${item.name}">Forge<\/button>`}
+                    aria-label="Upgrade ${item.name}">Forge<\/button>
             <\/div>
         `;
         list.appendChild(div);
@@ -10628,9 +10684,8 @@ function forgeItem(invIndex) {
     if (!item) return;
 
     const currentTier = item.forgeTier || 0;
-    if (currentTier >= 10) { showToast('Already at max upgrade!'); return; }
+    const tier = getForgeData(currentTier);
 
-    const tier = FORGE_TIERS[currentTier];
     if (character.gold < tier.goldCost) { showToast('Not enough gold!'); return; }
 
     // Track target by uid so index shifts during sacrifice cannot upgrade the wrong item
@@ -10699,6 +10754,133 @@ function forgeItem(invIndex) {
     renderForgeList();
     showToast(`${forgedItem.name} upgraded to +${forgedItem.forgeTier}!`);
     announce(`${forgedItem.name} forged to tier ${forgedItem.forgeTier}.`);
+}
+
+// -- VAULT ------------------------------------------------
+const VAULT_QUOTES = [
+    '"Keep what matters. Let go of the rest."',
+    '"Everything stored here will be here when you return."',
+    '"The vault has never been broken into. We intend to keep it that way."',
+    '"Your finest relics deserve a proper home."',
+];
+
+function openVault() {
+    if (!character) return;
+    if (!character.vault) character.vault = [];
+    document.getElementById('vault-quote').textContent =
+        VAULT_QUOTES[Math.floor(Math.random() * VAULT_QUOTES.length)];
+    switchVaultTab('vault');
+    goToScreen('vault');
+    announce('The Vault. Store your prized items here. Two tabs: Stored and Inventory.');
+}
+
+function switchVaultTab(tab) {
+    document.getElementById('vault-stored-panel').style.display = tab === 'vault' ? 'block' : 'none';
+    document.getElementById('vault-inventory-panel').style.display = tab === 'inventory' ? 'block' : 'none';
+    document.getElementById('vtab-vault').classList.toggle('active', tab === 'vault');
+    document.getElementById('vtab-inventory').classList.toggle('active', tab === 'inventory');
+    document.getElementById('vtab-vault').setAttribute('aria-selected', (tab === 'vault').toString());
+    document.getElementById('vtab-inventory').setAttribute('aria-selected', (tab === 'inventory').toString());
+    if (tab === 'vault') renderVaultStored();
+    else renderVaultInventory();
+}
+
+function renderVaultStored() {
+    if (!character.vault) character.vault = [];
+    const list = document.getElementById('vault-stored-list');
+    const empty = document.getElementById('vault-empty');
+    list.innerHTML = '';
+    if (character.vault.length === 0) {
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+    character.vault.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+        div.setAttribute('aria-label', `${item.name}. ${item.desc}. Tap to withdraw.`);
+        div.innerHTML = `
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
+            <div class="shop-item-info">
+                <div class="shop-item-name">${item.name}${item.stackable && item.quantity > 1 ? ` <span style="color:var(--gold-dim);font-size:0.8em">x${item.quantity}<\/span>` : ''}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+                <div class="shop-item-desc" style="color:var(--gold-dim)">${item.stat || ''}<\/div>
+            <\/div>
+            <div class="shop-item-buy">
+                <button class="buy-btn" onclick="withdrawFromVault(${idx})" aria-label="Withdraw ${item.name}">Withdraw<\/button>
+            <\/div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function renderVaultInventory() {
+    if (!character) return;
+    const list = document.getElementById('vault-inv-list');
+    list.innerHTML = '';
+    const items = character.inventory.filter((item, idx) =>
+        item && !isItemEquipped(item.id, idx)
+    );
+    if (items.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-dim);font-style:italic">No items available to store.</div>';
+        return;
+    }
+    items.forEach(item => {
+        const invIdx = character.inventory.indexOf(item);
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+        div.setAttribute('aria-label', `${item.name}. ${item.desc}. Tap to store in vault.`);
+        div.innerHTML = `
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
+            <div class="shop-item-info">
+                <div class="shop-item-name">${item.name}<\/div>
+                <div class="shop-item-desc">${item.desc}<\/div>
+                <div class="shop-item-desc" style="color:var(--gold-dim)">${item.stat || ''}<\/div>
+            <\/div>
+            <div class="shop-item-buy">
+                <button class="buy-btn" onclick="depositToVault(${invIdx})" aria-label="Store ${item.name} in vault">Store<\/button>
+            <\/div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function depositToVault(invIdx) {
+    if (!character) return;
+    if (!character.vault) character.vault = [];
+    const item = character.inventory[invIdx];
+    if (!item) return;
+
+    if (item.stackable) {
+        // Check if already in vault — add to existing stack
+        const existing = character.vault.find(v => v.id === item.id);
+        if (existing) {
+            existing.quantity = (existing.quantity || 1) + (item.quantity || 1);
+        } else {
+            character.vault.push({ ...item });
+        }
+        character.inventory.splice(invIdx, 1);
+    } else {
+        character.vault.push({ ...item });
+        character.inventory.splice(invIdx, 1);
+    }
+
+    saveGame();
+    renderVaultInventory();
+    showToast(`${item.name} stored in vault.`);
+    announce(`${item.name} moved to vault.`);
+}
+
+function withdrawFromVault(vaultIdx) {
+    if (!character) return;
+    const item = character.vault[vaultIdx];
+    if (!item) return;
+    character.inventory.push({ ...item });
+    character.vault.splice(vaultIdx, 1);
+    saveGame();
+    renderVaultStored();
+    showToast(`${item.name} withdrawn from vault.`);
+    announce(`${item.name} returned to inventory.`);
 }
 
 // -- TRANSMUTATION ----------------------------------------
