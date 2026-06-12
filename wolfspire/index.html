@@ -2735,6 +2735,81 @@
     <button class="leave-shop-btn" onclick="goToScreen('windmane')" aria-label="Leave the trading post">Leave Post</button>
 </div>
 
+<!-- -- ISLE OF WOLFGATE -- -->
+<div id="screen-wolfgate" class="screen" role="main" aria-label="Isle of Wolfgate">
+    <p class="screen-header">You have arrived at</p>
+    <h2 class="screen-title" style="color:#4aaf70">Isle of Wolfgate</h2>
+
+    <div class="shopkeeper-banner" aria-label="Deucalius greets you" style="background:rgba(10,40,20,0.3);border-color:#1a6a40">
+        <span class="shopkeeper-icon" aria-hidden="true">🪓</span>
+        <div>
+            <div class="shopkeeper-name" style="color:#4aaf70">Deucalius, Warchief of Wolfgate</div>
+            <div class="shopkeeper-quote" id="wolfgate-quote">"The gate runs deep. So does my patience — but neither is infinite."</div>
+        </div>
+    </div>
+
+    <div class="town-vitals" aria-label="Your vitals">
+        <div class="vital-pill" aria-label="Hit points"><span aria-hidden="true">❤</span><span id="wolfgate-hp">100</span></div>
+        <div class="vital-pill" aria-label="Magic points"><span aria-hidden="true">💙</span><span id="wolfgate-mp">50</span></div>
+        <div class="vital-pill" aria-label="Gold"><span aria-hidden="true">💰</span><span id="wolfgate-gold">200</span></div>
+    </div>
+
+    <div class="town-menu" role="group" aria-label="Wolfgate locations">
+        <button class="menu-btn" onclick="openTownDungeonSelect('wolfgate')" aria-label="Enter the Wolfgate dungeon"
+            style="border-color:#1a6a40">
+            <span class="btn-icon" aria-hidden="true">⛏</span>
+            <span class="btn-label">The Wolfgate</span>
+            <span class="btn-sub" id="wolfgate-dungeon-sub">The Wolfsteel mines run deep</span>
+        </button>
+        <button class="menu-btn" onclick="openWolfgateShop()" aria-label="Visit Deucalius's shop"
+            style="border-color:#1a6a40">
+            <span class="btn-icon" aria-hidden="true">🛒</span>
+            <span class="btn-label">Deucalius's Outpost</span>
+            <span class="btn-sub">Wolfsteel gear and supplies</span>
+        </button>
+        <button class="menu-btn" onclick="travelTo('town')" aria-label="Return to Greatwolf City"
+            style="border-color:#1a3a20">
+            <span class="btn-icon" aria-hidden="true">🏰</span>
+            <span class="btn-label">Return Home</span>
+            <span class="btn-sub">Back to Greatwolf City</span>
+        </button>
+    </div>
+</div>
+
+<!-- -- WOLFGATE SHOP -- -->
+<div id="screen-wolfgate-shop" class="screen" role="main" aria-label="Deucalius's Outpost">
+    <p class="screen-header">Isle of Wolfgate</p>
+    <h2 class="screen-title" style="color:#4aaf70">Deucalius's Outpost</h2>
+
+    <div class="shopkeeper-banner" style="background:rgba(10,40,20,0.3);border-color:#1a6a40">
+        <span class="shopkeeper-icon" aria-hidden="true">🪓</span>
+        <div>
+            <div class="shopkeeper-name" style="color:#4aaf70">Deucalius</div>
+            <div class="shopkeeper-quote" id="wolfgate-shop-quote">"Wolfsteel is lighter than iron and sharper than most men's wits. Choose wisely."</div>
+        </div>
+    </div>
+
+    <div class="shop-gold-bar" aria-live="polite">
+        <span>💰 Gold: </span><span id="wolfgate-shop-gold">0</span>
+    </div>
+
+    <div class="shop-tabs" role="tablist" aria-label="Shop categories">
+        <button class="shop-tab active" id="wgtab-weapons" role="tab" aria-selected="true" onclick="switchWolfgateTab('weapons')">⚔ Weapons</button>
+        <button class="shop-tab" id="wgtab-armor" role="tab" aria-selected="false" onclick="switchWolfgateTab('armor')">🛡 Armor</button>
+        <button class="shop-tab" id="wgtab-items" role="tab" aria-selected="false" onclick="switchWolfgateTab('items')">💣 Items</button>
+        <button class="shop-tab" id="wgtab-sell" role="tab" aria-selected="false" onclick="switchWolfgateTab('sell')">💰 Sell</button>
+    </div>
+
+    <div class="shop-panel active" id="wolfgate-weapons" role="tabpanel"></div>
+    <div class="shop-panel" id="wolfgate-armor" role="tabpanel"></div>
+    <div class="shop-panel" id="wolfgate-items" role="tabpanel"></div>
+    <div class="shop-panel" id="wolfgate-sell" role="tabpanel"></div>
+
+    <button class="leave-shop-btn" onclick="travelToWolfgate()" aria-label="Leave shop and return to Wolfgate">
+        Leave Shop
+    </button>
+</div>
+
 <!-- -- HILL GIANT STRONGHOLD -- -->
 <div id="screen-giant-stronghold" class="screen" role="main" aria-label="Hill Giant Stronghold">
     <p class="screen-header">You have entered</p>
@@ -3471,6 +3546,23 @@
                     </div>
                 </div>
                 <div style="font-size:0.9em;color:#a06830;line-height:1.6">Rocky highlands crawling with goblins, orcs, ogres, and hill giants. No magic, no corruption — just raw, crushing force.</div>
+            </div>
+
+            <div style="background:rgba(10,30,20,0.7);border:1px solid #1a6a40;border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s"
+                 onclick="travelTo('wolfgate')"
+                 onmouseenter="this.style.borderColor='#4aaf70'"
+                 onmouseleave="this.style.borderColor='#1a6a40'"
+                 role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter')travelTo('wolfgate')"
+                 aria-label="Travel to the Isle of Wolfgate, ancient home of the Wolfsteel mines">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+                    <span style="font-size:2em" aria-hidden="true">🏝</span>
+                    <div>
+                        <div style="font-family:'Cinzel',serif;font-size:1em;font-weight:700;color:#4aaf70">Isle of Wolfgate</div>
+                        <div style="font-size:0.75em;color:#2a7a4a;font-style:italic">Ancient isle — The Druid Reaches</div>
+                    </div>
+                </div>
+                <div style="font-size:0.9em;color:#3a8a58;line-height:1.6">A mysterious island shrouded in druid magic. Home of the Wolfsteel mines and the Warchief Deucalius. The Wolfgate beneath the isle still runs deep.</div>
             </div>
 
             <h3 style="font-family:'Cinzel',serif;font-size:0.7em;letter-spacing:0.2em;color:var(--gold-dim);text-transform:uppercase;margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid #2a2a44">Special Realms</h3>
@@ -4212,7 +4304,7 @@ function goToScreen(id) {
     if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold'].includes(id)) currentTown = id;
 
     // Music routing
-    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','vault','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
+    if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','wolfgate','wolfgate-shop','vault','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
         playMusic('town');
     }
 }
@@ -5381,6 +5473,9 @@ function returnToTown() {
     } else if (home === 'giant_stronghold') {
         travelToGiantStronghold();
         announce('You return to the Hill Giant Stronghold.');
+    } else if (home === 'wolfgate') {
+        travelToWolfgate();
+        announce('You return to the Isle of Wolfgate.');
     } else {
         goToScreen('town');
         announce('You return to Greatwolf City.');
@@ -5807,6 +5902,8 @@ function travelTo(destination) {
         travelToLightRealm();
     } else if (destination === 'giant_stronghold') {
         travelToGiantStronghold();
+    } else if (destination === 'wolfgate') {
+        travelToWolfgate();
     } else if (destination === 'town') {
         goToScreen('town');
         announce('You return to Greatwolf City.');
@@ -5944,6 +6041,7 @@ function updateTownDungeonSub(townId) {
         shadow_realm: 'shadow-realm-dungeon-sub',
         light_realm: 'light-realm-dungeon-sub',
         giant_stronghold: 'giant-stronghold-dungeon-sub',
+        wolfgate: 'wolfgate-dungeon-sub',
     };
     const subEl = document.getElementById(subIds[townId]);
     const dungeonIds = TOWN_DUNGEONS[townId];
@@ -7814,6 +7912,8 @@ function findShopItem(shopId, itemId) {
         return [...IRONWOOD_INVENTORY.weapons, ...IRONWOOD_INVENTORY.armor].find(i => i.id === itemId);
     } else if (shopId === 'windmane') {
         return [...WINDMANE_INVENTORY.weapons, ...WINDMANE_INVENTORY.armor].find(i => i.id === itemId);
+    } else if (shopId === 'wolfgate') {
+        return [...WOLFGATE_INVENTORY.weapons, ...WOLFGATE_INVENTORY.armor, ...(WOLFGATE_INVENTORY.items||[])].find(i => i.id === itemId);
     }
     return null;
 }
@@ -9315,7 +9415,50 @@ const DUNGEONS = {
             { id:'fortress_iron_shard',  icon:'🏰', name:'Fortress Iron Shard',  desc:'A shard of keep-forged fortress iron. The finest raw material the stronghold produces.',  stat:'Material', slot:'item', tags:['Material'], stackable:true },
         ],
     },
+
+    wolfgate: {
+        name: 'The Wolfgate',
+        icon: '⛏',
+        desc: 'The ancient mine beneath the Isle of Wolfgate where Wolfsteel is still unearthed. Golems, corrupted druids, and things far older than the island itself wait in the deep.',
+        enemies: [
+            { id:'wolfsteel_golem',      name:'Wolfsteel Golem',      icon:'🗿', level:2, hp:90,  atk:14, xp:55,  gold:[12,22], floors:[1,40],  desc:'A construct of raw Wolfsteel ore. Slow but nearly impossible to stagger.' },
+            { id:'mine_wraith',          name:'Mine Wraith',           icon:'👻', level:2, hp:70,  atk:16, xp:50,  gold:[10,18], floors:[1,40],  desc:'The spirit of a miner who died in the deep. Drawn to the ore\'s resonance.' },
+            { id:'corrupted_druid',      name:'Corrupted Druid',       icon:'🧙', level:3, hp:85,  atk:15, xp:60,  gold:[14,24], floors:[5,40],  desc:'A druid who descended too deep into the Wolfgate and came back changed.' },
+            { id:'stone_shaman',         name:'Stone Shaman',          icon:'🪨', level:3, hp:80,  atk:17, xp:65,  gold:[15,25], floors:[5,40],  desc:'A druid mystic who draws power from the Wolfsteel ore itself. Dangerous at range.' },
+            { id:'wolfsteel_sentinel',   name:'Wolfsteel Sentinel',    icon:'⚙',  level:4, hp:120, atk:18, xp:75,  gold:[18,30], floors:[10,40], desc:'An elite Wolfsteel Golem placed as a guardian deeper in the mine.' },
+            { id:'ancient_guardian',     name:'Ancient Guardian',      icon:'🛡',  level:4, hp:130, atk:20, xp:85,  gold:[20,35], floors:[15,40], desc:'A guardian placed here before memory. It does not know why it still watches. It watches anyway.' },
+            { id:'wolfgate_stalker',     name:'Wolfgate Stalker',      icon:'🕷',  level:3, hp:75,  atk:19, xp:70,  gold:[16,26], floors:[10,40], desc:'A creature adapted to the deep tunnels. Fast, silent, and hungry.' },
+            { id:'ore_elemental',        name:'Ore Elemental',         icon:'💎', level:4, hp:110, atk:17, xp:80,  gold:[19,32], floors:[15,40], desc:'Wolfsteel ore that has become something more than ore. It resents the intrusion.' },
+            { id:'deep_crawler',         name:'Deep Crawler',          icon:'🦂', level:2, hp:65,  atk:15, xp:45,  gold:[10,18], floors:[1,20],  desc:'An oversized arachnid that nests in the lower tunnels. Their venom dissolves metal.' },
+            { id:'tunnel_shade',         name:'Tunnel Shade',          icon:'🌑', level:3, hp:72,  atk:18, xp:60,  gold:[13,22], floors:[5,30],  desc:'A shadow creature born from the darkness of the deep mine. It hates the light.' },
+            { id:'wolfsteel_brute',      name:'Wolfsteel Brute',       icon:'💪', level:4, hp:140, atk:22, xp:90,  gold:[22,38], floors:[20,40], desc:'A massive humanoid encased in natural Wolfsteel deposits. The mine made it into armor.' },
+            { id:'gate_warden',          name:'Gate Warden',           icon:'⚔',  level:4, hp:115, atk:21, xp:85,  gold:[20,34], floors:[20,40], desc:'A warden of the Wolfgate itself. It carries a Wolfsteel blade and uses it well.' },
+            { id:'druid_wraith',         name:'Druid Wraith',          icon:'💀', level:5, hp:100, atk:23, xp:95,  gold:[24,40], floors:[25,40], desc:'What becomes of a corrupted druid in the deepest reaches. More wraith than druid now.' },
+            { id:'wolfsteel_hound',      name:'Wolfsteel Hound',       icon:'🐺', level:2, hp:68,  atk:16, xp:52,  gold:[11,20], floors:[1,20],  desc:'A wolf-like creature with hide hardened by Wolfsteel deposits. Hunts in packs in the upper tunnels.' },
+            { id:'rune_guardian',        name:'Rune Guardian',         icon:'🔷', level:3, hp:95,  atk:16, xp:68,  gold:[15,26], floors:[5,25],  desc:'A druid construct held together by ancient rune-work. Its glyphs pulse with the ore\'s energy.' },
+            { id:'deepstone_troll',      name:'Deepstone Troll',       icon:'👹', level:3, hp:105, atk:18, xp:72,  gold:[16,28], floors:[10,30], desc:'A troll that has lived so deep underground its skin has taken on the grey color of the stone.' },
+            { id:'ore_leech',            name:'Ore Leech',             icon:'🐛', level:2, hp:55,  atk:13, xp:42,  gold:[9,16],  floors:[1,15],  desc:'A parasite that feeds on Wolfsteel deposits. Harmless alone. Rarely alone.' },
+            { id:'corrupted_sentinel',   name:'Corrupted Sentinel',    icon:'🤖', level:4, hp:125, atk:20, xp:82,  gold:[20,33], floors:[15,35], desc:'A Wolfsteel Sentinel that has been overtaken by the mine\'s corruption. It no longer knows what it guards.' },
+            { id:'gate_specter',         name:'Gate Specter',          icon:'👁',  level:5, hp:90,  atk:24, xp:98,  gold:[25,42], floors:[30,40], desc:'A specter that haunts the deepest reaches of the Wolfgate. Some say it is a memory of the gate itself.' },
+            { id:'wolfsteel_colossus',   name:'Wolfsteel Colossus',    icon:'⛰',  level:5, hp:160, atk:25, xp:105, gold:[28,46], floors:[30,40], desc:'A towering Wolfsteel construct that predates the mine itself. Nobody built it. It was found.' },
+        ],
+        bosses: {
+            10: { id:'the_foreman',      name:'The Foreman',           icon:'⛏', level:5, hp:420, atk:28, xp:350, gold:[80,130], isBoss:true, desc:'A corrupted druid overseer who ran the mine before the corruption took him. He still thinks he\'s in charge.' },
+            20: { id:'the_iron_warden',  name:'The Iron Warden',       icon:'⚙',  level:8, hp:580, atk:36, xp:500, gold:[120,180], isBoss:true, desc:'A colossal Wolfsteel Golem placed deep in the mine as the ultimate mechanical guardian.' },
+            30: { id:'the_gatekeeper',   name:'The Gatekeeper',        icon:'🛡',  level:11,hp:780, atk:44, xp:700, gold:[160,240], isBoss:true, desc:'An ancient guardian of the Wolfgate itself. It has been here longer than the isle. It will be here after.' },
+        },
+        loot: [
+            { id:'wolfsteel_ore',        icon:'💚', name:'Wolfsteel Ore',         desc:'Raw Wolfsteel ore pulled from the Wolfgate mine. Lighter than iron, holds an edge beautifully.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
+            { id:'druid_focus',          icon:'🌿', name:'Druid Focus',           desc:'A crystallized focus of druid energy found deep in the mine.',                                     stat:'INT +4, MP +10', slot:'neck1', tags:['Neck'], stackable:false },
+            { id:'gate_fragment',        icon:'⛏',  name:'Gate Fragment',         desc:'A fragment of the Wolfgate itself. Radiates an ancient energy no one fully understands.',         stat:'STR +3, DEX +3, PER +2', slot:'ring1', tags:['Ring'], stackable:false },
+            { id:'wolfsteel_blade',      icon:'⚔',  name:'Wolfsteel Blade',       desc:'A Wolfsteel sword pulled from the mine depths. Sharper than anything from the surface.',          stat:'STR +6, DEX +3', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[15,23] },
+            { id:'warden_plate',         icon:'🧥',  name:'Warden\'s Plate',      desc:'The plate armor of a Gate Warden. Wolfsteel construction, built for the long watch.',             stat:'ARM +7, STR +5', slot:'chest', tags:['Medium','Chest'], stackable:false, type:'medium' },
+            { id:'foreman_axe',          icon:'🪓',  name:'Foreman\'s Axe',       desc:'The corrupted druid foreman\'s axe. Still carries traces of druid enchantment.',                 stat:'STR +7, INT +3', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[16,24] },
+            { id:'gatekeeper_shield',    icon:'🛡',  name:'Gatekeeper\'s Shield', desc:'The shield of the ancient Gatekeeper. The sigil on its face still pulses faintly.',              stat:'ARM +8, STR +4, DEX +3', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false },
+        ],
+    },
 };
+
 
 
 // Dungeons reachable from Greatwolf City dungeon select (teleport paths)
@@ -9332,6 +9475,7 @@ const TOWN_DUNGEONS = {
     shadow_realm: ['varg_wastes', 'basalt_flats', 'shadow_sanctum', 'varg_underworld'],
     light_realm: ['sunspire', 'radiant_plains', 'fennyx_sanctum'],
     giant_stronghold: ['highland_crags', 'giants_keep'],
+    wolfgate: ['wolfgate'],
 };
 
 const DUNGEON_HOME_TOWN = {
@@ -9352,6 +9496,7 @@ const DUNGEON_HOME_TOWN = {
     fennyx_sanctum: 'light_realm',
     highland_crags: 'giant_stronghold',
     giants_keep: 'giant_stronghold',
+    wolfgate: 'wolfgate',
 };
 
 const TOWN_DISPLAY_NAMES = {
@@ -9364,6 +9509,7 @@ const TOWN_DISPLAY_NAMES = {
     shadow_realm: "Varg's Shadow Realm",
     light_realm: "Fennyx's Realm of Light",
     giant_stronghold: 'Hill Giant Stronghold',
+    wolfgate: 'Isle of Wolfgate',
 };
 
 function getHomeTownForDungeon(dungeonId) {
@@ -10227,6 +10373,127 @@ function travelToGiantStronghold() {
     announce('Hill Giant Stronghold. A brutal highland domain. Two options: Dungeons or Return Home.');
 }
 
+function travelToWolfgate() {
+    if (!character) return;
+    document.getElementById('wolfgate-hp').textContent = character.hp + ' / ' + character.maxHp;
+    document.getElementById('wolfgate-mp').textContent = character.mp + ' / ' + character.maxMp;
+    document.getElementById('wolfgate-gold').textContent = character.gold;
+    updateTownDungeonSub('wolfgate');
+    document.getElementById('wolfgate-quote').textContent =
+        DEUCALIUS_QUOTES[Math.floor(Math.random() * DEUCALIUS_QUOTES.length)];
+    goToScreen('wolfgate');
+    announce('Isle of Wolfgate. Ancient druid isle. Home of the Wolfsteel mines. Deucalius greets you.');
+}
+
+function openWolfgateShop() {
+    if (!character) return;
+    document.getElementById('wolfgate-shop-gold').textContent = character.gold;
+    document.getElementById('wolfgate-shop-quote').textContent =
+        DEUCALIUS_QUOTES[Math.floor(Math.random() * DEUCALIUS_QUOTES.length)];
+    switchWolfgateTab('weapons');
+    goToScreen('wolfgate-shop');
+    announce("Deucalius's Outpost. Tabs: Weapons, Armor, Items, Sell.");
+}
+
+function switchWolfgateTab(tab) {
+    ['weapons','armor','items','sell'].forEach(t => {
+        const btn = document.getElementById('wgtab-' + t);
+        const panel = document.getElementById('wolfgate-' + t);
+        if (btn) { btn.classList.remove('active'); btn.setAttribute('aria-selected','false'); }
+        if (panel) panel.classList.remove('active');
+    });
+    const activeBtn = document.getElementById('wgtab-' + tab);
+    const activePanel = document.getElementById('wolfgate-' + tab);
+    if (activeBtn) { activeBtn.classList.add('active'); activeBtn.setAttribute('aria-selected','true'); }
+    if (activePanel) activePanel.classList.add('active');
+    if (tab === 'sell') renderWolfgateSell();
+    else renderWolfgateShop(tab);
+}
+
+function renderWolfgateShop(category) {
+    const panel = document.getElementById('wolfgate-' + category);
+    if (!panel) return;
+    panel.innerHTML = '';
+    const items = category === 'items'
+        ? WOLFGATE_INVENTORY.items
+        : applyShopItemFilters(WOLFGATE_INVENTORY[category], category === 'armor');
+    if (!items || items.length === 0) {
+        panel.innerHTML = '<div class="inv-empty">No items available.<\/div>';
+        return;
+    }
+    items.forEach(item => {
+        const finalPrice = getDiscountedPrice(item.price);
+        const canAfford = character.gold >= finalPrice;
+        const tagHTML = (item.tags||[]).map(t => {
+            const cls = t === 'Heavy' ? 'type-heavy' : t === 'Medium' ? 'type-medium' : t === 'Light' ? 'type-light' : '';
+            return `<span class="shop-tag ${cls}">${t}<\/span>`;
+        }).join('');
+        const dmgTag = item.dmg ? `<span class="shop-tag" style="color:#e07070;border-color:#5a2a2a">DMG ${item.dmg[0]}-${item.dmg[1]}<\/span>` : '';
+        panel.innerHTML += `
+            <div class="shop-item" aria-label="${item.name}, ${item.desc}, costs ${finalPrice} gold">
+                <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
+                <div class="shop-item-info">
+                    <div class="shop-item-name">${item.name}<\/div>
+                    <div class="shop-item-desc">${item.desc}<\/div>
+                    <div class="shop-item-tags">${tagHTML}<span class="shop-tag" style="color:#c9a84c;border-color:#5a4a1a">${item.stat}<\/span>${dmgTag}<\/div>
+                <\/div>
+                <div class="shop-item-buy">
+                    <div class="shop-item-price ${canAfford ? '' : 'cant-afford'}">${formatShopPriceHTML(item.price)}<\/div>
+                    <button class="buy-btn" ${canAfford ? '' : 'disabled'} onclick="buyWolfgateItem('${item.id}')" aria-label="Buy ${item.name} for ${finalPrice} gold">Buy<\/button>
+                <\/div>
+            <\/div>`;
+    });
+}
+
+function renderWolfgateSell() {
+    const panel = document.getElementById('wolfgate-sell');
+    if (!panel) return;
+    const sellable = character.inventory
+        .map((i, idx) => ({ item: i, idx }))
+        .filter(({ item, idx }) => !isItemEquipped(item.id, idx) && !isItemLocked(item));
+    if (sellable.length === 0) {
+        panel.innerHTML = '<div class="inv-empty">Nothing to sell.<\/div>';
+        return;
+    }
+    panel.innerHTML = '';
+    sellable.forEach(({ item, idx }, listIdx) => {
+        const sellPrice = Math.max(1, Math.floor((item.price || 10) * 0.3));
+        const div = document.createElement('div');
+        div.className = 'shop-item';
+        div.setAttribute('aria-label', `Sell ${item.name} for ${sellPrice} gold`);
+        div.innerHTML = `
+            <span class="shop-item-icon" aria-hidden="true">${item.icon}<\/span>
+            <div class="shop-item-info">
+                <div class="shop-item-name">${item.name}<\/div>
+                <div class="shop-item-desc">${item.stat || ''}<\/div>
+            <\/div>
+            <div class="shop-item-buy">
+                <div class="shop-item-price">${sellPrice}g<\/div>
+                <button class="buy-btn" onclick="sellItemFromWolfgate(${idx})" aria-label="Sell ${item.name}">Sell<\/button>
+            <\/div>
+        `;
+        panel.appendChild(div);
+    });
+}
+
+function sellItemFromWolfgate(idx) {
+    const item = character.inventory[idx];
+    if (!item) return;
+    if (isItemEquipped(item.id, idx) || isItemLocked(item)) return;
+    const sellPrice = Math.max(1, Math.floor((item.price || 10) * 0.3));
+    character.inventory.splice(idx, 1);
+    character.gold += sellPrice;
+    document.getElementById('wolfgate-shop-gold').textContent = character.gold;
+    saveGame(); populateUI();
+    renderWolfgateSell();
+    showToast(`Sold ${item.name} for ${sellPrice}g!`);
+    announce(`Sold ${item.name} for ${sellPrice} gold.`);
+}
+
+function buyWolfgateItem(itemId) {
+    promptBuy('wolfgate', itemId);
+}
+
 function openWindmaneShop() {
     if (!character) return;
     document.getElementById('windmane-shop-gold').textContent = character.gold;
@@ -10419,6 +10686,37 @@ function setActiveNav(navId) {
 }
 
 // -- FORGE SYSTEM -----------------------------------------
+const WOLFGATE_INVENTORY = {
+    weapons: [
+        { id:'wolfsteel_sword',    icon:'⚔',  name:'Wolfsteel Sword',      desc:'A sleek Wolfsteel blade. Lighter than iron, holds an edge longer.',           price:110, tags:['Sword'],   stat:'STR +5, DEX +2', slot:'mainHand', dmg:[14,21] },
+        { id:'wolfsteel_dagger',   icon:'🗡',  name:'Wolfsteel Dagger',     desc:'A perfectly balanced Wolfsteel dagger. Swift and deadly in the right hands.',   price:85,  tags:['Dagger'],  stat:'DEX +7',         slot:'mainHand', dmg:[10,16] },
+        { id:'wolfsteel_axe',      icon:'🪓',  name:'Wolfsteel Axe',        desc:'A single-handed axe of Wolfsteel. Lighter than dwarven iron, just as brutal.',  price:105, tags:['Axe'],    stat:'STR +6',         slot:'mainHand', dmg:[13,20] },
+        { id:'wolfsteel_hammer',   icon:'🔨',  name:'Wolfsteel War Hammer', desc:'A war hammer forged from Wolfsteel ore. Heavy enough to crush, light enough to swing fast.', price:115, tags:['Hammer'], stat:'STR +6', slot:'mainHand', dmg:[15,22] },
+        { id:'wolfsteel_mace',     icon:'🏏',  name:'Wolfsteel Mace',       desc:'A flanged mace of Wolfsteel. Crushes armor and bone with elegant efficiency.',  price:100, tags:['Mace'],    stat:'STR +5',         slot:'mainHand', dmg:[13,19] },
+        { id:'wolfsteel_flail',    icon:'⛓',  name:'Wolfsteel Flail',      desc:'A spiked Wolfsteel flail on a short chain. Unpredictable and punishing.',       price:110, tags:['Flail'],   stat:'STR +5, DEX +2', slot:'mainHand', dmg:[14,21] },
+        { id:'wolfsteel_bow',      icon:'🏹',  name:'Wolfsteel Longbow',    desc:'A bow strung with Wolfsteel wire. Arrows fly faster and hit harder.',           price:120, tags:['Bow'],     stat:'DEX +7',         slot:'mainHand', dmg:[12,20] },
+        { id:'wolfsteel_staff',    icon:'🪄',  name:'Wolfsteel Staff',      desc:'A druid staff tipped with raw Wolfsteel. Channels nature magic beautifully.',   price:105, tags:['Staff'],   stat:'INT +6, DEX +2', slot:'mainHand', dmg:[11,18] },
+        { id:'wolfsteel_pistol',   icon:'🔫',  name:'Wolfsteel Pistol',     desc:'A compact Wolfsteel sidearm. Lighter than dwarven steel, just as deadly.',     price:115, tags:['Gun'],     stat:'DEX +6, STR +2', slot:'mainHand', dmg:[13,21] },
+        { id:'wolfsteel_rifle',    icon:'🔫',  name:'Wolfsteel Rifle',      desc:'A long-barrelled Wolfsteel rifle. Precise, powerful, and surprisingly light.',  price:140, tags:['Gun'],     stat:'DEX +7, STR +3', slot:'mainHand', dmg:[15,24] },
+        { id:'wolfsteel_shield',   icon:'🛡',  name:'Wolfsteel Shield',     desc:'A round Wolfsteel shield bearing the Wolfgate crest. Light but surprisingly tough.', price:90, tags:['Shield','Off-Hand'], stat:'ARM +5, DEX +3', slot:'offHand' },
+    ],
+    armor: [
+        { id:'iron_grenade',      icon:'💣', name:'Iron Grenade',     desc:'A heavy iron explosive. Pull the pin and throw — deals level-scaled damage.',  price:40, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'moon_bomb',         icon:'🌙', name:'Moon Bomb',        desc:'An alchemical charge infused with lunar essence. Level-scaled damage.',    price:65, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'thrown_axe',        icon:'🪓', name:'Throwing Axe',     desc:'A balanced hand axe built for one deadly throw. Level-scaled damage.',     price:20, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'throwing_javelin',  icon:'🏹', name:'Throwing Javelin', desc:'A heavy iron-tipped javelin. Hurl it with full force for level-scaled damage.', price:30, tags:['Consumable','Throwable'], stat:'DMG lvl×8-12', slot:'item', stackable:true },
+        { id:'smoke_bomb',        icon:'💨', name:'Smoke Bomb',       desc:'Creates a cloud of smoke — guarantees your next retreat succeeds.',        price:25, tags:['Consumable'], stat:'Guaranteed flee', slot:'item', stackable:true },
+    ],
+};
+
+const DEUCALIUS_QUOTES = [
+    '"Wolfsteel is lighter than iron and sharper than most men\'s wits. Choose wisely."',
+    '"The gate runs deep. So does my patience — but neither is infinite."',
+    '"Every weapon here was forged from ore pulled out of the Wolfgate itself."',
+    '"You want to go into the mine? Good. The isle respects the bold."',
+    '"Fennyx sent you? Then you\'re already better off than most who come here."',
+];
+
 const FORGE_QUOTES = [
     '"Bring me iron and gold. I\'ll make your gear sing."',
     '"Everything can be made stronger. Everything."',
