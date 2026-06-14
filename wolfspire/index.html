@@ -3233,6 +3233,7 @@
             </div>
         </div>
         <div class="detail-desc" id="detail-desc">Description</div>
+        <div id="detail-source" style="display:none;font-size:0.78em;color:var(--gold-dim);font-style:italic;margin-top:-6px;margin-bottom:8px"></div>
         <div class="detail-stat" id="detail-stat">Stat</div>
         <div class="detail-buttons">
             <button class="detail-btn equip" id="detail-equip-btn" onclick="equipFromDetail()" aria-label="Equip this item">Equip</button>
@@ -5333,11 +5334,12 @@ function victory() {
     character.hp = combat.playerHp;
     character.mp = combat.playerMp;
 
-    // Add loot to inventory
+    // Add loot to inventory with source dungeon stamped
     if (loot) {
+        const dungeonName = DUNGEONS[currentDungeonId]?.name || 'Unknown Dungeon';
         const existing = character.inventory.find(i => i.id === loot.id && i.stackable);
         if (existing) existing.quantity++;
-        else character.inventory.push({ ...loot, _uid: generateUid(), quantity: 1 });
+        else character.inventory.push({ ...loot, _uid: generateUid(), quantity: 1, source: `Found in ${dungeonName}` });
     }
 
     // Save dungeon progress
@@ -5599,12 +5601,13 @@ function openTreasureChest() {
     const loot1 = rollChestLoot();
     const loot2 = twoItems ? rollChestLoot() : null;
 
-    // Add items to inventory
+    // Add items to inventory with source stamped
+    const dungeonName = DUNGEONS[currentDungeonId]?.name || 'Unknown Dungeon';
     [loot1, loot2].forEach(loot => {
         if (!loot) return;
         const existing = character.inventory.find(i => i.id === loot.id && i.stackable);
         if (existing) existing.quantity++;
-        else character.inventory.push({ ...loot, _uid: generateUid(), quantity: 1 });
+        else character.inventory.push({ ...loot, _uid: generateUid(), quantity: 1, source: `Found in ${dungeonName}` });
     });
 
     character.dungeonState = { ...dungeonState };
@@ -6380,6 +6383,11 @@ function openDetail(invIndex, equippedSlot) {
     document.getElementById('detail-desc').textContent = item.desc;
     document.getElementById('detail-stat').textContent = formatInvStatLine(item) || item.stat || '';
 
+    // Show source if available
+    const sourceEl = document.getElementById('detail-source');
+    if (sourceEl) sourceEl.textContent = item.source || '';
+    if (sourceEl) sourceEl.style.display = item.source ? 'block' : 'none';
+
     const tagHTML = (item.tags || []).map(t => `<span class="shop-tag">${t}<\/span>`).join('');
     document.getElementById('detail-tags').innerHTML = tagHTML + (isItemLocked(item) ? `<span class="shop-tag" style="color:var(--gold);border-color:var(--gold-dim)">Locked<\/span>` : '');
 
@@ -6389,9 +6397,22 @@ function openDetail(invIndex, equippedSlot) {
     const lockBtn = document.getElementById('detail-lock-btn');
 
     // If opened by tapping an equipped slot, always show Unequip
-    const isEquipped = equippedSlot
-        ? !!character.equipment[equippedSlot]
-        : isItemEquipped(item.id, invIndex);
+    // For dual-slot items (neck, ring, wrists), show Equip if any slot is still free
+    let isEquipped;
+    if (equippedSlot) {
+        isEquipped = !!character.equipment[equippedSlot];
+    } else {
+        const rawSlot = item.slot || '';
+        const slotType = rawSlot.replace(/[0-9]+$/, '');
+        const possibleSlots = SLOT_MAP[slotType] || [rawSlot];
+        if (possibleSlots.length > 1) {
+            // Only show as equipped if ALL possible slots are filled with this item type
+            const hasEmptySlot = possibleSlots.some(s => !character.equipment[s]);
+            isEquipped = !hasEmptySlot && isItemEquipped(item.id, invIndex);
+        } else {
+            isEquipped = isItemEquipped(item.id, invIndex);
+        }
+    }
 
     if (item.stackable) {
         equipBtn.style.display = 'none';
