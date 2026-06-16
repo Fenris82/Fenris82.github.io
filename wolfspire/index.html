@@ -13547,11 +13547,16 @@ function applyGamePrefsToUI() {
         if (destate) destate.textContent = deenabled ? 'On' : 'Off';
     }
 }
+
+function toggleGamePref(key) {
     gamePrefs[key] = !gamePrefs[key];
     saveGamePrefs();
     applyGamePrefsToUI();
     if (key === 'confirmLockItems') {
         announce('Confirm when locking items turned ' + (gamePrefs.confirmLockItems ? 'on' : 'off') + '.');
+    }
+    if (key === 'confirmDestroyItems') {
+        announce('Confirm when destroying items turned ' + (gamePrefs.confirmDestroyItems ? 'on' : 'off') + '.');
     }
     if (key === 'dualEncounters') {
         announce('Dual enemy encounters turned ' + (gamePrefs.dualEncounters ? 'on' : 'off') + '.');
