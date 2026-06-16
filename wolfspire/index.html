@@ -7310,13 +7310,96 @@ const SPELLS_DATA = [
     },
     {
         id:'solar_beam', icon:'☀', name:'Solar Beam', type:'spell',
-        desc:'Channel the power of the sun into a devastating beam. The most powerful spell available.',
-        stat:'INT x 6-9', price:50, cooldown:1, mpCost:35,
+        desc:'Channel the power of the sun into a devastating beam. Blindingly powerful — catches everything in the blast.',
+        stat:'INT x 6-9 — hits all enemies', price:50, cooldown:1, mpCost:35,
         tags:['Spell','Light'],
         use:(c,enemy) => {
             const int = c.stats.int + getEquipBonuses().int;
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const dmg1 = roll(int*6, int*9);
+                const dmg2 = roll(int*5, int*8);
+                combat.enemy.hp -= dmg1;
+                combat.enemy2.hp -= dmg2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`SOLAR BEAM! Blinding light floods the battlefield — ${dmg1} on ${combat.enemy.name}, ${dmg2} on ${combat.enemy2.name}! Neither can escape it!`, type:'player', dualHandled:true };
+            }
             const dmg = roll(int*6, int*9);
             return { damage:dmg, log:`SOLAR BEAM! Blinding light obliterates ${theName(enemy.name)} for ${dmg} massive magic damage!`, type:'player' };
+        }
+    },
+    {
+        id:'fire_field', icon:'🔥', name:'Fire Field', type:'spell',
+        desc:'Ignite the ground in a burst of flame — scorches all enemies and leaves them burning for 2 turns.',
+        stat:'INT x 3-5 + Burn x2 turns — hits all', price:50, cooldown:1, mpCost:26,
+        tags:['Spell','Fire'],
+        use:(c,enemy) => {
+            const int = c.stats.int + getEquipBonuses().int;
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const dmg1 = roll(int*3, int*5);
+                const dmg2 = roll(int*3, int*5);
+                combat.enemy.hp -= dmg1;
+                combat.enemy2.hp -= dmg2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                combat.enemyPoisoned = 2;
+                combat.poisonDmg = Math.floor(int * 2);
+                return { damage:0, log:`FIRE FIELD! Flames erupt across the battlefield — ${dmg1} on ${combat.enemy.name}, ${dmg2} on ${combat.enemy2.name}! Both are burning!`, type:'player', dualHandled:true };
+            }
+            const dmg = roll(int*3, int*5);
+            combat.enemyPoisoned = 2;
+            combat.poisonDmg = Math.floor(int * 2);
+            return { damage:dmg, log:`FIRE FIELD! Flames burst across the ground, scorching ${theName(enemy.name)} for ${dmg} damage! They burn for 2 more turns!`, type:'player' };
+        }
+    },
+    {
+        id:'lightning_blast', icon:'⚡', name:'Lightning Blast', type:'spell',
+        desc:'Hurl a bolt of chain lightning — strikes the primary target hard then arcs to any other enemy nearby.',
+        stat:'INT x 4-7 + arc — hits all', price:50, cooldown:1, mpCost:28,
+        tags:['Spell','Lightning'],
+        use:(c,enemy) => {
+            const int = c.stats.int + getEquipBonuses().int;
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const dmg1 = roll(int*4, int*7);
+                const dmg2 = Math.floor(roll(int*2, int*4));
+                combat.enemy.hp -= dmg1;
+                combat.enemy2.hp -= dmg2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`LIGHTNING BLAST! A bolt tears through ${combat.enemy.name} for ${dmg1} then arcs to ${combat.enemy2.name} for ${dmg2}!`, type:'player', dualHandled:true };
+            }
+            const dmg = roll(int*4, int*7);
+            return { damage:dmg, log:`LIGHTNING BLAST! A bolt of chain lightning strikes ${theName(enemy.name)} for ${dmg} crackling damage!`, type:'player' };
+        }
+    },
+    {
+        id:'blizzard', icon:'🌨', name:'Blizzard', type:'spell',
+        desc:'Summon a roaring blizzard — deals ice damage to all enemies and freezes one of them solid.',
+        stat:'INT x 3-5 + Freeze — hits all', price:50, cooldown:1, mpCost:30,
+        tags:['Spell','Ice'],
+        use:(c,enemy) => {
+            const int = c.stats.int + getEquipBonuses().int;
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const dmg1 = roll(int*3, int*5);
+                const dmg2 = roll(int*3, int*5);
+                combat.enemy.hp -= dmg1;
+                combat.enemy2.hp -= dmg2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                combat.enemyFrozen = true;
+                return { damage:0, log:`BLIZZARD! Ice and wind tear through both enemies — ${dmg1} on ${combat.enemy.name}, ${dmg2} on ${combat.enemy2.name}! ${combat.enemy.name} is frozen solid!`, type:'player', dualHandled:true };
+            }
+            const dmg = roll(int*3, int*5);
+            combat.enemyFrozen = true;
+            return { damage:dmg, log:`BLIZZARD! A roaring storm of ice tears through ${theName(enemy.name)} for ${dmg} damage and freezes them solid!`, type:'player' };
         }
     },
     {
