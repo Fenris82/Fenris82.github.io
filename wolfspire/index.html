@@ -1998,17 +1998,16 @@
             </div>
         </div>
         <div class="settings-row">
-            <label class="settings-label" for="toggle-dual-encounters">Dual enemy encounters</label>
+            <label class="settings-label" for="toggle-confirm-destroy">Confirm when destroying items</label>
             <div class="toggle-wrap">
-                <span class="toggle-state" id="dual-encounters-state">On</span>
-                <button class="toggle-btn on" id="toggle-dual-encounters" role="switch" aria-checked="true"
-                    onclick="toggleGamePref('dualEncounters')" aria-label="Toggle dual enemy encounters on or off">
+                <span class="toggle-state" id="confirm-destroy-state">On</span>
+                <button class="toggle-btn on" id="toggle-confirm-destroy" role="switch" aria-checked="true"
+                    onclick="toggleGamePref('confirmDestroyItems')" aria-label="Toggle destroy confirmation on or off">
                     <span class="toggle-thumb"></span>
                 </button>
             </div>
         </div>
-        <div style="font-size:0.78em;color:var(--text-dim);padding:0 4px 8px;font-style:italic">When on, floor 5+ encounters may spawn two enemies at once.</div>
-
+        <div style="font-size:0.78em;color:#8a4a4a;padding:0 4px 8px;font-style:italic">⚠ Destroyed items are permanently gone and cannot be recovered. Keep this on unless you're sure.</div>
         <div class="settings-row">
             <label class="settings-label" for="toggle-dual-encounters">Dual enemy encounters</label>
             <div class="toggle-wrap">
@@ -2020,15 +2019,6 @@
             </div>
         </div>
         <div style="font-size:0.78em;color:var(--text-dim);padding:0 4px 8px;font-style:italic">When on, floor 5+ has a 50% chance of spawning two enemies at once. Turn off for single encounters only.</div>
-            <div class="toggle-wrap">
-                <span class="toggle-state" id="confirm-destroy-state">On</span>
-                <button class="toggle-btn on" id="toggle-confirm-destroy" role="switch" aria-checked="true"
-                    onclick="toggleGamePref('confirmDestroyItems')" aria-label="Toggle destroy confirmation on or off">
-                    <span class="toggle-thumb"></span>
-                </button>
-            </div>
-        </div>
-        <div style="font-size:0.78em;color:#8a4a4a;padding:0 4px 8px;font-style:italic">⚠ Destroyed items are permanently gone and cannot be recovered. Keep this on unless you're sure.</div>
     </div>
 
     <!-- Save Transfer -->
@@ -4310,7 +4300,9 @@ function setBar(fillId, wrapId, labelId, current, max) {
 function goToScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
-    document.getElementById('screen-'+id).classList.add('active');
+    const newScreen = document.getElementById('screen-'+id);
+    newScreen.classList.add('active');
+    newScreen.scrollTop = 0;
     const nb = document.getElementById('nav-'+id);
     if (nb) { nb.classList.add('active'); nb.setAttribute('aria-current','page'); }
     // Hide nav on title and create screens, combat handles its own nav state
