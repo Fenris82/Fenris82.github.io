@@ -4883,6 +4883,7 @@ function getEquipBonuses() {
             ...(SHOP_INVENTORY ? SHOP_INVENTORY.weapons || [] : []),
             ...(SHOP_INVENTORY ? SHOP_INVENTORY.armor || [] : []),
             ...(typeof IRONHOLD_INVENTORY !== 'undefined' ? [...(IRONHOLD_INVENTORY.weapons||[]), ...(IRONHOLD_INVENTORY.armor||[])] : []),
+            ...(typeof WOLFGATE_INVENTORY !== 'undefined' ? [...(WOLFGATE_INVENTORY.weapons||[]), ...(WOLFGATE_INVENTORY.armor||[])] : []),
             ...(typeof SUNPORT_INVENTORY !== 'undefined' ? [...(SUNPORT_INVENTORY.weapons||[]), ...(SUNPORT_INVENTORY.accessories||[])] : []),
             ...(typeof WOLFHAVEN_INVENTORY !== 'undefined' ? [...(WOLFHAVEN_INVENTORY.weapons||[]), ...(WOLFHAVEN_INVENTORY.armor||[])] : []),
             ...(typeof IRONWOOD_INVENTORY !== 'undefined' ? [...(IRONWOOD_INVENTORY.weapons||[]), ...(IRONWOOD_INVENTORY.armor||[])] : []),
@@ -4901,7 +4902,11 @@ function getEquipBonuses() {
         if (stat.includes('PER +')) bonuses.per += parseInt(stat.match(/PER \+(\d+)/)[1]);
         if (stat.includes('ARM +')) bonuses.arm += parseInt(stat.match(/ARM \+(\d+)/)[1]);
         if (stat.includes('MP +') && !stat.includes('MP +40%')) bonuses.mp += parseInt(stat.match(/MP \+(\d+)/)[1]);
-        if (stat.includes('RES +')) bonuses.res += parseInt(stat.match(/RES \+(\d+)/)[1]);
+        if (stat.includes('RES +')) {
+            const resVal = parseInt(stat.match(/RES \+(\d+)/)[1]);
+            bonuses.res += resVal;
+            bonuses.arm += Math.floor(resVal / 2); // RES also boosts ARM
+        }
         // Cronus's Knightly Longsword crit bonus
         if (item.special === 'knightly') bonuses.critBonus += 10;
         if (item.special === 'precision') bonuses.critBonus += 15;
@@ -4923,19 +4928,27 @@ function calcPlayerDamage(hand) {
         const allWeapons = [
             ...(SHOP_INVENTORY.weapons || []),
             ...(IRONHOLD_INVENTORY.weapons || []),
+            ...(WOLFGATE_INVENTORY ? WOLFGATE_INVENTORY.weapons || [] : []),
             ...(SUNPORT_INVENTORY ? SUNPORT_INVENTORY.weapons || [] : []),
             ...(WOLFHAVEN_INVENTORY ? WOLFHAVEN_INVENTORY.weapons || [] : []),
+            ...(IRONWOOD_INVENTORY ? IRONWOOD_INVENTORY.weapons || [] : []),
+            ...(WINDMANE_INVENTORY ? WINDMANE_INVENTORY.weapons || [] : []),
             ...LEGENDARY_CHEST_ITEMS,
             ...Object.values(DUNGEONS).flatMap(d => d.loot || []).filter(l => l.slot === 'mainHand'),
         ];
         const weaponData = allWeapons.find(w => w.id === weapon.id);
         if (weaponData) {
             const tags = weaponData.tags || [];
+            const stat = weaponData.stat || '';
+            // INT weapons
             if (tags.includes('Staff') || tags.includes('Wand')) scalingStat = int;
-            else if (tags.includes('Dagger') || tags.includes('Bow')) scalingStat = dex;
-            else if (tags.includes('Spear') && weaponData.stat && weaponData.stat.includes('DEX')) scalingStat = dex;
-            else if (tags.includes('Bow') && weaponData.stat && weaponData.stat.includes('STR')) scalingStat = str;
-            else scalingStat = str;
+            // DEX weapons — daggers and standard bows/longbows
+            else if (tags.includes('Dagger')) scalingStat = dex;
+            else if (tags.includes('Bow') && !stat.includes('STR')) scalingStat = dex;
+            // STR weapons — guns, crossbows, crossbows, spears, and bows with STR stat
+            else if (tags.includes('Gun') || tags.includes('Crossbow')) scalingStat = str;
+            else if (tags.includes('Bow') && stat.includes('STR')) scalingStat = str;
+            else scalingStat = str; // axes, swords, hammers, maces, flails, spears default STR
         }
     }
 
@@ -4947,8 +4960,11 @@ function calcPlayerDamage(hand) {
         const allWeapons = [
             ...(SHOP_INVENTORY.weapons || []),
             ...(IRONHOLD_INVENTORY.weapons || []),
+            ...(WOLFGATE_INVENTORY ? WOLFGATE_INVENTORY.weapons || [] : []),
             ...(SUNPORT_INVENTORY ? SUNPORT_INVENTORY.weapons || [] : []),
             ...(WOLFHAVEN_INVENTORY ? WOLFHAVEN_INVENTORY.weapons || [] : []),
+            ...(IRONWOOD_INVENTORY ? IRONWOOD_INVENTORY.weapons || [] : []),
+            ...(WINDMANE_INVENTORY ? WINDMANE_INVENTORY.weapons || [] : []),
             ...LEGENDARY_CHEST_ITEMS,
             ...Object.values(DUNGEONS).flatMap(d => d.loot || []).filter(l => l.slot === 'mainHand'),
         ];
@@ -9552,26 +9568,31 @@ const DUNGEONS = {
         color: '#4aaf70',
         desc: 'The ancient mine beneath the Isle of Wolfgate where Wolfsteel is still unearthed. Golems, corrupted druids, and things far older than the island itself wait in the deep.',
         enemies: [
-            { id:'wolfsteel_golem',      name:'Wolfsteel Golem',      icon:'🗿', level:2, hp:90,  atk:14, xp:55,  gold:[12,22], floors:[1,40],  desc:'A construct of raw Wolfsteel ore. Slow but nearly impossible to stagger.' },
-            { id:'mine_wraith',          name:'Mine Wraith',           icon:'👻', level:2, hp:70,  atk:16, xp:50,  gold:[10,18], floors:[1,40],  desc:'The spirit of a miner who died in the deep. Drawn to the ore\'s resonance.' },
-            { id:'corrupted_druid',      name:'Corrupted Druid',       icon:'🧙', level:3, hp:85,  atk:15, xp:60,  gold:[14,24], floors:[5,40],  desc:'A druid who descended too deep into the Wolfgate and came back changed.' },
-            { id:'stone_shaman',         name:'Stone Shaman',          icon:'🪨', level:3, hp:80,  atk:17, xp:65,  gold:[15,25], floors:[5,40],  desc:'A druid mystic who draws power from the Wolfsteel ore itself. Dangerous at range.' },
-            { id:'wolfsteel_sentinel',   name:'Wolfsteel Sentinel',    icon:'⚙',  level:4, hp:120, atk:18, xp:75,  gold:[18,30], floors:[10,40], desc:'An elite Wolfsteel Golem placed as a guardian deeper in the mine.' },
-            { id:'ancient_guardian',     name:'Ancient Guardian',      icon:'🛡',  level:4, hp:130, atk:20, xp:85,  gold:[20,35], floors:[15,40], desc:'A guardian placed here before memory. It does not know why it still watches. It watches anyway.' },
-            { id:'wolfgate_stalker',     name:'Wolfgate Stalker',      icon:'🕷',  level:3, hp:75,  atk:19, xp:70,  gold:[16,26], floors:[10,40], desc:'A creature adapted to the deep tunnels. Fast, silent, and hungry.' },
-            { id:'ore_elemental',        name:'Ore Elemental',         icon:'💎', level:4, hp:110, atk:17, xp:80,  gold:[19,32], floors:[15,40], desc:'Wolfsteel ore that has become something more than ore. It resents the intrusion.' },
-            { id:'deep_crawler',         name:'Deep Crawler',          icon:'🦂', level:2, hp:65,  atk:15, xp:45,  gold:[10,18], floors:[1,20],  desc:'An oversized arachnid that nests in the lower tunnels. Their venom dissolves metal.' },
-            { id:'tunnel_shade',         name:'Tunnel Shade',          icon:'🌑', level:3, hp:72,  atk:18, xp:60,  gold:[13,22], floors:[5,30],  desc:'A shadow creature born from the darkness of the deep mine. It hates the light.' },
-            { id:'wolfsteel_brute',      name:'Wolfsteel Brute',       icon:'💪', level:4, hp:140, atk:22, xp:90,  gold:[22,38], floors:[20,40], desc:'A massive humanoid encased in natural Wolfsteel deposits. The mine made it into armor.' },
-            { id:'gate_warden',          name:'Gate Warden',           icon:'⚔',  level:4, hp:115, atk:21, xp:85,  gold:[20,34], floors:[20,40], desc:'A warden of the Wolfgate itself. It carries a Wolfsteel blade and uses it well.' },
-            { id:'druid_wraith',         name:'Druid Wraith',          icon:'💀', level:5, hp:100, atk:23, xp:95,  gold:[24,40], floors:[25,40], desc:'What becomes of a corrupted druid in the deepest reaches. More wraith than druid now.' },
-            { id:'wolfsteel_hound',      name:'Wolfsteel Hound',       icon:'🐺', level:2, hp:68,  atk:16, xp:52,  gold:[11,20], floors:[1,20],  desc:'A wolf-like creature with hide hardened by Wolfsteel deposits. Hunts in packs in the upper tunnels.' },
-            { id:'rune_guardian',        name:'Rune Guardian',         icon:'🔷', level:3, hp:95,  atk:16, xp:68,  gold:[15,26], floors:[5,25],  desc:'A druid construct held together by ancient rune-work. Its glyphs pulse with the ore\'s energy.' },
-            { id:'deepstone_troll',      name:'Deepstone Troll',       icon:'👹', level:3, hp:105, atk:18, xp:72,  gold:[16,28], floors:[10,30], desc:'A troll that has lived so deep underground its skin has taken on the grey color of the stone.' },
-            { id:'ore_leech',            name:'Ore Leech',             icon:'🐛', level:2, hp:55,  atk:13, xp:42,  gold:[9,16],  floors:[1,15],  desc:'A parasite that feeds on Wolfsteel deposits. Harmless alone. Rarely alone.' },
-            { id:'corrupted_sentinel',   name:'Corrupted Sentinel',    icon:'🤖', level:4, hp:125, atk:20, xp:82,  gold:[20,33], floors:[15,35], desc:'A Wolfsteel Sentinel that has been overtaken by the mine\'s corruption. It no longer knows what it guards.' },
-            { id:'gate_specter',         name:'Gate Specter',          icon:'👁',  level:5, hp:90,  atk:24, xp:98,  gold:[25,42], floors:[30,40], desc:'A specter that haunts the deepest reaches of the Wolfgate. Some say it is a memory of the gate itself.' },
-            { id:'wolfsteel_colossus',   name:'Wolfsteel Colossus',    icon:'⛰',  level:5, hp:160, atk:25, xp:105, gold:[28,46], floors:[30,40], desc:'A towering Wolfsteel construct that predates the mine itself. Nobody built it. It was found.' },
+            { id:'wolfsteel_golem',      name:'Wolfsteel Golem',      icon:'🗿', level:2, hp:90,  atk:11, xp:55,  gold:[12,22], floors:[1,40],  desc:'A construct of raw Wolfsteel ore. Slow but nearly impossible to stagger.' },
+            { id:'mine_wraith',          name:'Mine Wraith',           icon:'👻', level:2, hp:70,  atk:12, xp:50,  gold:[10,18], floors:[1,40],  desc:'The spirit of a miner who died in the deep. Drawn to the ore\'s resonance.' },
+            { id:'corrupted_druid',      name:'Corrupted Druid',       icon:'🧙', level:3, hp:85,  atk:12, xp:60,  gold:[14,24], floors:[5,40],  desc:'A druid who descended too deep into the Wolfgate and came back changed.' },
+            { id:'stone_shaman',         name:'Stone Shaman',          icon:'🪨', level:3, hp:80,  atk:13, xp:65,  gold:[15,25], floors:[5,40],  desc:'A druid mystic who draws power from the Wolfsteel ore itself. Dangerous at range.' },
+            { id:'wolfsteel_sentinel',   name:'Wolfsteel Sentinel',    icon:'⚙',  level:4, hp:120, atk:14, xp:75,  gold:[18,30], floors:[10,40], desc:'An elite Wolfsteel Golem placed as a guardian deeper in the mine.' },
+            { id:'ancient_guardian',     name:'Ancient Guardian',      icon:'🛡',  level:4, hp:130, atk:15, xp:85,  gold:[20,35], floors:[15,40], desc:'A guardian placed here before memory. It does not know why it still watches. It watches anyway.' },
+            { id:'wolfgate_stalker',     name:'Wolfgate Stalker',      icon:'🕷',  level:3, hp:75,  atk:14, xp:70,  gold:[16,26], floors:[10,40], desc:'A creature adapted to the deep tunnels. Fast, silent, and hungry.' },
+            { id:'ore_elemental',        name:'Ore Elemental',         icon:'💎', level:4, hp:110, atk:13, xp:80,  gold:[19,32], floors:[15,40], desc:'Wolfsteel ore that has become something more than ore. It resents the intrusion.' },
+            { id:'deep_crawler',         name:'Deep Crawler',          icon:'🦂', level:2, hp:65,  atk:11, xp:45,  gold:[10,18], floors:[1,20],  desc:'An oversized arachnid that nests in the lower tunnels. Their venom dissolves metal.' },
+            { id:'tunnel_shade',         name:'Tunnel Shade',          icon:'🌑', level:3, hp:72,  atk:13, xp:60,  gold:[13,22], floors:[5,30],  desc:'A shadow creature born from the darkness of the deep mine. It hates the light.' },
+            { id:'wolfsteel_brute',      name:'Wolfsteel Brute',       icon:'💪', level:4, hp:140, atk:16, xp:90,  gold:[22,38], floors:[20,40], desc:'A massive humanoid encased in natural Wolfsteel deposits. The mine made it into armor.' },
+            { id:'gate_warden',          name:'Gate Warden',           icon:'⚔',  level:4, hp:115, atk:15, xp:85,  gold:[20,34], floors:[20,40], desc:'A warden of the Wolfgate itself. It carries a Wolfsteel blade and uses it well.' },
+            { id:'druid_wraith',         name:'Druid Wraith',          icon:'💀', level:5, hp:100, atk:17, xp:95,  gold:[24,40], floors:[25,40], desc:'What becomes of a corrupted druid in the deepest reaches. More wraith than druid now.' },
+            { id:'wolfsteel_hound',      name:'Wolfsteel Hound',       icon:'🐺', level:2, hp:68,  atk:11, xp:52,  gold:[11,20], floors:[1,20],  desc:'A wolf-like creature with hide hardened by Wolfsteel deposits. Hunts in packs in the upper tunnels.' },
+            { id:'rune_guardian',        name:'Rune Guardian',         icon:'🔷', level:3, hp:95,  atk:12, xp:68,  gold:[15,26], floors:[5,25],  desc:'A druid construct held together by ancient rune-work. Its glyphs pulse with the ore\'s energy.' },
+            { id:'deepstone_troll',      name:'Deepstone Troll',       icon:'👹', level:3, hp:105, atk:13, xp:72,  gold:[16,28], floors:[10,30], desc:'A troll that has lived so deep underground its skin has taken on the grey color of the stone.' },
+            { id:'ore_leech',            name:'Ore Leech',             icon:'🐛', level:2, hp:55,  atk:10, xp:42,  gold:[9,16],  floors:[1,15],  desc:'A parasite that feeds on Wolfsteel deposits. Harmless alone. Rarely alone.' },
+            { id:'corrupted_sentinel',   name:'Corrupted Sentinel',    icon:'🤖', level:4, hp:125, atk:15, xp:82,  gold:[20,33], floors:[15,35], desc:'A Wolfsteel Sentinel that has been overtaken by the mine\'s corruption. It no longer knows what it guards.' },
+            { id:'gate_specter',         name:'Gate Specter',          icon:'👁',  level:5, hp:90,  atk:17, xp:98,  gold:[25,42], floors:[30,40], desc:'A specter that haunts the deepest reaches of the Wolfgate. Some say it is a memory of the gate itself.' },
+            { id:'wolfsteel_colossus',   name:'Wolfsteel Colossus',    icon:'⛰',  level:5, hp:160, atk:18, xp:105, gold:[28,46], floors:[30,40], desc:'A towering Wolfsteel construct that predates the mine itself. Nobody built it. It was found.' },
+            { id:'cave_moss',            name:'Cave Moss',             icon:'🌿', level:1, hp:40,  atk:8,  xp:30,  gold:[6,12],  floors:[1,10],  desc:'A creeping mass of bioluminescent moss that has developed a taste for flesh.' },
+            { id:'iron_bat',             name:'Iron Bat',              icon:'🦇', level:2, hp:55,  atk:10, xp:44,  gold:[9,16],  floors:[1,20],  desc:'A bat whose wings have hardened with trace Wolfsteel deposits. Swoops fast and cuts deep.' },
+            { id:'vein_crawler',         name:'Vein Crawler',          icon:'🐍', level:3, hp:78,  atk:13, xp:62,  gold:[13,22], floors:[5,25],  desc:'A serpent that follows Wolfsteel veins through the rock. It knows every tunnel.' },
+            { id:'druid_acolyte',        name:'Druid Acolyte',         icon:'🧝', level:2, hp:62,  atk:11, xp:48,  gold:[10,18], floors:[1,15],  desc:'A young druid who followed a master into the mine and never found their way out.' },
+            { id:'forge_spirit',         name:'Forge Spirit',          icon:'🔥', level:4, hp:100, atk:14, xp:78,  gold:[18,30], floors:[15,35], desc:'A spirit born from centuries of Wolfsteel being worked and shaped. It guards the deepest forges.' },
         ],
         bosses: {
             10: { id:'the_foreman',      name:'The Foreman',           icon:'⛏', level:5, hp:420, atk:28, xp:350, gold:[80,130], isBoss:true, desc:'A corrupted druid overseer who ran the mine before the corruption took him. He still thinks he\'s in charge.' },
