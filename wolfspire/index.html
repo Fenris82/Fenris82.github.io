@@ -1998,7 +1998,28 @@
             </div>
         </div>
         <div class="settings-row">
-            <label class="settings-label" for="toggle-confirm-destroy">Confirm when destroying items</label>
+            <label class="settings-label" for="toggle-dual-encounters">Dual enemy encounters</label>
+            <div class="toggle-wrap">
+                <span class="toggle-state" id="dual-encounters-state">On</span>
+                <button class="toggle-btn on" id="toggle-dual-encounters" role="switch" aria-checked="true"
+                    onclick="toggleGamePref('dualEncounters')" aria-label="Toggle dual enemy encounters on or off">
+                    <span class="toggle-thumb"></span>
+                </button>
+            </div>
+        </div>
+        <div style="font-size:0.78em;color:var(--text-dim);padding:0 4px 8px;font-style:italic">When on, floor 5+ encounters may spawn two enemies at once.</div>
+
+        <div class="settings-row">
+            <label class="settings-label" for="toggle-dual-encounters">Dual enemy encounters</label>
+            <div class="toggle-wrap">
+                <span class="toggle-state" id="dual-encounters-state">On</span>
+                <button class="toggle-btn on" id="toggle-dual-encounters" role="switch" aria-checked="true"
+                    onclick="toggleGamePref('dualEncounters')" aria-label="Toggle dual enemy encounters on or off">
+                    <span class="toggle-thumb"></span>
+                </button>
+            </div>
+        </div>
+        <div style="font-size:0.78em;color:var(--text-dim);padding:0 4px 8px;font-style:italic">When on, floor 5+ has a 50% chance of spawning two enemies at once. Turn off for single encounters only.</div>
             <div class="toggle-wrap">
                 <span class="toggle-state" id="confirm-destroy-state">On</span>
                 <button class="toggle-btn on" id="toggle-confirm-destroy" role="switch" aria-checked="true"
@@ -4424,7 +4445,7 @@ function startNextEncounter() {
     }
 
     // 30% chance of dual encounter (not on boss floors, not on floor 1-4)
-    const dualChance = !isBossFloor && dungeonState.floor >= 5 && Math.random() < 0.50;
+    const dualChance = !isBossFloor && dungeonState.floor >= 5 && gamePrefs.dualEncounters !== false && Math.random() < 0.50;
 
     const enemy = pickEnemyForDungeon();
 
@@ -7009,13 +7030,24 @@ const SKILLS_DATA = [
     },
     {
         id:'ground_strike', icon:'💥', name:'Ground Strike', type:'skill',
-        desc:'Drive your weapon into the earth with devastating force — deals 250% of your normal attack damage in a shockwave.',
+        desc:'Drive your weapon into the earth with devastating force — deals 250% of your normal attack damage in a shockwave. Hits all enemies.',
         stat:'Weapon x 2.5', price:50, cooldown:1, mpCost:0,
         tags:['Skill','Physical'],
         use:(c,enemy) => {
             const hit = calcPlayerDamage('mainHand');
             const dmg = Math.floor(hit.damage * 2.5);
             const critNote = hit.crit ? ' Critical hit!' : '';
+            if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                const hit2 = calcPlayerDamage('mainHand');
+                const dmg2 = Math.floor(hit2.damage * 2.5);
+                combat.enemy.hp -= dmg;
+                combat.enemy2.hp -= dmg2;
+                setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
+                setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
+                if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
+                if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
+                return { damage:0, log:`GROUND STRIKE! The shockwave tears through everything — ${dmg} on ${combat.enemy.name}, ${dmg2} on ${combat.enemy2.name}!${critNote}`, type:'player', dualHandled:true };
+            }
             return { damage:dmg, log:`GROUND STRIKE! You slam your weapon into the earth — a shockwave tears through ${theName(enemy.name)} for ${dmg} massive damage!${critNote}`, type:'player' };
         }
     },
@@ -13473,7 +13505,7 @@ function addDesktopLogEntry(msg, type) {
 }
 
 // -- GAME PREFS -------------------------------------------
-let gamePrefs = { confirmLockItems: true, confirmDestroyItems: true };
+let gamePrefs = { confirmLockItems: true, confirmDestroyItems: true, dualEncounters: true };
 
 function loadGamePrefs() {
     try {
@@ -13506,17 +13538,23 @@ function applyGamePrefsToUI() {
         dtoggle.setAttribute('aria-checked', denabled.toString());
         if (dstate) dstate.textContent = denabled ? 'On' : 'Off';
     }
+    const detoggle = document.getElementById('toggle-dual-encounters');
+    const destate = document.getElementById('dual-encounters-state');
+    if (detoggle) {
+        const deenabled = gamePrefs.dualEncounters !== false;
+        detoggle.classList.toggle('on', deenabled);
+        detoggle.setAttribute('aria-checked', deenabled.toString());
+        if (destate) destate.textContent = deenabled ? 'On' : 'Off';
+    }
 }
-
-function toggleGamePref(key) {
     gamePrefs[key] = !gamePrefs[key];
     saveGamePrefs();
     applyGamePrefsToUI();
     if (key === 'confirmLockItems') {
         announce('Confirm when locking items turned ' + (gamePrefs.confirmLockItems ? 'on' : 'off') + '.');
     }
-    if (key === 'confirmDestroyItems') {
-        announce('Confirm when destroying items turned ' + (gamePrefs.confirmDestroyItems ? 'on' : 'off') + '.');
+    if (key === 'dualEncounters') {
+        announce('Dual enemy encounters turned ' + (gamePrefs.dualEncounters ? 'on' : 'off') + '.');
     }
 }
 
