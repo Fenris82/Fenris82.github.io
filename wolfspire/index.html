@@ -11260,11 +11260,11 @@ function forgeItem(invIndex) {
     forgedItem.forgeTier = currentTier + 1;
 
     if (forgedItem.stat) {
-        const match = forgedItem.stat.match(/([A-Z]+) \+(\d+)/);
-        if (match) {
-            const newVal = parseInt(match[2]) + tier.statBonus;
-            forgedItem.stat = forgedItem.stat.replace(match[0], `${match[1]} +${newVal}`);
-        }
+        forgedItem.stat = forgedItem.stat.replace(/\b([A-Z]+) \+(\d+)/g, (full, statName, val) => {
+            const bonus = statName === 'MP' ? tier.statBonus * 2 : tier.statBonus;
+            const newVal = parseInt(val) + bonus;
+            return `${statName} +${newVal}`;
+        });
     }
     if (forgedItem.dmg) {
         forgedItem.dmg = [forgedItem.dmg[0] + tier.dmgBonus[0], forgedItem.dmg[1] + tier.dmgBonus[1]];
