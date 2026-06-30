@@ -186,6 +186,81 @@
         .rename-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
         .rename-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
 
+        /* ── LOADOUTS ── */
+        .loadout-card {
+            background: var(--bg-card);
+            border: 1px solid #2a2a3a;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            transition: all 0.15s;
+        }
+        .loadout-card.active-loadout {
+            border-color: var(--gold-dim);
+            background: #1a1a2e;
+        }
+        .loadout-card.active-loadout::before {
+            content: '● ACTIVE';
+            position: absolute;
+            top: 8px; right: 10px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.55em;
+            color: var(--gold);
+            letter-spacing: 0.08em;
+        }
+        .loadout-name {
+            font-family: 'Cinzel', serif;
+            font-size: 0.78em;
+            color: var(--gold);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            padding-right: 52px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .loadout-preview {
+            font-size: 0.72em;
+            color: var(--text-dim);
+            line-height: 1.5;
+            min-height: 32px;
+        }
+        .loadout-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .loadout-btn {
+            font-family: 'Cinzel', serif;
+            font-size: 0.62em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #2a2a44;
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.04em;
+        }
+        .loadout-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+        .loadout-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .loadout-btn.equip-loadout-btn {
+            background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+            color: var(--bg);
+            border-color: var(--gold);
+            font-weight: 700;
+        }
+        .loadout-btn.equip-loadout-btn:hover { opacity: 0.85; }
+        .loadout-empty-note {
+            font-family: 'Cinzel', serif;
+            font-size: 0.62em;
+            color: #3a3a5a;
+            font-style: italic;
+        }
+
         .reset-stats-btn {
             width: 100%;
             padding: 12px;
@@ -871,6 +946,66 @@
         .log-entry.defend { color: #80c0ff; font-style: italic; }
 
         .combat-actions { display: flex; flex-direction: column; gap: 8px; }
+        /* ── FAVORITES BAR ── */
+        .favorites-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .fav-slot {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px dashed #2a2a44;
+            border-radius: 8px;
+            min-height: 52px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 4px 2px;
+        }
+        .fav-slot:hover { border-color: var(--gold-dim); background: #1e1e38; }
+        .fav-slot:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .fav-slot.filled { border-style: solid; border-color: var(--gold-dim); background: #1a1a2e; }
+        .fav-slot.fav-disabled { opacity: 0.45; }
+        .fav-slot.edit-mode { border-color: #c0a040; box-shadow: 0 0 0 2px rgba(201,168,76,0.2); }
+        .fav-icon { font-size: 1.3em; line-height: 1; }
+        .fav-name { font-family: 'Cinzel', serif; font-size: 0.52em; color: var(--gold); text-align: center; line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; padding: 0 2px; }
+        .fav-edit-btn {
+            flex-shrink: 0;
+            width: 36px;
+            height: 52px;
+            background: transparent;
+            border: 1px solid #2a2a44;
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .fav-edit-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+        .fav-edit-btn:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .fav-edit-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.1); }
+        .fav-pick-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-deep);
+            border: 1px solid #2a2a44;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: all 0.15s;
+            width: 100%;
+            text-align: left;
+        }
+        .fav-pick-item:hover { border-color: var(--gold-dim); }
+        .fav-pick-item:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+
         .attack-row { display: grid; grid-template-columns: 1fr; }
         .secondary-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 
@@ -885,7 +1020,7 @@
         .action-btn.defending { border-color: #80c0ff; color: #80c0ff; background: rgba(41,128,185,0.15); }
 
         /* -- RESULT OVERLAY -- */
-        .combat-result { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; flex-direction: column; align-items: center; justify-content: center; padding: 30px; gap: 20px; text-align: center; }
+        .combat-result { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; flex-direction: column; align-items: center; justify-content: center; padding: 30px 30px calc(30px + var(--nav-height)) 30px; gap: 20px; text-align: center; overflow-y: auto; }
         .combat-result.show { display: flex; }
 
         /* Scrollable list overlays (dungeon select, travel, roster) — fixes iPhone cutoff */
@@ -1278,7 +1413,7 @@
         .coming-soon p { color: var(--text-dim); font-style: italic; max-width: 280px; }
 
         /* -- BOTTOM NAV -- */
-        .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: var(--bg-panel); border-top: 1px solid #2a2a44; padding: 0 8px; align-items: stretch; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); }
+        .bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background: var(--bg-panel); border-top: 1px solid #2a2a44; padding: 0 8px; align-items: stretch; z-index: 250; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); }
         .bottom-nav.visible { display: flex; }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; cursor: pointer; padding: 8px 4px; border-radius: 8px; color: var(--text-dim); transition: color 0.15s; }
         .nav-icon { font-size: 1.4em; transition: transform 0.15s; }
@@ -1645,10 +1780,10 @@
             <span class="btn-label">Dungeons</span>
             <span class="btn-sub" id="dungeon-btn-sub">Enter the dark</span>
         </button>
-        <button class="menu-btn" onclick="openTravelMenu()" aria-label="Travel to another town">
+        <button class="menu-btn" onclick="openTravelMenu()" aria-label="Travel to another destination">
             <span class="btn-icon" aria-hidden="true">🗺</span>
             <span class="btn-label">Travel</span>
-            <span class="btn-sub">Visit other towns</span>
+            <span class="btn-sub">Explore the world</span>
         </button>
         <button class="menu-btn" onclick="openShop()" aria-label="Visit the shop">
             <span class="btn-icon" aria-hidden="true">🛒</span>
@@ -2019,6 +2154,17 @@
             </div>
         </div>
         <div style="font-size:0.78em;color:var(--text-dim);padding:0 4px 8px;font-style:italic">When on, floor 5+ has a 50% chance of spawning two enemies at once. Turn off for single encounters only.</div>
+        <div class="settings-row">
+            <label class="settings-label" for="toggle-fav-bar">Combat favorites bar</label>
+            <div class="toggle-wrap">
+                <span class="toggle-state" id="fav-bar-state">On</span>
+                <button class="toggle-btn on" id="toggle-fav-bar" role="switch" aria-checked="true"
+                    onclick="toggleGamePref('favoritesBar')" aria-label="Toggle combat favorites bar on or off">
+                    <span class="toggle-thumb"></span>
+                </button>
+            </div>
+        </div>
+        <div style="font-size:0.78em;color:var(--text-dim);padding:0 4px 8px;font-style:italic">Quick-access slots for your favorite skills and spells, shown above Attack in combat.</div>
     </div>
 
     <!-- Save Transfer -->
@@ -2148,6 +2294,23 @@
 
     <h3 class="sheet-section-label">Actions</h3>
     <div class="combat-actions" role="group" aria-label="Combat actions">
+        <div class="favorites-row" id="favorites-row" role="group" aria-label="Favorite abilities">
+            <button class="fav-slot" id="fav-slot-0" onclick="useFavoriteSlot(0)" aria-label="Favorite slot 1, empty">
+                <span class="fav-icon" aria-hidden="true">➕</span>
+            </button>
+            <button class="fav-slot" id="fav-slot-1" onclick="useFavoriteSlot(1)" aria-label="Favorite slot 2, empty">
+                <span class="fav-icon" aria-hidden="true">➕</span>
+            </button>
+            <button class="fav-slot" id="fav-slot-2" onclick="useFavoriteSlot(2)" aria-label="Favorite slot 3, empty">
+                <span class="fav-icon" aria-hidden="true">➕</span>
+            </button>
+            <button class="fav-slot" id="fav-slot-3" onclick="useFavoriteSlot(3)" aria-label="Favorite slot 4, empty">
+                <span class="fav-icon" aria-hidden="true">➕</span>
+            </button>
+            <button class="fav-edit-btn" id="fav-edit-toggle" onclick="toggleFavoriteEditMode()" aria-label="Edit favorite ability slots">
+                ✎
+            </button>
+        </div>
         <div class="attack-row" id="attack-row">
             <button class="action-btn attack-btn" id="btn-attack" onclick="playerAttack('mainHand')" aria-label="Attack the enemy">
                 <span class="act-icon" aria-hidden="true">⚔</span> <span id="btn-attack-label">Attack</span>
@@ -3151,6 +3314,11 @@
     <!-- Abilities -->
     <div style="margin-top:24px">
         <h3 style="font-family:'Cinzel',serif;font-size:0.75em;letter-spacing:0.15em;color:var(--text-dim);text-transform:uppercase;margin-bottom:12px">Known Abilities</h3>
+        <div class="shop-tabs" role="tablist" aria-label="Filter known abilities" style="margin-bottom:12px">
+            <button class="shop-tab active" id="tab-abil-all" role="tab" aria-selected="true" onclick="switchAbilityFilter('all')">📖 All</button>
+            <button class="shop-tab" id="tab-abil-skills" role="tab" aria-selected="false" onclick="switchAbilityFilter('skills')">✨ Skills</button>
+            <button class="shop-tab" id="tab-abil-spells" role="tab" aria-selected="false" onclick="switchAbilityFilter('spells')">🔮 Spells</button>
+        </div>
         <div id="cs-abilities-list" style="display:flex;flex-direction:column;gap:8px"></div>
         <div id="cs-abilities-empty" style="display:none;font-size:0.95em;color:var(--text-dim);font-style:italic;padding:12px 0">No abilities learned yet. Visit Fennyx's Training Grounds.</div>
     </div>
@@ -3160,7 +3328,10 @@
     <h2 class="screen-title">Inventory</h2>
 
     <!-- Equipment slots -->
-    <h3 class="sheet-section-label">Equipped Gear</h3>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h3 class="sheet-section-label" style="margin:0">Equipped Gear</h3>
+        <button class="rename-btn" onclick="openLoadoutSheet()" aria-label="Manage gear loadouts">⚙ Loadouts</button>
+    </div>
     <div class="equip-grid" role="group" aria-label="Equipment slots">
         <div class="equip-slot" id="slot-head"     onclick="slotClick('head')"     aria-label="Head slot, empty" tabindex="0">
             <span class="slot-icon" aria-hidden="true">🪖</span><span class="slot-label">Head</span>
@@ -3234,6 +3405,34 @@
 </div>
 
 <!-- -- ITEM DETAIL OVERLAY -- -->
+<!-- -- LOADOUT SHEET -- -->
+<!-- -- FAVORITE ABILITY PICKER -- -->
+<div class="confirm-overlay" id="fav-picker-overlay" role="dialog" aria-modal="true" aria-labelledby="fav-picker-title" style="align-items:flex-end;padding:0" onclick="closeFavPicker(event)">
+    <div style="background:var(--bg-card);border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:500px;max-height:75vh;overflow-y:auto">
+        <h2 class="confirm-title" id="fav-picker-title" style="font-size:1em;margin-bottom:12px">Choose a Favorite</h2>
+        <div id="fav-picker-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        <button class="reset-stats-btn" onclick="clearFavSlot()" aria-label="Clear this favorite slot" style="margin-top:14px;color:#c08080;border-color:#4a2a2a">
+            Clear Slot
+        </button>
+        <button class="reset-stats-btn" onclick="closeFavPicker()" aria-label="Cancel" style="margin-top:8px;color:var(--text-dim);border-color:#2a2a44">
+            Cancel
+        </button>
+    </div>
+</div>
+
+<div class="confirm-overlay" id="loadout-overlay" role="dialog" aria-modal="true" aria-labelledby="loadout-sheet-title" style="align-items:flex-end;padding:0" onclick="closeLoadoutSheet(event)">
+    <div style="background:var(--bg-card);border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:500px;max-height:80vh;overflow-y:auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h2 class="confirm-title" id="loadout-sheet-title" style="font-size:1em;margin:0">⚙ Loadouts</h2>
+            <span style="font-family:'Cinzel',serif;font-size:0.62em;color:var(--text-dim)">Tap a loadout to manage it</span>
+        </div>
+        <div id="loadout-sheet-grid" style="display:flex;flex-direction:column;gap:10px"></div>
+        <button class="reset-stats-btn" onclick="closeLoadoutSheet()" aria-label="Close loadouts" style="margin-top:14px;color:var(--text-dim);border-color:#2a2a44">
+            Close
+        </button>
+    </div>
+</div>
+
 <div class="item-detail-overlay" id="item-detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-name">
     <div class="item-detail-card">
         <div class="detail-header">
@@ -3857,17 +4056,17 @@
 </div>
 
 <!-- -- BOTTOM NAV -- -->
-<nav class="bottom-nav" id="bottomNav" role="navigation" aria-label="Main navigation">
-    <button class="nav-btn active" id="nav-town" onclick="returnToCurrentTown();document.getElementById('bottomNav').classList.add('visible')" aria-label="Adventure" aria-current="page">
+<nav class="bottom-nav" id="bottomNav" role="tablist" aria-label="Main navigation">
+    <button class="nav-btn active" id="nav-town" role="tab" aria-selected="true" aria-posinset="1" aria-setsize="4" onclick="returnToCurrentTown();document.getElementById('bottomNav').classList.add('visible')" aria-label="Adventure">
         <span class="nav-icon" aria-hidden="true">⚔</span><span class="nav-label">Adventure</span>
     </button>
-    <button class="nav-btn" id="nav-character" onclick="goToScreen('character');setActiveNav('nav-character');document.getElementById('bottomNav').classList.add('visible')" aria-label="Character">
+    <button class="nav-btn" id="nav-character" role="tab" aria-selected="false" aria-posinset="2" aria-setsize="4" onclick="goToScreen('character');setActiveNav('nav-character');document.getElementById('bottomNav').classList.add('visible')" aria-label="Character">
         <span class="nav-icon" aria-hidden="true">🧙</span><span class="nav-label">Character</span>
     </button>
-    <button class="nav-btn" id="nav-inventory" onclick="openInventory();setActiveNav('nav-inventory');document.getElementById('bottomNav').classList.add('visible')" aria-label="Inventory">
+    <button class="nav-btn" id="nav-inventory" role="tab" aria-selected="false" aria-posinset="3" aria-setsize="4" onclick="openInventory();setActiveNav('nav-inventory');document.getElementById('bottomNav').classList.add('visible')" aria-label="Inventory">
         <span class="nav-icon" aria-hidden="true">🎒</span><span class="nav-label">Inventory</span>
     </button>
-    <button class="nav-btn" id="nav-journal" onclick="openJournal();document.getElementById('bottomNav').classList.add('visible')" aria-label="Journal">
+    <button class="nav-btn" id="nav-journal" role="tab" aria-selected="false" aria-posinset="4" aria-setsize="4" onclick="openJournal();document.getElementById('bottomNav').classList.add('visible')" aria-label="Journal">
         <span class="nav-icon" aria-hidden="true">📖</span><span class="nav-label">Journal</span>
     </button>
 </nav>
@@ -4245,6 +4444,23 @@ function populateUI() {
     updateDesktopPanels();
 }
 
+let abilityFilter = 'all';
+
+function switchAbilityFilter(filter) {
+    abilityFilter = filter;
+    document.querySelectorAll('#screen-character .shop-tabs .shop-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+    });
+    const activeTab = document.getElementById('tab-abil-' + filter);
+    if (activeTab) {
+        activeTab.classList.add('active');
+        activeTab.setAttribute('aria-selected', 'true');
+    }
+    renderCharAbilities();
+    announce(`Showing ${filter === 'all' ? 'all abilities' : filter}.`);
+}
+
 function renderCharAbilities() {
     const list = document.getElementById('cs-abilities-list');
     const empty = document.getElementById('cs-abilities-empty');
@@ -4257,14 +4473,24 @@ function renderCharAbilities() {
         return;
     }
 
+    const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
+    let knownAbilities = known.map(id => allAbilities.find(a => a.id === id)).filter(Boolean);
+
+    if (abilityFilter === 'skills') knownAbilities = knownAbilities.filter(a => a.type === 'skill');
+    else if (abilityFilter === 'spells') knownAbilities = knownAbilities.filter(a => a.type === 'spell');
+
+    if (knownAbilities.length === 0) {
+        list.style.display = 'none';
+        empty.style.display = 'block';
+        empty.textContent = abilityFilter === 'all' ? 'No abilities learned yet. Visit Fennyx\'s Training Grounds.' : `No ${abilityFilter} learned yet.`;
+        return;
+    }
+
     list.style.display = 'flex';
     empty.style.display = 'none';
     list.innerHTML = '';
 
-    const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
-    known.forEach(id => {
-        const ability = allAbilities.find(a => a.id === id);
-        if (!ability) return;
+    knownAbilities.forEach(ability => {
         const typeColor = ability.type === 'spell' ? '#80c0ff' : '#c0f080';
         const typeLabel = ability.type === 'spell' ? 'Spell' : 'Skill';
         const mpLabel = ability.mpCost > 0 ? `${ability.mpCost} MP` : 'Free';
@@ -4299,14 +4525,14 @@ function setBar(fillId, wrapId, labelId, current, max) {
 // -- NAVIGATION -------------------------------------------
 function goToScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); b.removeAttribute('aria-current'); });
+    document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
     const newScreen = document.getElementById('screen-'+id);
     newScreen.classList.add('active');
     newScreen.scrollTop = 0;
     const nb = document.getElementById('nav-'+id);
-    if (nb) { nb.classList.add('active'); nb.setAttribute('aria-current','page'); }
-    // Hide nav on title and create screens, combat handles its own nav state
-    if (id === 'title' || id === 'create') {
+    if (nb) { nb.classList.add('active'); nb.setAttribute('aria-selected', 'true'); }
+    // Hide nav on title, create, and settings screens, combat handles its own nav state
+    if (id === 'title' || id === 'create' || id === 'settings') {
         document.getElementById('bottomNav').classList.remove('visible');
     } else if (id === 'combat') {
         // Combat hides nav via startNextEncounter — don't touch it here
@@ -4315,7 +4541,7 @@ function goToScreen(id) {
         document.getElementById('bottomNav').classList.add('visible');
     }
     // Track current town
-    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold'].includes(id)) currentTown = id;
+    if (['town','ironhold','sunport','wolfhaven','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','wolfgate'].includes(id)) currentTown = id;
 
     // Music routing
     if (['town','ironhold','sunport','sunport-fishing','wolfhaven','wolfhaven-fishing','ironwood','windmane','shadow-realm','light-realm','giant-stronghold','wolfgate','wolfgate-shop','vault','game-room','memory-match','rune-mastermind','wolf-dice','wolf-tower','character','inventory','journal','training','settings'].includes(id)) {
@@ -4526,6 +4752,7 @@ function startNextEncounter() {
 
     document.getElementById('combat-player-name').textContent = character.name;
     document.getElementById('combat-gold').textContent = `💰 ${character.gold}`;
+    favEditMode = false;
     setCombatPlayerBars();
 
     const log = document.getElementById('combat-log');
@@ -4625,6 +4852,7 @@ function setCombatPlayerBars() {
     document.getElementById('player-mp-label').textContent = `${Math.max(0,combat.playerMp)} / ${character.maxMp}`;
     document.getElementById('combat-xp-label').textContent = `${character.xp} / ${character.xpNext}`;
     document.getElementById('combat-gold').textContent = `💰 ${character.gold}`;
+    renderFavoritesBar();
 }
 
 function addLog(msg, type) {
@@ -4993,11 +5221,18 @@ function calcEnemyDamageFrom(enemy) {
     if (combat.vanishDodge) combat.vanishDodge = false;
     const dodgeChance = (dex * 2) + vanishBonus;
     const dodged = Math.random() * 100 < dodgeChance;
+
+    // Enemy miss chance — enemies aren't perfect. Lower tier enemies miss more often.
+    // Level 1-2: 18% miss, Level 3: 13%, Level 4: 9%, Level 5+: 6%
+    const lvl = enemy.level || 1;
+    const missChance = lvl <= 2 ? 18 : lvl === 3 ? 13 : lvl === 4 ? 9 : 6;
+    const missed = !dodged && Math.random() * 100 < missChance;
+
     const afterArmor = Math.max(1, base - arm);
     const afterWeaken = combat.enemyWeakened ? Math.floor(afterArmor * 0.6) : afterArmor;
     combat.enemyWeakened = false;
     const reduced = combat.defending ? Math.floor(afterWeaken * 0.5) : afterWeaken;
-    return { damage: dodged ? 0 : reduced, dodged };
+    return { damage: (dodged || missed) ? 0 : reduced, dodged, missed };
 }
 
 function playerAttack(hand) {
@@ -5244,10 +5479,30 @@ function enemyTurn() {
 }
 
 function enemyAttackPlayer(enemy) {
-    const { damage, dodged } = calcEnemyDamageFrom(enemy);
+    const { damage, dodged, missed } = calcEnemyDamageFrom(enemy);
     if (dodged) {
         addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} attacks but you dodge!`, 'system');
         announce(`You dodge ${theName(enemy.name)}'s attack!`);
+    } else if (missed) {
+        addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} swings but misses!`, 'system');
+        announce(`${theName(enemy.name)} misses!`);
+    } else if (combat.parryActive) {
+        // Parry deflects the hit and fires back a counter
+        const str = character.stats.str + (getEquipBonuses().str||0);
+        const counterDmg = roll(Math.floor(str*1.5), Math.floor(str*2.5));
+        enemy.hp -= counterDmg;
+        combat.parryActive = false;
+        if (combat.isDual) setDualEnemyBar(getFocusedEnemyIdx(), enemy.hp, enemy.maxHp);
+        else setEnemyBar(enemy.hp, enemy.maxHp);
+        addLog(`Parry! You deflect ${theName(enemy.name)}'s strike and counter for ${counterDmg} damage!`, 'defend');
+        announce(`Parry! Counter hits ${theName(enemy.name)} for ${counterDmg} damage!`);
+    } else if (combat.playerExposed) {
+        // Lunge exposed — enemy hits harder this turn
+        const exposedDmg = Math.floor(damage * 1.4);
+        combat.playerHp -= exposedDmg;
+        combat.playerExposed = false;
+        addLog(`${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} exploits your open stance for ${exposedDmg} damage!`, 'enemy');
+        announce(`${theName(enemy.name)} hits your exposed stance for ${exposedDmg} damage!`);
     } else if (combat.barkShieldActive) {
         const reducedDmg = Math.floor(damage * 0.5);
         combat.playerHp -= reducedDmg;
@@ -5771,22 +6026,22 @@ function rollEnemyLoot(enemy) {
 
 // Rare chest-only legendary weapons
 const LEGENDARY_CHEST_ITEMS = [
-    { id:'machine_gun',      icon:'🔫', name:'Machine Gun',        desc:'An impossible weapon of unknown origin. Fires a terrifying storm of rounds.',        stat:'STR +14, DEX +4',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[32,50], type:'legendary' },
-    { id:'bazooka',          icon:'💥', name:'Bazooka',             desc:'Geminus himself would approve. One shot. Enormous damage. No questions asked.',       stat:'STR +16, DEX +4', slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[42,65], type:'legendary' },
-    { id:'void_cannon',      icon:'🌑', name:'Void Cannon',         desc:'A weapon imbued with shadow energy. Fires concentrated darkness.',                    stat:'INT +16, STR +4',  slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[38,58], type:'legendary' },
-    { id:'inferno_lance',    icon:'🔥', name:'Inferno Lance',       desc:'A spear wreathed in permanent flame. Burns everything it touches.',                   stat:'STR +14, DEX +4',  slot:'mainHand', tags:['Spear'],  stackable:false, dmg:[32,50], type:'legendary' },
-    { id:'wolfsteel_blade',  icon:'⚔',  name:'Wolfsteel Blade',     desc:'A blade forged from Wolfsteel. Lightweight, golden, and impossibly sharp.',           stat:'STR +14, DEX +6',  slot:'mainHand', tags:['Sword'],  stackable:false, dmg:[30,46], type:'legendary' },
-    { id:'maul_of_justice',  icon:'⚖',  name:'Maul of Justice',     desc:"Fenris's legendary weapon. Said to strike with the weight of judgment itself. On hit: chance to stun and strike again.",  stat:'STR +20, ARM +6', slot:'mainHand', tags:['Hammer'], stackable:false, dmg:[45,70], type:'legendary', special:'justice' },
-    { id:'staff_of_life',    icon:'✨', name:'Staff of Life',        desc:'An ancient staff humming with restorative energy. Each strike has a 20% chance to fully restore your MP.',               stat:'INT +18, MP +30', slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[24,36], type:'legendary', special:'lifestaff' },
-    { id:'knightly_longsword',icon:'⚔', name:"Cronus's Knightly Longsword of Honor", desc:"The sword of Cronus, closest ally to Fenris. Perfectly balanced, sworn to protect, never swung without cause. Grants +10% critical strike chance.", stat:'STR +14, ARM +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[32,48], type:'legendary', special:'knightly' },
-    { id:'geminus_torch',    icon:'🔥', name:"Geminus's Torch",     desc:"The flamethrower carried by Geminus of the Greatwolf Defenders. Burns enemies and leaves them scorched for 3 turns.",     stat:'STR +15, DEX +4',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[34,52], type:'legendary', special:'torch' },
-    { id:'deucalius_battle_axe', icon:'🪓', name:"Deucalius's Battle Axe of Strength", desc:"Wielded by Deucalius during the age of the Greatwolf Defenders. Its weight alone could shatter shields.", stat:'STR +18, ARM +4', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[38,58], type:'legendary' },
-    { id:'fenric_longbow',   icon:'🏹', name:"Fenric's Longbow of Precision", desc:"The longbow of Fenric, whose arrows never missed their mark. Grants +15% critical strike chance.", stat:'DEX +18, STR +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[32,50], type:'legendary', special:'precision' },
-    { id:'cronus_arbalest',  icon:'🏹', name:"Cronus's Arbalest",   desc:"The crossbow of Cronus. Its bolts punch through the thickest hide. Grants +15% critical strike chance.", stat:'DEX +16, STR +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[32,48], type:'legendary', special:'precision' },
-    { id:'wolfsteel_rocket_launcher', icon:'💥', name:'Wolfsteel Rocket Launcher', desc:"No one knows who built it or where it came from. Rumors swirl that Geminus wielded it alongside his torch — unconfirmed.", stat:'STR +16, DEX +4', slot:'mainHand', tags:['Gun'], stackable:false, dmg:[45,65], type:'legendary' },
-    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"Passed down through the ages. Fenris carried it for a time before entrusting it to Cronus.", stat:'ARM +16, STR +6', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
-    { id:'spear_of_justice', icon:'🔱', name:'Spear of Justice',    desc:"Wielded by an angelic thief — some say Nightshade of the Ragnar Council. Each strike has a 25% chance to restore your spirit.", stat:'STR +14, DEX +4', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[30,46], type:'legendary', special:'holy' },
-    { id:'varg_unholy_scythe', icon:'☠', name:"Varg's Unholy Scythe of Deception", desc:"Wielded by Varg himself. It hums with corrupted energy, a serpent engraved on its handle.", stat:'STR +17, DEX +4', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[36,56], type:'legendary', special:'deception' },
+    { id:'machine_gun',      icon:'🔫', name:'Machine Gun',        desc:'[LEGENDARY] An impossible weapon of unknown origin. Fires a terrifying storm of rounds.',        stat:'STR +14, DEX +4',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[32,50], type:'legendary' },
+    { id:'bazooka',          icon:'💥', name:'Bazooka',             desc:'[LEGENDARY] Geminus himself would approve. One shot. Enormous damage. No questions asked.',       stat:'STR +16, DEX +4', slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[42,65], type:'legendary' },
+    { id:'void_cannon',      icon:'🌑', name:'Void Cannon',         desc:'[LEGENDARY] A weapon imbued with shadow energy. Fires concentrated darkness.',                    stat:'INT +16, STR +4',  slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[38,58], type:'legendary' },
+    { id:'inferno_lance',    icon:'🔥', name:'Inferno Lance',       desc:'[LEGENDARY] A lance wreathed in permanent flame. Burns everything it touches.',                   stat:'STR +14, DEX +4',  slot:'mainHand', tags:['Lance'],  stackable:false, dmg:[32,50], type:'legendary' },
+    { id:'wolfsteel_blade',  icon:'⚔',  name:'Wolfsteel Blade',     desc:'[LEGENDARY] A blade forged from Wolfsteel. Lightweight, golden, and impossibly sharp.',           stat:'STR +14, DEX +6',  slot:'mainHand', tags:['Sword'],  stackable:false, dmg:[30,46], type:'legendary' },
+    { id:'maul_of_justice',  icon:'⚖',  name:'Maul of Justice',     desc:"[LEGENDARY] Fenris's legendary weapon. Said to strike with the weight of judgment itself. On hit: chance to stun and strike again.",  stat:'STR +20, ARM +6', slot:'mainHand', tags:['Hammer'], stackable:false, dmg:[45,70], type:'legendary', special:'justice' },
+    { id:'staff_of_life',    icon:'✨', name:'Staff of Life',        desc:'[LEGENDARY] An ancient staff humming with restorative energy. Each strike has a 20% chance to fully restore your MP.',               stat:'INT +18, MP +30', slot:'mainHand', tags:['Staff'],  stackable:false, dmg:[24,36], type:'legendary', special:'lifestaff' },
+    { id:'knightly_longsword',icon:'⚔', name:"Cronus's Knightly Longsword of Honor", desc:"[LEGENDARY] The sword of Cronus, closest ally to Fenris. Perfectly balanced, sworn to protect, never swung without cause. Grants +10% critical strike chance.", stat:'STR +14, ARM +5', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[32,48], type:'legendary', special:'knightly' },
+    { id:'geminus_torch',    icon:'🔥', name:"Geminus's Torch",     desc:"[LEGENDARY] The flamethrower carried by Geminus of the Greatwolf Defenders. Burns enemies and leaves them scorched for 3 turns.",     stat:'STR +15, DEX +4',  slot:'mainHand', tags:['Gun'],    stackable:false, dmg:[34,52], type:'legendary', special:'torch' },
+    { id:'deucalius_battle_axe', icon:'🪓', name:"Deucalius's Battle Axe of Strength", desc:"[LEGENDARY] Wielded by Deucalius during the age of the Greatwolf Defenders. Its weight alone could shatter shields.", stat:'STR +18, ARM +4', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[38,58], type:'legendary' },
+    { id:'fenric_longbow',   icon:'🏹', name:"Fenric's Longbow of Precision", desc:"[LEGENDARY] The longbow of Fenric, whose arrows never missed their mark. Grants +15% critical strike chance.", stat:'DEX +18, STR +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[32,50], type:'legendary', special:'precision' },
+    { id:'cronus_arbalest',  icon:'🏹', name:"Cronus's Arbalest",   desc:"[LEGENDARY] The crossbow of Cronus. Its bolts punch through the thickest hide. Grants +15% critical strike chance.", stat:'DEX +16, STR +4', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[32,48], type:'legendary', special:'precision' },
+    { id:'wolfsteel_rocket_launcher', icon:'💥', name:'Wolfsteel Rocket Launcher', desc:"[LEGENDARY] No one knows who built it or where it came from. Rumors swirl that Geminus wielded it alongside his torch — unconfirmed.", stat:'STR +16, DEX +4', slot:'mainHand', tags:['Gun'], stackable:false, dmg:[45,65], type:'legendary' },
+    { id:'wolfsteel_tower_shield', icon:'🛡', name:'Wolfsteel Tower Shield', desc:"[LEGENDARY] Passed down through the ages. Fenris carried it for a time before entrusting it to Cronus.", stat:'ARM +16, STR +6', slot:'offHand', tags:['Shield','Off-Hand'], stackable:false, type:'legendary' },
+    { id:'spear_of_justice', icon:'🔱', name:'Spear of Justice',    desc:"[LEGENDARY] Wielded by an angelic thief — some say Nightshade of the Ragnar Council. Each strike has a 25% chance to restore your spirit.", stat:'DEX +14, STR +4', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[30,46], type:'legendary', special:'holy' },
+    { id:'varg_unholy_scythe', icon:'☠', name:"Varg's Unholy Scythe of Deception", desc:"[LEGENDARY] Wielded by Varg himself. It hums with corrupted energy, a serpent engraved on its handle.", stat:'STR +17, DEX +4', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[36,56], type:'legendary', special:'deception' },
 ];
 
 function rollChestLoot() {
@@ -5800,8 +6055,8 @@ function rollChestLoot() {
         return { ...leg };
     }
 
-    // 50% chance for dungeon-specific gear drop
-    if (dungeon && dungeon.loot && Math.random() < 0.5) {
+    // 70% chance for dungeon-specific gear drop
+    if (dungeon && dungeon.loot && Math.random() < 0.70) {
         const gearPool = dungeon.loot.filter(l => !l.stackable);
         if (gearPool.length > 0) {
             return { ...gearPool[Math.floor(Math.random() * gearPool.length)] };
@@ -5871,6 +6126,8 @@ const IRONHOLD_INVENTORY = {
         { id:'dwarven_mace',      icon:'🏏', name:'Dwarven Mace',         desc:'A flanged iron mace forged in the deepest Ironhold furnaces.',        price:85,  tags:['Mace'],   stat:'STR +9', slot:'mainHand', dmg:[15,23] },
         { id:'dwarven_crossbow',  icon:'🏹', name:'Dwarven Crossbow',     desc:'A heavy crank-loaded crossbow of dwarven make. Slow to wind, brutal on impact — strength, not finesse, drives the bolt.', price:120, tags:['Bow'], stat:'STR +7', slot:'mainHand', dmg:[17,26] },
         { id:'dwarven_flail',     icon:'⛓', name:'Dwarven Flail',        desc:'A heavy spiked flail on a chain of dwarven iron.',                    price:100, tags:['Flail'],  stat:'STR +7', slot:'mainHand', dmg:[18,27] },
+        { id:'dwarven_spear',     icon:'🔱', name:'Dwarven Spear',        desc:'A finely balanced spear of dwarven iron. Lighter than it looks, faster than you expect.',  price:90,  tags:['Spear'],  stat:'DEX +9', slot:'mainHand', dmg:[15,23] },
+        { id:'dwarven_lance',     icon:'🔱', name:'Dwarven Lance',         desc:'A heavy dwarven lance built for pure impact. Not subtle — just devastating.',              price:105, tags:['Lance'],  stat:'STR +9', slot:'mainHand', dmg:[17,26] },
         { id:'dwarven_rifle',     icon:'🔫', name:'Dwarven Rifle',        desc:'A prototype firearm of dwarven engineering. Heavy, loud, devastating.', price:140, tags:['Gun'],  stat:'STR +8', slot:'mainHand', dmg:[22,34] },
         { id:'dwarven_pistol',    icon:'🔫', name:'Dwarven Pistol',       desc:'A compact dwarven sidearm. Short range but brutal impact.',           price:110, tags:['Gun'],    stat:'STR +7', slot:'mainHand', dmg:[17,27] },
     ],
@@ -5913,7 +6170,7 @@ const BRUNDAR_RETURN = [
 
 function openTravelMenu() {
     document.getElementById('travel-overlay').classList.add('show');
-    announce('Travel menu. Destinations include Ironhold, Sunport, Wolfhaven, Ironwood, and Windmane.');
+    announce('Travel menu opened. Choose a destination from the list.');
 }
 
 function travelTo(destination) {
@@ -6211,6 +6468,266 @@ function reshopCurrentTab() {
 }
 
 // -- INVENTORY --------------------------------------------
+
+// -- LOADOUTS ---------------------------------------------
+
+const LOADOUT_COUNT = 4;
+const LOADOUT_SLOTS = ['head','neck1','neck2','mantle','wrists1','wrists2','arms','hands','ring1','ring2','chest','waist','legs','feet','mainHand','offHand'];
+
+// -- COMBAT FAVORITES BAR ----------------------------------
+
+const FAV_SLOT_COUNT = 4;
+let favEditMode = false;
+let favPickerSlot = null;
+
+function ensureFavorites() {
+    if (!character) return;
+    if (!character.favorites || character.favorites.length !== FAV_SLOT_COUNT) {
+        character.favorites = Array.from({ length: FAV_SLOT_COUNT }, () => null);
+    }
+}
+
+function toggleFavoriteEditMode() {
+    favEditMode = !favEditMode;
+    const btn = document.getElementById('fav-edit-toggle');
+    if (btn) btn.classList.toggle('active', favEditMode);
+    renderFavoritesBar();
+    announce(favEditMode ? 'Favorite editing on. Tap a slot to assign an ability.' : 'Favorite editing off.');
+}
+
+function renderFavoritesBar() {
+    if (!character || !combat) return;
+    ensureFavorites();
+
+    const favRow = document.getElementById('favorites-row');
+    if (gamePrefs.favoritesBar === false) {
+        if (favRow) favRow.style.display = 'none';
+        return;
+    }
+
+    const known = (character.skills || []);
+    if (known.length === 0) {
+        if (favRow) favRow.style.display = 'none';
+        return;
+    }
+    if (favRow) favRow.style.display = 'flex';
+
+    const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
+    for (let i = 0; i < FAV_SLOT_COUNT; i++) {
+        const el = document.getElementById('fav-slot-' + i);
+        if (!el) continue;
+        const favId = character.favorites[i];
+        const ability = favId ? allAbilities.find(a => a.id === favId) : null;
+
+        el.classList.toggle('edit-mode', favEditMode);
+
+        if (!ability) {
+            el.classList.remove('filled', 'fav-disabled');
+            el.innerHTML = `<span class="fav-icon" aria-hidden="true">➕<\/span>`;
+            el.setAttribute('aria-label', `Favorite slot ${i+1}, empty. Tap to assign.`);
+            continue;
+        }
+
+        const onCD = (combat.cooldowns||{})[ability.id] > 0;
+        const noMp = ability.mpCost > 0 && combat.playerMp < ability.mpCost;
+        const weaponOk = meetsWeaponRequirement(ability);
+        const disabled = !favEditMode && (onCD || noMp || !weaponOk);
+
+        el.classList.add('filled');
+        el.classList.toggle('fav-disabled', disabled);
+        el.innerHTML = `<span class="fav-icon" aria-hidden="true">${ability.icon}<\/span><span class="fav-name">${ability.name}<\/span>`;
+        const reason = onCD ? ', on cooldown' : noMp ? ', not enough MP' : !weaponOk ? `, requires ${getSkillWeaponRequirement(ability).join(' or ')}` : '';
+        el.setAttribute('aria-label', `Favorite slot ${i+1}: ${ability.name}${reason}${favEditMode ? '. Tap to change.' : ''}`);
+    }
+}
+
+function useFavoriteSlot(idx) {
+    ensureFavorites();
+    const favId = character.favorites[idx];
+
+    if (favEditMode || !favId) {
+        openFavPicker(idx);
+        return;
+    }
+
+    const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
+    const ability = allAbilities.find(a => a.id === favId);
+    if (!ability) { openFavPicker(idx); return; }
+
+    const onCD = (combat.cooldowns||{})[ability.id] > 0;
+    const noMp = ability.mpCost > 0 && combat.playerMp < ability.mpCost;
+    const weaponOk = meetsWeaponRequirement(ability);
+    if (onCD || noMp || !weaponOk) {
+        const reason = onCD ? 'on cooldown' : noMp ? 'not enough MP' : `requires ${getSkillWeaponRequirement(ability).join(' or ')}`;
+        showToast(`${ability.name} unavailable: ${reason}`);
+        return;
+    }
+
+    useAbility(favId);
+}
+
+function openFavPicker(idx) {
+    favPickerSlot = idx;
+    ensureFavorites();
+    const known = (character.skills || []);
+    const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
+    const ownedAbilities = known.map(id => allAbilities.find(a => a.id === id)).filter(Boolean);
+
+    const list = document.getElementById('fav-picker-list');
+    if (ownedAbilities.length === 0) {
+        list.innerHTML = `<div class="combat-no-items">No skills or spells learned yet. Visit Fennyx's Training Grounds.<\/div>`;
+    } else {
+        list.innerHTML = '';
+        ownedAbilities.forEach(ability => {
+            const typeLabel = ability.type === 'spell' ? 'Spell' : 'Skill';
+            const btn = document.createElement('button');
+            btn.className = 'fav-pick-item';
+            btn.setAttribute('aria-label', `${ability.name}, ${typeLabel}`);
+            btn.innerHTML = `
+                <span style="font-size:1.3em" aria-hidden="true">${ability.icon}<\/span>
+                <div style="flex:1;min-width:0">
+                    <div style="font-family:'Cinzel',serif;font-size:0.85em;color:var(--gold)">${ability.name}<\/div>
+                    <div style="font-size:0.78em;color:var(--text-dim)">${typeLabel}${ability.mpCost>0?' · '+ability.mpCost+' MP':''}<\/div>
+                <\/div>
+            `;
+            btn.onclick = () => assignFavSlot(ability.id);
+            list.appendChild(btn);
+        });
+    }
+    document.getElementById('fav-picker-overlay').classList.add('show');
+    announce('Choose an ability for this favorite slot.');
+}
+
+function assignFavSlot(abilityId) {
+    if (favPickerSlot === null) return;
+    ensureFavorites();
+    character.favorites[favPickerSlot] = abilityId;
+    saveGame();
+    closeFavPicker();
+    renderFavoritesBar();
+}
+
+function clearFavSlot() {
+    if (favPickerSlot === null) return;
+    ensureFavorites();
+    character.favorites[favPickerSlot] = null;
+    saveGame();
+    closeFavPicker();
+    renderFavoritesBar();
+}
+
+function closeFavPicker(e) {
+    if (e && e.target !== document.getElementById('fav-picker-overlay')) return;
+    document.getElementById('fav-picker-overlay').classList.remove('show');
+    favPickerSlot = null;
+}
+
+function ensureLoadouts() {
+    if (!character) return;
+    if (!character.loadouts) {
+        character.loadouts = Array.from({ length: LOADOUT_COUNT }, (_, i) => ({
+            name: `Loadout ${i + 1}`,
+            equipment: null
+        }));
+    }
+    if (typeof character.activeLoadout !== 'number') {
+        character.activeLoadout = -1; // -1 = none saved yet
+    }
+}
+
+function saveToLoadout(idx) {
+    ensureLoadouts();
+    // Deep copy current equipment
+    character.loadouts[idx].equipment = JSON.parse(JSON.stringify(character.equipment));
+    // If this is the first save, mark it active
+    if (character.activeLoadout === -1) character.activeLoadout = idx;
+    saveGame();
+    renderLoadouts();
+    announce(`Loadout ${idx + 1} "${character.loadouts[idx].name}" saved.`);
+}
+
+function equipLoadout(idx) {
+    if (combat && !combat.over) {
+        showToast('Cannot swap loadouts during combat.');
+        announce('Cannot swap loadouts during combat.');
+        return;
+    }
+    ensureLoadouts();
+    const loadout = character.loadouts[idx];
+    if (!loadout.equipment) {
+        showToast('No gear saved to this loadout yet.');
+        return;
+    }
+    // Save current gear back to the previously active loadout before swapping
+    if (character.activeLoadout >= 0 && character.activeLoadout !== idx) {
+        character.loadouts[character.activeLoadout].equipment = JSON.parse(JSON.stringify(character.equipment));
+    }
+    // Equip the new loadout
+    character.equipment = JSON.parse(JSON.stringify(loadout.equipment));
+    character.activeLoadout = idx;
+    saveGame();
+    renderEquipSlots();
+    renderLoadouts();
+    announce(`Switched to loadout "${loadout.name}".`);
+    showToast(`⚙ Switched to ${loadout.name}`);
+}
+
+function renameLoadout(idx) {
+    ensureLoadouts();
+    const current = character.loadouts[idx].name;
+    const newName = prompt(`Rename loadout ${idx + 1}:`, current);
+    if (!newName || !newName.trim()) return;
+    character.loadouts[idx].name = newName.trim().slice(0, 24);
+    saveGame();
+    renderLoadouts();
+    announce(`Loadout renamed to ${character.loadouts[idx].name}.`);
+}
+
+function getLoadoutPreview(equipment) {
+    if (!equipment) return '';
+    const main = equipment.mainHand;
+    const off = equipment.offHand;
+    const chest = equipment.chest;
+    const parts = [];
+    if (main) parts.push(`⚔ ${main.name}`);
+    if (off) parts.push(`${off.tags && off.tags.includes('Shield') ? '🛡' : '⚔'} ${off.name}`);
+    if (chest) parts.push(`🧥 ${chest.name}`);
+    return parts.length ? parts.join('<br>') : '<span class="loadout-empty-note">No gear saved</span>';
+}
+
+function openLoadoutSheet() {
+    ensureLoadouts();
+    renderLoadouts();
+    document.getElementById('loadout-overlay').classList.add('show');
+    announce('Loadout manager opened. Four loadout slots available.');
+}
+
+function closeLoadoutSheet(e) {
+    if (e && e.target !== document.getElementById('loadout-overlay')) return;
+    document.getElementById('loadout-overlay').classList.remove('show');
+}
+
+function renderLoadouts() {
+    ensureLoadouts();
+    const grid = document.getElementById('loadout-sheet-grid');
+    if (!grid) return;
+    grid.innerHTML = character.loadouts.map((loadout, idx) => {
+        const isActive = character.activeLoadout === idx;
+        const hasGear = !!loadout.equipment;
+        const preview = getLoadoutPreview(loadout.equipment);
+        return `
+        <div class="loadout-card${isActive ? ' active-loadout' : ''}" aria-label="Loadout ${idx+1}: ${loadout.name}${isActive ? ', active' : ''}">
+            <div class="loadout-name">${loadout.name}</div>
+            <div class="loadout-preview">${hasGear ? preview : '<span class="loadout-empty-note">Empty — save your current gear here</span>'}</div>
+            <div class="loadout-btns">
+                ${hasGear && !isActive ? `<button class="loadout-btn equip-loadout-btn" onclick="equipLoadout(${idx})" aria-label="Switch to ${loadout.name}">⚔ Switch</button>` : ''}
+                ${isActive ? `<span style="font-family:\'Cinzel\',serif;font-size:0.62em;color:var(--gold);letter-spacing:0.06em">● Currently Active</span>` : ''}
+                <button class="loadout-btn" onclick="saveToLoadout(${idx})" aria-label="Save current gear to ${loadout.name}">💾 Save Here</button>
+                <button class="loadout-btn" onclick="renameLoadout(${idx})" aria-label="Rename ${loadout.name}">✏ Rename</button>
+            </div>
+        </div>`;
+    }).join('');
+}
 
 function openInventory() {
     renderEquipSlots();
@@ -7029,7 +7546,7 @@ const SKILLS_DATA = [
         id:'slam', icon:'🔨', name:'Slam', type:'skill',
         desc:'Bring your weapon down with crushing force -- deals 200% of your normal attack damage.',
         stat:'STR x 2.0', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Hammer','Mace'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
             const dmg = Math.floor(roll(str*2, str*4) * 2.0);
@@ -7040,21 +7557,23 @@ const SKILLS_DATA = [
         id:'ground_strike', icon:'💥', name:'Ground Strike', type:'skill',
         desc:'Drive your weapon into the earth with devastating force — deals 250% of your normal attack damage in a shockwave. Hits all enemies.',
         stat:'Weapon x 2.5', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Hammer','Mace','Axe'],
         use:(c,enemy) => {
             const hit = calcPlayerDamage('mainHand');
             const dmg = Math.floor(hit.damage * 2.5);
             const critNote = hit.crit ? ' Critical hit!' : '';
             if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
+                // Same total shockwave force, split evenly across both enemies (matches Whirlwind's principle)
                 const hit2 = calcPlayerDamage('mainHand');
-                const dmg2 = Math.floor(hit2.damage * 2.5);
-                combat.enemy.hp -= dmg;
-                combat.enemy2.hp -= dmg2;
+                const splitDmg = Math.floor(hit.damage * 1.25);
+                const splitDmg2 = Math.floor(hit2.damage * 1.25);
+                combat.enemy.hp -= splitDmg;
+                combat.enemy2.hp -= splitDmg2;
                 setDualEnemyBar(0, combat.enemy.hp, combat.enemy.maxHp);
                 setDualEnemyBar(1, combat.enemy2.hp, combat.enemy2.maxHp);
                 if (combat.enemy.hp <= 0) document.getElementById('enemy-card-1').classList.add('defeated');
                 if (combat.enemy2.hp <= 0) document.getElementById('enemy-card-2').classList.add('defeated');
-                return { damage:0, log:`GROUND STRIKE! The shockwave tears through everything — ${dmg} on ${combat.enemy.name}, ${dmg2} on ${combat.enemy2.name}!${critNote}`, type:'player', dualHandled:true };
+                return { damage:0, log:`GROUND STRIKE! The shockwave tears through everything — ${splitDmg} on ${combat.enemy.name}, ${splitDmg2} on ${combat.enemy2.name}!${critNote}`, type:'player', dualHandled:true };
             }
             return { damage:dmg, log:`GROUND STRIKE! You slam your weapon into the earth — a shockwave tears through ${theName(enemy.name)} for ${dmg} massive damage!${critNote}`, type:'player' };
         }
@@ -7063,7 +7582,7 @@ const SKILLS_DATA = [
         id:'cleave', icon:'⚔', name:'Cleave', type:'skill',
         desc:'A powerful strike dealing 150% of your normal attack damage.',
         stat:'STR x 1.5', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Sword','Axe'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
             const dmg = Math.floor(roll(str*2, str*4) * 1.5);
@@ -7074,7 +7593,7 @@ const SKILLS_DATA = [
         id:'rapid_strike', icon:'⚡', name:'Rapid Strike', type:'skill',
         desc:'Strike twice in one turn, each hit dealing 75% damage.',
         stat:'STR x 0.75 x 2', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Sword','Axe','Dagger','Spear','Lance'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
             if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
@@ -7107,7 +7626,7 @@ const SKILLS_DATA = [
         id:'overpower', icon:'💪', name:'Overpower', type:'skill',
         desc:'Force the enemy back with overwhelming strength -- 160% damage and weakens their next attack.',
         stat:'STR x 1.6 + Weaken', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Sword','Axe','Hammer','Mace'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
             const dmg = Math.floor(roll(str*2, str*4) * 1.6);
@@ -7127,7 +7646,7 @@ const SKILLS_DATA = [
         id:'shield_bash', icon:'🛡', name:'Shield Bash', type:'skill',
         desc:'Slam into the enemy with brute force -- deals damage and stuns them, skipping their next turn.',
         stat:'STR x 1.0 + Stun', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Shield'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
             const dmg = roll(str*2, str*3);
@@ -7139,7 +7658,7 @@ const SKILLS_DATA = [
         id:'double_shot', icon:'🏹', name:'Double Shot', type:'skill',
         desc:'Fire two projectiles in rapid succession. Each shot deals full DEX damage -- best with bows, crossbows, or firearms.',
         stat:'DEX x 2-4 (x2)', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Ranged'],
+        tags:['Skill','Ranged','Bow','Crossbow','Gun'],
         use:(c,enemy) => {
             const dex = c.stats.dex + (getEquipBonuses().dex||0);
             if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
@@ -7162,7 +7681,7 @@ const SKILLS_DATA = [
         id:'crippling_shot', icon:'🎯', name:'Crippling Shot', type:'skill',
         desc:'A precise strike that wounds the enemy -- deals DEX damage and weakens their next attack.',
         stat:'DEX x 2-3 + Weaken', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Ranged'],
+        tags:['Skill','Ranged','Bow','Crossbow','Gun'],
         use:(c,enemy) => {
             const dex = c.stats.dex + (getEquipBonuses().dex||0);
             const dmg = roll(dex*2, dex*3);
@@ -7185,7 +7704,7 @@ const SKILLS_DATA = [
         id:'backstab', icon:'🗡', name:'Backstab', type:'skill',
         desc:'Strike from the shadows — a vicious surprise attack dealing 200% of your Dexterity damage.',
         stat:'DEX x 2.0', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Stealth'],
+        tags:['Skill','Stealth','Dagger','Spear','Lance'],
         use:(c,enemy) => {
             const dex = c.stats.dex + (getEquipBonuses().dex||0);
             const dmg = Math.floor(roll(dex*2, dex*4) * 2.0);
@@ -7196,7 +7715,7 @@ const SKILLS_DATA = [
         id:'whirlwind', icon:'🌪', name:'Whirlwind', type:'skill',
         desc:'Spin with reckless fury — four rapid strikes tearing through the enemy from every angle.',
         stat:'STR x 0.8 x 4', price:50, cooldown:1, mpCost:0,
-        tags:['Skill','Physical'],
+        tags:['Skill','Physical','Sword','Axe'],
         use:(c,enemy) => {
             const str = c.stats.str + (getEquipBonuses().str||0);
             if (combat.isDual && combat.enemy2 && combat.enemy2.hp > 0) {
@@ -7226,6 +7745,63 @@ const SKILLS_DATA = [
             const h4 = Math.floor(roll(str*2, str*3) * 0.8);
             const total = h1 + h2 + h3 + h4;
             return { damage:total, log:`WHIRLWIND! You spin in a fury of steel — ${h1}, ${h2}, ${h3}, ${h4}! ${theName(enemy.name).charAt(0).toUpperCase() + theName(enemy.name).slice(1)} is shredded for ${total} total damage!`, type:'player' };
+        }
+    },
+    {
+        id:'lunge', icon:'⚔', name:'Lunge', type:'skill',
+        desc:'A single committed thrust — all your weight behind one devastating point. High damage but leaves you briefly exposed.',
+        stat:'STR x 3.5-5.0', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Physical','Sword','Spear','Lance','Dagger','Axe'],
+        use:(c,enemy) => {
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = roll(Math.floor(str*3.5), Math.floor(str*5.0));
+            combat.playerExposed = true;
+            return { damage:dmg, log:`Lunge! You drive forward with everything you have — ${dmg} damage on ${theName(enemy.name)}! You're briefly exposed.`, type:'player' };
+        }
+    },
+    {
+        id:'parry', icon:'🛡', name:'Parry', type:'skill',
+        desc:'Deflect the next incoming strike and answer with a sharp counter. The best offense is knowing when to defend.',
+        stat:'Block + STR x 1.5-2.5 counter', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Physical','Sword'],
+        use:(c,enemy) => {
+            combat.parryActive = true;
+            return { damage:0, log:`Parry! You set your stance and wait for the strike — ready to deflect and counter!`, type:'defend', noEnemyDamage:true };
+        }
+    },
+    {
+        id:'pierce', icon:'🗡', name:'Pierce', type:'skill',
+        desc:'A precise surgical thrust that punches clean through armor. Ignores a portion of enemy defense.',
+        stat:'STR x 2.5-4.0 (armor piercing)', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Physical','Sword'],
+        use:(c,enemy) => {
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = roll(Math.floor(str*2.5), Math.floor(str*4.0));
+            return { damage:dmg, log:`Pierce! You find the gap in ${theName(enemy.name)}'s defenses and drive your blade through for ${dmg} damage!`, type:'player', armorPiercing:true };
+        }
+    },
+    {
+        id:'chop', icon:'🪓', name:'Chop', type:'skill',
+        desc:'A heavy overhead axe strike that buries the blade deep. Deals massive damage and leaves a wound that weakens their next attack.',
+        stat:'STR x 3.0-4.5 + Weaken', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Physical','Axe'],
+        use:(c,enemy) => {
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = roll(Math.floor(str*3.0), Math.floor(str*4.5));
+            combat.enemyWeakened = true;
+            return { damage:dmg, log:`Chop! You bring the axe down hard on ${theName(enemy.name)} for ${dmg} damage — the wound weakens their next strike!`, type:'player' };
+        }
+    },
+    {
+        id:'spin', icon:'🔗', name:'Spin', type:'skill',
+        desc:'Wind the flail into a deadly blur of momentum. The chain whirs faster and faster until you release — impossible to block, impossible to dodge.',
+        stat:'STR x 3.5-5.5 + Stagger', price:50, cooldown:1, mpCost:0,
+        tags:['Skill','Physical','Flail'],
+        use:(c,enemy) => {
+            const str = c.stats.str + (getEquipBonuses().str||0);
+            const dmg = roll(Math.floor(str*3.5), Math.floor(str*5.5));
+            combat.enemyWeakened = true;
+            return { damage:dmg, log:`Spin! The chain becomes a blur — ${theName(enemy.name)} has no way to block it! ${dmg} damage and they stagger from the impact!`, type:'player' };
         }
     },
     {
@@ -7645,6 +8221,28 @@ function closeCombatAbilities() {
     document.getElementById('combat-abilities-overlay').classList.remove('show');
 }
 
+// -- WEAPON-GATED SKILLS -----------------------------------
+const WEAPON_REQ_TAGS = ['Sword','Axe','Hammer','Mace','Flail','Spear','Lance','Dagger','Bow','Crossbow','Gun','Staff','Pick','Shield'];
+
+function getEquippedWeaponTags() {
+    const tags = [];
+    const eq = character.equipment || {};
+    if (eq.mainHand && eq.mainHand.tags) tags.push(...eq.mainHand.tags);
+    if (eq.offHand && eq.offHand.tags) tags.push(...eq.offHand.tags);
+    return tags;
+}
+
+function getSkillWeaponRequirement(skill) {
+    return (skill.tags || []).filter(t => WEAPON_REQ_TAGS.includes(t));
+}
+
+function meetsWeaponRequirement(skill) {
+    const req = getSkillWeaponRequirement(skill);
+    if (req.length === 0) return true; // no weapon requirement -- always usable
+    const equipped = getEquippedWeaponTags();
+    return req.some(t => equipped.includes(t));
+}
+
 function renderCombatAbilities(type) {
     const list = document.getElementById('combat-abilities-list');
     document.getElementById('combat-abilities-title').textContent = type==='skill' ? '✨ Skills' : '🔮 Spells';
@@ -7659,8 +8257,10 @@ function renderCombatAbilities(type) {
     available.forEach(ability => {
         const onCD = (combat.cooldowns||{})[ability.id] > 0;
         const noMp = ability.mpCost > 0 && combat.playerMp < ability.mpCost;
-        const disabled = onCD || noMp;
-        const statusText = onCD ? '  -  Cooldown' : noMp ? '  -  No MP' : '';
+        const weaponReq = getSkillWeaponRequirement(ability);
+        const weaponOk = meetsWeaponRequirement(ability);
+        const disabled = onCD || noMp || !weaponOk;
+        const statusText = onCD ? '  -  Cooldown' : noMp ? '  -  No MP' : !weaponOk ? `  -  Requires ${weaponReq.join(' or ')}` : '';
         const btn = document.createElement('button');
         btn.className = 'combat-use-item';
         btn.disabled = disabled;
@@ -7681,6 +8281,11 @@ function renderCombatAbilities(type) {
 function useAbility(id) {
     const ability = [...SKILLS_DATA,...SPELLS_DATA].find(a=>a.id===id);
     if (!ability) return;
+    if (!meetsWeaponRequirement(ability)) {
+        const req = getSkillWeaponRequirement(ability);
+        addLog(`${ability.name} requires ${req.join(' or ')} equipped!`, 'system');
+        return;
+    }
     closeCombatAbilities();
     setActionsEnabled(false);
 
@@ -9070,7 +9675,7 @@ const DUNGEONS = {
             40: { name:'Thunder of the Plains', icon:'🐉', level:7, hp:760, atk:35, xp:700, gold:[248,360], desc:'A steppe drake that claims the canyon as its hunting ground' },
         },
         loot: [
-            { id:'steppe_lance',        icon:'🔱', name:'Steppe Lance',        desc:'A centaur-forged lance built for charging the open flats.',          stat:'DEX +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[11,17] },
+            { id:'steppe_lance',        icon:'🔱', name:'Steppe Lance',        desc:'A centaur-forged lance built for charging the open flats.',          stat:'STR +8', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[11,17] },
             { id:'windchaser_bow',      icon:'🏹', name:'Windchaser Bow',      desc:'A composite bow strung for speed and distance on the steppe.',       stat:'DEX +8', slot:'mainHand', tags:['Bow'], stackable:false, dmg:[12,18] },
             { id:'hoof_iron_greaves',   icon:'🦾', name:'Hoof-Iron Greaves',   desc:'Leg guards modeled after centaur iron-shod hooves.',                   stat:'ARM +4, STR +4', slot:'legs', tags:['Medium','Legs'], stackable:false, type:'medium' },
             { id:'windrunner_vest',     icon:'🥋', name:'Windrunner Vest',     desc:'Light vest of steppe leather. Built for riders and runners.',          stat:'ARM +5, DEX +5', slot:'chest', tags:['Light','Chest'], stackable:false, type:'light' },
@@ -9282,7 +9887,7 @@ const DUNGEONS = {
         loot: [
             { id:'waste_blade',          icon:'⚔',  name:'Waste Blade',          desc:'A corrupted sword salvaged from the ashen battlefield. Dark energy clings to its edge.',  stat:'STR +8', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
             { id:'shadow_axe',           icon:'🪓', name:'Shadow Axe',           desc:'A war axe forged in shadow. Strikes leave a lingering darkness.',                       stat:'STR +8', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[14,21] },
-            { id:'bone_lance',           icon:'🔱', name:'Bone Lance',           desc:'A lance of fused monster bone. The wastes made this weapon.',                           stat:'STR +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,19] },
+            { id:'bone_lance',           icon:'🔱', name:'Bone Lance',           desc:'A lance of fused monster bone. The wastes made this weapon.',                           stat:'STR +8', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[13,19] },
             { id:'varg_scepter',         icon:'🪄', name:'Varg Scepter',         desc:'A scepter channeling Varg\'s corrupted magic. Dangerous in the wrong hands.',          stat:'INT +9', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
             { id:'shade_dagger',         icon:'🗡',  name:'Shade Dagger',         desc:'A dagger that passes through armor like shadow through fog.',                           stat:'DEX +8', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
             { id:'ash_plate',            icon:'🧥', name:'Ash Plate',            desc:'Heavy armor of corrupted iron from the battlefield. Dense and foreboding.',             stat:'ARM +7, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9334,7 +9939,7 @@ const DUNGEONS = {
         loot: [
             { id:'basalt_blade',         icon:'⚔',  name:'Basalt Blade',         desc:'A sword forged from basalt volcanic rock. Heavy, dark, and unyielding.',            stat:'STR +8', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
             { id:'obsidian_axe',         icon:'🪓', name:'Obsidian Axe',         desc:'An axe head of pure obsidian. Razor-sharp and absolutely brutal.',                  stat:'STR +9', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,22] },
-            { id:'dark_raptor_lance',    icon:'🔱', name:'Dark Raptor Lance',    desc:'A lance tipped with a dark raptor talon. Swift and piercing.',                      stat:'DEX +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[12,18] },
+            { id:'dark_raptor_lance',    icon:'🔱', name:'Dark Raptor Lance',    desc:'A lance tipped with a dark raptor talon. Swift and piercing.',                      stat:'STR +8', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[12,18] },
             { id:'void_staff',           icon:'🪄', name:'Void Staff',           desc:'A staff of basalt and void crystal. Channels primal dark energy.',                  stat:'INT +9', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
             { id:'obsidian_dagger',      icon:'🗡',  name:'Obsidian Dagger',      desc:'A dagger of pure obsidian. The edge lasts forever.',                               stat:'DEX +8', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
             { id:'basalt_plate',         icon:'🧥', name:'Basalt Plate',         desc:'Armor of volcanic basalt stone-plate. Nearly impenetrable.',                        stat:'ARM +8, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9385,7 +9990,7 @@ const DUNGEONS = {
         loot: [
             { id:'sanctum_blade',        icon:'⚔',  name:'Sanctum Blade',        desc:'A sword of void-forged dark iron. Hums with Varg\'s corrupted power.',            stat:'STR +9', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[14,22] },
             { id:'void_axe',             icon:'🪓', name:'Void Axe',             desc:'An axe infused with void energy. Each swing leaves a tear in the air.',           stat:'STR +9', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,23] },
-            { id:'shadow_lance',         icon:'🔱', name:'Shadow Lance',         desc:'A lance of pure shadow given physical form. Passes through resistance.',          stat:'STR +9', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,20] },
+            { id:'shadow_lance',         icon:'🔱', name:'Shadow Lance',         desc:'A lance of pure shadow given physical form. Passes through resistance.',          stat:'STR +9', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[13,20] },
             { id:'void_scepter',         icon:'🪄', name:'Void Scepter',         desc:'Varg\'s own scepter design. Channels void energy with terrifying efficiency.',    stat:'INT +7', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[11,17] },
             { id:'shadow_fang',          icon:'🗡',  name:'Shadow Fang',          desc:'A dagger of crystallized shadow. Strikes leave wounds that resist healing.',      stat:'DEX +9', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
             { id:'void_plate',           icon:'🧥', name:'Void Plate',           desc:'Armor forged in the void itself. Darkness made solid and impenetrable.',          stat:'ARM +9, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9488,7 +10093,7 @@ const DUNGEONS = {
         loot: [
             { id:'plains_blade',         icon:'⚔',  name:'Plains Blade',         desc:'A sword of golden solar steel, forged in the heat of the Radiant Plains.',         stat:'STR +8', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[13,20] },
             { id:'radiant_axe',          icon:'🪓', name:'Radiant Axe',          desc:'An axe of radiant solar iron. Each swing trails golden light.',                    stat:'STR +9', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,22] },
-            { id:'solar_lance',          icon:'🔱', name:'Solar Lance',          desc:'A lance of sunfire crystal, balanced for the open plains.',                        stat:'DEX +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[12,18] },
+            { id:'solar_lance',          icon:'🔱', name:'Solar Lance',          desc:'A lance of sunfire crystal, balanced for the open plains.',                        stat:'STR +8', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[12,18] },
             { id:'plains_staff',         icon:'🪄', name:'Plains Staff',         desc:'A staff of golden celestial wood that channels the light of open sky.',            stat:'INT +9', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
             { id:'radiant_dagger',       icon:'🗡',  name:'Radiant Dagger',       desc:'A dagger of crystallized solar light. Warm to the touch and blindingly fast.',    stat:'DEX +8', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[10,15] },
             { id:'plains_plate',         icon:'🧥', name:'Plains Plate',         desc:'Armor of solar-forged radiant iron. Blazes gold in any light.',                   stat:'ARM +7, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9538,7 +10143,7 @@ const DUNGEONS = {
         loot: [
             { id:'fennyx_blade',         icon:'⚔',  name:"Fennyx's Blade",        desc:"A sword blessed by Fennyx herself. Radiates warmth and strikes with divine certainty.", stat:'STR +9', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[14,22] },
             { id:'celestial_axe',        icon:'🪓', name:'Celestial Axe',         desc:'An axe of divine solar iron, forged in the heart of the sanctum.',               stat:'STR +7', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[16,24] },
-            { id:'divine_lance',         icon:'🔱', name:'Divine Lance',          desc:'A lance of pure divine light. Passes through shadow like it does not exist.',    stat:'STR +9', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[14,21] },
+            { id:'divine_lance',         icon:'🔱', name:'Divine Lance',          desc:'A lance of pure divine light. Passes through shadow like it does not exist.',    stat:'STR +9', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[14,21] },
             { id:'fennyx_staff',         icon:'🪄', name:"Fennyx's Staff",        desc:"Fennyx's own staff design. Channels divine radiant energy with perfect clarity.", stat:'INT +8', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[12,18] },
             { id:'light_fang',           icon:'🗡',  name:'Light Fang',            desc:'A dagger of crystallized divine light. Strikes leave wounds that glow with holy fire.', stat:'DEX +9', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
             { id:'divine_plate',         icon:'🧥', name:'Divine Plate',          desc:'Armor forged in the heart of the sanctum. Blazes with Fennyx\'s blessing.',      stat:'ARM +9, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9591,7 +10196,7 @@ const DUNGEONS = {
         loot: [
             { id:'death_blade',          icon:'⚔',  name:'Death Blade',          desc:'A sword forged from underworld iron. The edge resonates with the cold of death.',  stat:'STR +9', slot:'mainHand', tags:['Sword'], stackable:false, dmg:[14,22] },
             { id:'bone_axe',             icon:'🪓', name:'Bone Axe',             desc:'An axe hewn from the bones of a colossus. Heavier than it should be.',             stat:'STR +9', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[15,23] },
-            { id:'grave_lance',          icon:'🔱', name:'Grave Lance',          desc:'A lance of fused bone and cold iron. Carried by death knights of the deep.',       stat:'STR +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,20] },
+            { id:'grave_lance',          icon:'🔱', name:'Grave Lance',          desc:'A lance of fused bone and cold iron. Carried by death knights of the deep.',       stat:'STR +8', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[13,20] },
             { id:'lich_staff',           icon:'🪄', name:'Lich Staff',           desc:'A staff carved from bone and topped with a soul crystal. Channels death magic.',   stat:'INT +7', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[11,17] },
             { id:'vampire_fang_dagger',  icon:'🗡',  name:'Vampire Fang Dagger',  desc:'A dagger carved from a vampire fang. Strikes leave wounds that refuse to close.', stat:'DEX +9', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
             { id:'death_plate',          icon:'🧥', name:'Death Plate',          desc:'Armor of underworld iron worn by elder death knights. Cold to the touch always.',  stat:'ARM +8, STR +5', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9645,7 +10250,7 @@ const DUNGEONS = {
             { id:'giant_maul',           icon:'🔨', name:'Giant Maul',           desc:'A maul forged by hill giants. Impossibly heavy — but unstoppable when it connects.',  stat:'STR +7', slot:'mainHand', tags:['Maul'], stackable:false, dmg:[17,26] },
             { id:'orc_greataxe',         icon:'🪓', name:'Orc Greataxe',         desc:'A massive two-handed axe of orc iron. Brutal, heavy, and absolutely devastating.',   stat:'STR +7', slot:'mainHand', tags:['Axe'], stackable:false, dmg:[16,24] },
             { id:'troll_club',           icon:'🪵', name:'Troll Club',           desc:'A club hewn from a whole tree by a cave troll. Dents armor like paper.',             stat:'STR +9', slot:'mainHand', tags:['Mace'], stackable:false, dmg:[15,22] },
-            { id:'highland_spear',       icon:'🔱', name:'Highland Spear',       desc:'A spear of orc-forged iron tipped with a giant boulder fragment. Piercing and brutal.', stat:'STR +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,20] },
+            { id:'highland_spear',       icon:'🔱', name:'Highland Spear',       desc:'A spear of orc-forged iron tipped with a giant boulder fragment. Piercing and brutal.', stat:'DEX +8', slot:'mainHand', tags:['Spear'], stackable:false, dmg:[13,20] },
             { id:'goblin_blade',         icon:'🗡',  name:'Goblin Blade',         desc:'A serrated blade favored by goblin scouts. Crude but viciously sharp.',              stat:'DEX +8', slot:'mainHand', tags:['Dagger'], stackable:false, dmg:[11,16] },
             { id:'orc_shaman_staff',     icon:'🪄', name:'Orc Shaman Staff',     desc:'A staff topped with a giant skull. Channels primal earth magic.',                   stat:'INT +9', slot:'mainHand', tags:['Staff'], stackable:false, dmg:[10,16] },
             { id:'giant_plate',          icon:'🧥', name:'Giant Plate',          desc:'Armor hammered from boulder-iron by hill giant smiths. Impossibly thick.',           stat:'ARM +9, STR +6', slot:'chest', tags:['Heavy','Chest'], stackable:false, type:'heavy' },
@@ -9756,6 +10361,7 @@ const DUNGEONS = {
         },
         loot: [
             { id:'wolfsteel_crossbow',   icon:'🏹',  name:'Wolfsteel Crossbow',      desc:'A heavy crossbow forged from Wolfsteel ore pulled deep from the Wolfgate mine. Fires with brutal force — this is not a precision weapon, it\'s a wall of impact.',  stat:'STR +13, DEX +3', slot:'mainHand', tags:['Bow','Crossbow'], stackable:false, dmg:[30,46] },
+            { id:'wolfsteel_lance',      icon:'🔱',  name:'Wolfsteel Lance',          desc:'A lance of pure Wolfsteel pulled from the Wolfgate mine. Perfectly weighted for a charging strike — brutal, beautiful, and unmistakably Wolfgate.',                  stat:'STR +13, DEX +3', slot:'mainHand', tags:['Lance'], stackable:false, dmg:[28,44] },
             { id:'wolfsteel_maul',       icon:'🔨',  name:'Wolfsteel Maul',          desc:'A two-handed maul of solid Wolfsteel. Crushes everything it touches and somehow still feels light.',  stat:'STR +12, DEX +2', slot:'mainHand', tags:['Hammer'], stackable:false, dmg:[28,42] },
             { id:'wolfsteel_ore',        icon:'💚', name:'Wolfsteel Ore',           desc:'Raw Wolfsteel ore pulled from the Wolfgate mine. Lighter than iron, holds an edge beautifully.', stat:'Material', slot:'item', tags:['Material'], stackable:true },
             { id:'druid_focus',          icon:'🌿', name:'Druid Focus',             desc:'A crystallized focus of druid energy found deep in the mine.',                                     stat:'INT +8, MP +16', slot:'neck1', tags:['Neck'], stackable:false },
@@ -9968,6 +10574,11 @@ function loadCharacterFromSlot(slot) {
         if (!character.stats) character.stats = { str:5, int:5, dex:5, res:5, per:5, cha:5 };
         if (character.stats.per === undefined) character.stats.per = 5;
         if (character.stats.cha === undefined) character.stats.cha = 5;
+        // Ensure loadouts exist on older saves
+        if (!character.loadouts) character.loadouts = Array.from({ length: LOADOUT_COUNT }, (_, i) => ({ name: `Loadout ${i + 1}`, equipment: null }));
+        if (typeof character.activeLoadout !== 'number') character.activeLoadout = -1;
+        // Ensure favorites array exists on older saves
+        if (!character.favorites || character.favorites.length !== FAV_SLOT_COUNT) character.favorites = Array.from({ length: FAV_SLOT_COUNT }, () => null);
         // Migrate legacy inventory items to have uids
         if (character.inventory) {
             character.inventory.forEach(item => {
@@ -10338,7 +10949,7 @@ const IRONWOOD_INVENTORY = {
         { id:'ironwood_greatbow', icon:'🏹', name:'Ironwood Greatbow',  desc:'A powerful bow of ironwood and silver string.',                        price:90,  tags:['Bow'],    stat:'DEX +9', slot:'mainHand', dmg:[19,28] },
         { id:'ironwood_crossbow', icon:'🏹', name:'Ironwood Crossbow',  desc:'An elven arbalest of living ironwood and silver cams. Quiet, precise, and ruthlessly efficient.', price:95, tags:['Bow'], stat:'DEX +9', slot:'mainHand', dmg:[17,26] },
         { id:'battlewood_staff',  icon:'🪄', name:'Battlewood Staff',   desc:'A staff hardened for melee and spell alike.',                        price:80,  tags:['Staff'],  stat:'INT +9', slot:'mainHand', dmg:[11,17] },
-        { id:'warden_spear',      icon:'🔱', name:'Warden Spear',       desc:'An ironwood-hafted spear for elven wardens.',                        price:75,  tags:['Spear'],  stat:'STR +9', slot:'mainHand', dmg:[14,21] },
+        { id:'warden_spear',      icon:'🔱', name:'Warden Spear',       desc:'An ironwood-hafted spear for elven wardens.',                        price:75,  tags:['Spear'],  stat:'DEX +9', slot:'mainHand', dmg:[14,21] },
     ],
     armor: [
         { id:'ironwood_mail',     icon:'🥋', name:'Ironwood Mail',      desc:'Mail woven with ironwood rings. Light for its protection.',            price:70,  tags:['Medium','Chest'], stat:'ARM +6, DEX +4', type:'medium', slot:'chest' },
@@ -10982,6 +11593,8 @@ function returnToCurrentTown() {
         travelToLightRealm();
     } else if (t === 'giant-stronghold') {
         travelToGiantStronghold();
+    } else if (t === 'wolfgate') {
+        travelToWolfgate();
     } else {
         goToScreen(t);
     }
@@ -10991,10 +11604,10 @@ function returnToCurrentTown() {
 function setActiveNav(navId) {
     document.querySelectorAll('.nav-btn').forEach(b => {
         b.classList.remove('active');
-        b.removeAttribute('aria-current');
+        b.setAttribute('aria-selected', 'false');
     });
     const btn = document.getElementById(navId);
-    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-current', 'page'); }
+    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
 }
 
 // -- FORGE SYSTEM -----------------------------------------
@@ -13757,7 +14370,7 @@ function addDesktopLogEntry(msg, type) {
 }
 
 // -- GAME PREFS -------------------------------------------
-let gamePrefs = { confirmLockItems: true, confirmDestroyItems: true, dualEncounters: true };
+let gamePrefs = { confirmLockItems: true, confirmDestroyItems: true, dualEncounters: true, favoritesBar: true };
 
 function loadGamePrefs() {
     try {
@@ -13798,6 +14411,14 @@ function applyGamePrefsToUI() {
         detoggle.setAttribute('aria-checked', deenabled.toString());
         if (destate) destate.textContent = deenabled ? 'On' : 'Off';
     }
+    const fbtoggle = document.getElementById('toggle-fav-bar');
+    const fbstate = document.getElementById('fav-bar-state');
+    if (fbtoggle) {
+        const fbenabled = gamePrefs.favoritesBar !== false;
+        fbtoggle.classList.toggle('on', fbenabled);
+        fbtoggle.setAttribute('aria-checked', fbenabled.toString());
+        if (fbstate) fbstate.textContent = fbenabled ? 'On' : 'Off';
+    }
 }
 
 function toggleGamePref(key) {
@@ -13812,6 +14433,10 @@ function toggleGamePref(key) {
     }
     if (key === 'dualEncounters') {
         announce('Dual enemy encounters turned ' + (gamePrefs.dualEncounters ? 'on' : 'off') + '.');
+    }
+    if (key === 'favoritesBar') {
+        announce('Combat favorites bar turned ' + (gamePrefs.favoritesBar ? 'on' : 'off') + '.');
+        if (combat) renderFavoritesBar();
     }
 }
 
