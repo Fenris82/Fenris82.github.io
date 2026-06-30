@@ -1006,7 +1006,9 @@
         .fav-pick-item:hover { border-color: var(--gold-dim); }
         .fav-pick-item:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
 
-        .attack-row { display: grid; grid-template-columns: 1fr; }
+        .attack-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
+        .attack-row.dual-wield { grid-template-columns: 1fr 1fr; }
+        .attack-row.dual-wield .attack-btn { font-size: 0.72em; padding: 12px 6px; }
         .secondary-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 
         .action-btn { background: var(--bg-card); border: 2px solid #2a2a44; border-radius: 10px; padding: 10px 4px; font-family: 'Cinzel', serif; font-size: 0.7em; font-weight: 700; color: var(--text); cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 4px; letter-spacing: 0.02em; }
@@ -4780,7 +4782,12 @@ function startNextEncounter() {
     goToScreen('combat');
 
     if (!isBoss && !combat.isDual) {
-        const announceText = `Combat begins. ${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} appears with ${enemy.hp} HP. Your turn.`;
+        let announceText = `Combat begins. ${aOrAn(enemy.name).charAt(0).toUpperCase() + aOrAn(enemy.name).slice(1)} ${enemy.name} appears with ${enemy.hp} HP. Your turn.`;
+        const offWeapon = character.equipment.offHand;
+        if (isAttackWeapon(offWeapon)) {
+            const mainName = character.equipment.mainHand ? character.equipment.mainHand.name : 'main hand';
+            announceText += ` Two attack buttons: ${mainName} and ${offWeapon.name}.`;
+        }
         announce(announceText);
     }
 }
@@ -5343,25 +5350,27 @@ function getWeaponName(hand) {
     return equipped.name || 'your weapon';
 }
 
+function isAttackWeapon(item) {
+    if (!item) return false;
+    const tags = item.tags || [];
+    if (tags.includes('Shield') || tags.includes('Focus')) return false;
+    // Dual-wielded main-hand weapons, or any item with weapon damage
+    if (item.slot === 'mainHand' || item.dmg) return true;
+    // Off-hand wands/staves used as weapons
+    return tags.some(t => ['Sword','Dagger','Axe','Hammer','Mace','Staff','Wand','Gun','Bow','Crossbow','Spear','Flail','Pick','Club','Maul','Lance'].includes(t));
+}
+
 function updateAttackButtons() {
     if (!character) return;
-    const hasDualWield = (character.skills || []).includes('dual_wield');
     const offHandWeapon = character.equipment.offHand;
-    const isOffHandWeapon = offHandWeapon && offHandWeapon.tags &&
-        (offHandWeapon.tags.includes('Sword') || offHandWeapon.tags.includes('Dagger') ||
-         offHandWeapon.tags.includes('Axe') || offHandWeapon.tags.includes('Hammer') ||
-         offHandWeapon.tags.includes('Mace') || offHandWeapon.tags.includes('Staff') ||
-         offHandWeapon.tags.includes('Wand') || offHandWeapon.tags.includes('Gun') ||
-         offHandWeapon.tags.includes('Bow') || offHandWeapon.tags.includes('Spear') ||
-         offHandWeapon.tags.includes('Flail') || offHandWeapon.tags.includes('Pick'));
-
-    const showOffhand = hasDualWield && isOffHandWeapon;
+    const showOffhand = isAttackWeapon(offHandWeapon);
     const offhandBtn = document.getElementById('btn-attack-offhand');
     const mainBtn = document.getElementById('btn-attack');
+    const attackRow = document.getElementById('attack-row');
 
     if (offhandBtn) offhandBtn.style.display = showOffhand ? 'flex' : 'none';
+    if (attackRow) attackRow.classList.toggle('dual-wield', showOffhand);
 
-    // Update button labels
     const mainWeapon = character.equipment.mainHand;
     if (mainBtn) {
         const mainLabel = document.getElementById('btn-attack-label');
@@ -5456,6 +5465,7 @@ function enemyTurn() {
         }
         addLog(`Your turn.`, 'system');
         setActionsEnabled(true);
+        updateAttackButtons();
         return;
     }
 
@@ -5476,6 +5486,7 @@ function enemyTurn() {
     setCombatPlayerBars();
     addLog(`Your turn.`, 'system');
     setActionsEnabled(true);
+    updateAttackButtons();
 }
 
 function enemyAttackPlayer(enemy) {
