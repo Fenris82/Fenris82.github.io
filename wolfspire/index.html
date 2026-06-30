@@ -6569,7 +6569,7 @@ function useFavoriteSlot(idx) {
 
     const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
     const ability = allAbilities.find(a => a.id === favId);
-    if (!ability) { openFavPicker(idx); return; }
+    if (!ability || ability.passive) { openFavPicker(idx); return; }
 
     const onCD = (combat.cooldowns||{})[ability.id] > 0;
     const noMp = ability.mpCost > 0 && combat.playerMp < ability.mpCost;
