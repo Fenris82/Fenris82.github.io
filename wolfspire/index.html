@@ -6496,6 +6496,12 @@ function ensureFavorites() {
     if (!character.favorites || character.favorites.length !== FAV_SLOT_COUNT) {
         character.favorites = Array.from({ length: FAV_SLOT_COUNT }, () => null);
     }
+    const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
+    character.favorites = character.favorites.map(id => {
+        if (!id) return null;
+        const ability = allAbilities.find(a => a.id === id);
+        return ability && !ability.passive ? id : null;
+    });
 }
 
 function toggleFavoriteEditMode() {
@@ -6582,7 +6588,9 @@ function openFavPicker(idx) {
     ensureFavorites();
     const known = (character.skills || []);
     const allAbilities = [...SKILLS_DATA, ...SPELLS_DATA];
-    const ownedAbilities = known.map(id => allAbilities.find(a => a.id === id)).filter(Boolean);
+    const ownedAbilities = known
+        .map(id => allAbilities.find(a => a.id === id))
+        .filter(a => a && !a.passive);
 
     const list = document.getElementById('fav-picker-list');
     if (ownedAbilities.length === 0) {
@@ -6611,6 +6619,8 @@ function openFavPicker(idx) {
 
 function assignFavSlot(abilityId) {
     if (favPickerSlot === null) return;
+    const ability = [...SKILLS_DATA, ...SPELLS_DATA].find(a => a.id === abilityId);
+    if (!ability || ability.passive) return;
     ensureFavorites();
     character.favorites[favPickerSlot] = abilityId;
     saveGame();
@@ -6893,12 +6903,11 @@ function isItemEquipped(itemId, invIndex) {
     const invItem = invIndex !== undefined ? character.inventory[invIndex] : null;
     return Object.values(character.equipment).some(e => {
         if (!e) return false;
-        // Best match: uid — only if BOTH have a uid
-        if (invItem && invItem._uid && e._uid) return e._uid === invItem._uid;
-        // If equipped item has no uid yet, match by id
-        // (handles items equipped before uid system was added)
-        if (!e._uid && invItem) return e.id === invItem.id;
-        // Fallback: id match
+        if (invItem) {
+            if (invItem._uid && e._uid) return invItem._uid === e._uid;
+            if (!invItem._uid && !e._uid) return invItem.id === e.id;
+            return false;
+        }
         return e.id === itemId;
     });
 }
@@ -7110,6 +7119,12 @@ function closeLockItemConfirm() {
 }
 
 function equipItemToSlot(item, targetSlot) {
+    if (item._uid && Object.entries(character.equipment).some(([slot, e]) => e && e._uid === item._uid && slot !== targetSlot)) {
+        showToast('That item is already equipped.');
+        announce('That item is already equipped in another slot.');
+        return;
+    }
+
     character.equipment[targetSlot] = {
         id: item.id,
         _uid: item._uid || generateUid(),
@@ -7206,7 +7221,7 @@ function unequipFromDetail() {
             const e = character.equipment[slotId];
             if (!e) continue;
             const matches = (e._uid && item._uid) ? e._uid === item._uid
-                          : e.id === item.id;
+                          : (!e._uid && !item._uid && e.id === item.id);
             if (matches) {
                 character.equipment[slotId] = null;
                 break;
